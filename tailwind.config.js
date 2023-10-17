@@ -11,7 +11,8 @@ module.exports = {
         'mainDark': '#434343',
         'mainWhite': "#F5F5F5",
         'mainGreen': "#15C585",
-        'mainGray': "#F2F2F2"
+        'mainGray': "#F2F2F2",
+        'mainTags': "#A1A1A1"
       }
     },
   },

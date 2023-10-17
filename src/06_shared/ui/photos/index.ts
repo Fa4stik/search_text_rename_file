@@ -1,0 +1,1 @@
+export { photos } from './assets/handlers'

@@ -31,13 +31,13 @@ export const Navigation: React.FC<NavigationProps> = ({routing}) => {
 
     return (
         <>
-            <div className="px-[40px] border-b-[2px]
-            border-solid h-[50px] w-full border-mainDark fixed flex items-center">
+            <div className="px-[40px] border-b-[2px] sticky top-0 py-[10px]
+            border-solid w-full border-mainDark flex items-center">
                 <a href="#" className="text-mainDark text-xl">Распознавание текста и переименование файла</a>
             </div>
-            <div className="h-[calc(100%-50px)] w-full mt-[50px] flex">
+            <div className="flex-grow flex overflow-hidden">
                 <div className="flex flex-col items-center border-r-[2px] border-solid border-mainDark
-                w-[80px] h-full py-[20px] fixed">
+                w-[80px] h-full py-[20px] sticky top-0">
                     <div className="relative p-[10px]">
                         <a href="#"
                            onClick={handleChooseHome}
@@ -69,7 +69,7 @@ export const Navigation: React.FC<NavigationProps> = ({routing}) => {
                         />
                     </div>
                 </div>
-                <div className="w-[calc(100%-80px)] h-full ml-[80px]">
+                <div className="flex-grow overflow-hidden flex flex-col justify-start">
                     {routing}
                 </div>
             </div>
