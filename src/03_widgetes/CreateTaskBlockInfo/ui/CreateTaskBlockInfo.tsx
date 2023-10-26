@@ -7,14 +7,16 @@ type CreateTaskBlockInfoProps = {
     images: TImage[];
     setImages: React.Dispatch<React.SetStateAction<TImage[]>>
     setNameTask: React.Dispatch<React.SetStateAction<string>>
+    isLocalPath: boolean;
+    setIsLocalPath: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const CreateTaskBlockInfo:
     React.FC<CreateTaskBlockInfoProps> = ({images,
                                               setImages,
-                                              setNameTask}) => {
-
-    const [isLocalPath, setIsLocalPath] = useState<boolean>(true)
+                                              setNameTask,
+                                          isLocalPath,
+                                          setIsLocalPath}) => {
 
     const changeNameTask = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNameTask(e.target.value)
@@ -33,10 +35,12 @@ export const CreateTaskBlockInfo:
                     ? images?.length > 0
                         ? <CreateTaskGrid images={images}
                                           setImages={setImages}
+                                          isLocalPath={isLocalPath}
                         />
                         : <LoadFilesBock setImages={setImages}/>
                     : <CreateTaskGrid images={images}
                                       setImages={setImages}
+                                      isLocalPath={isLocalPath}
                     />}
             </div>
         </div>

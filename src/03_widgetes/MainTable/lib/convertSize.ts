@@ -8,17 +8,21 @@ const areaSizes = {
 }
 
 export const convertSize = (files: TImage[]) => {
-    const commonSize = files.reduce(
-        (acc, value) => (acc+=value.image!.size), 0)/1024
+    try {
+        const commonSize = files.reduce(
+            (acc, value) => (acc+=value.image!.size), 0)/1024
 
-    const areaKeys = Object.keys(areaSizes)
+        const areaKeys = Object.keys(areaSizes)
 
-    for (let i = 0; i < areaKeys.length; i++) {
-        if (commonSize < Number.parseInt(areaKeys[i]))
-            return Math.floor(commonSize/Math.pow(1024, i-1)) +
-                areaSizes[areaKeys[i-1] as keyof typeof areaSizes]
+        for (let i = 0; i < areaKeys.length; i++) {
+            if (commonSize < Number.parseInt(areaKeys[i]))
+                return Math.floor(commonSize/Math.pow(1024, i-1)) +
+                    areaSizes[areaKeys[i-1] as keyof typeof areaSizes]
+        }
+
+        return Math.floor(commonSize/Math.pow(1024, areaKeys.length-1)) +
+            areaSizes[areaKeys.at(-1) as keyof typeof areaSizes]
+    } catch (e) {
+        return 'Неопределенно'
     }
-
-    return Math.floor(commonSize/Math.pow(1024, areaKeys.length-1)) +
-        areaSizes[areaKeys.at(-1) as keyof typeof areaSizes]
 }

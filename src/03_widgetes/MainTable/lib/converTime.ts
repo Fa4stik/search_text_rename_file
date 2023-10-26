@@ -4,8 +4,7 @@ const areaTimes = {
     '3600': ' час.'
 }
 
-export const convertTime = (filesLen: number): string => {
-    const commonTime = filesLen*2;
+export const convertTime = (commonTime: number): string => {
     const areaKeys = Object.keys(areaTimes);
 
     for (let i = 0; i < areaKeys.length; i++) {

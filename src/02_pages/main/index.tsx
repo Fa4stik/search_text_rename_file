@@ -6,7 +6,6 @@ import {TContextMenuTypeParams, TRow} from "../../05_entities/DataGrid";
 const MainPage = () => {
     const {rows: mainRows, delRow: delMainRow} = useMainStore()
 
-
     const navigate = useNavigate()
 
     const onRowClick = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {

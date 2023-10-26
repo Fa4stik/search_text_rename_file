@@ -2,11 +2,12 @@ import React, {useRef, useState} from 'react';
 import {TColumn, TRow} from "../model/gridTypes";
 import {TContextMenuTypeParams} from "../model/contextMenuType";
 import {ContextMenu} from "../../ContextMenu";
+import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable/model/types";
 
 type BodyGridProps = {
     width?: string
     columns: TColumn[]
-    rows: TRow[]
+    rows: TRowMain[] | TRowRename[] | TRowReady[]
     rowOnClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
     classStyles?: string;
     contextMenuOptionals?: TContextMenuTypeParams
@@ -72,7 +73,6 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                 <thead className="sticky top-0 z-10">
                 <tr className="bg-mainGray/[0.3] backdrop-blur-md">
                     {columns.map(column => (
-                        // border-r-amber-300 border-solid border-2
                         column.width === '0'
                             ?
                                 null

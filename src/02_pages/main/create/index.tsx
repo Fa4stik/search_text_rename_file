@@ -1,44 +1,75 @@
 import React, {useState} from 'react';
 import {CreateTaskForm, TImage} from "../../../05_entities/CreateTaskForm";
 import {CreateTaskBlockInfo} from "../../../03_widgetes/CreateTaskBlockInfo";
-import {useMainStore} from "../../../03_widgetes/MainTable";
+import {useMainStore, useRenameStore} from "../../../03_widgetes/MainTable";
 import {convertSize} from "../../../03_widgetes/MainTable/lib/convertSize";
 import {useNavigate} from "react-router-dom";
+import {processImage, uploadFiles} from "../../../05_entities/CreateTaskFetchData";
+import {convertTime} from "../../../03_widgetes/MainTable/lib/converTime";
 
 const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
     const [nameTask, setNameTask] = useState<string>('')
+    const [isLocalPath, setIsLocalPath] = useState<boolean>(true)
 
     const navigate = useNavigate()
 
-    const addRow = useMainStore(state => state.addRow);
+    const {addRow: addMainRow, rows, delRow: delMainRow} = useMainStore();
+    const {addRow: addRenameRow} = useRenameStore()
 
     const handleCreateTask = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        const date = new Date()
-        addRow({
-            id: "0",
+        const dateStart = new Date()
+        const id = (rows.length+1).toString()
+
+        addMainRow({
+            id,
             name: nameTask,
             countFiles: images.length.toString(),
             sizeFiles: convertSize(images),
             status: 'В процессе',
-            dataStart: date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+            dataStart: dateStart.toLocaleDateString() + ' ' + dateStart.toLocaleTimeString()
         })
+
+        if (isLocalPath) {
+            uploadFiles(images.map(image => image.image) as File[])
+                .then(data => {
+                    console.log('Files upload')
+                    processImage(parseInt(id), data.paths)
+                        .then(data => {
+                            delMainRow(id)
+                            addRenameRow({
+                                id,
+                                name: nameTask,
+                                countFiles: images.length.toString(),
+                                sizeFiles: convertSize(images),
+                                timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
+                                renameFiles: [{uid: 1, dateEdit: 'gg', oldName: 'gg'}]
+                            })
+                        })
+                        .catch(err => console.log(err))
+                })
+        } else {
+            processImage(parseInt(id), images.map(image => image.path) as string[])
+                .then(data => {
+                    // delMainRow(id)
+                    addRenameRow({
+                        id,
+                        name: nameTask,
+                        countFiles: images.length.toString(),
+                        sizeFiles: convertSize(images),
+                        timeHandle: convertTime((Date.now() - dateStart.getTime()/100))
+                    })
+                })
+                .catch(err => console.log(err))
+        }
         navigate('/main')
     };
 
     const handleCancelTask = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
         const date = new Date()
-        addRow({
-            id: "0",
-            name: nameTask,
-            countFiles: images.length.toString(),
-            sizeFiles: convertSize(images),
-            status: 'Отменено',
-            dataStart: date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
-        })
-        navigate('/main')
+        setImages([])
     };
 
     return (
@@ -48,6 +79,8 @@ const MainCreatePage = () => {
                 <CreateTaskBlockInfo images={images}
                                      setImages={setImages}
                                      setNameTask={setNameTask}
+                                     setIsLocalPath={setIsLocalPath}
+                                     isLocalPath={isLocalPath}
                 />
                 <CreateTaskForm images={images}
                                 handleCreateTask={handleCreateTask}

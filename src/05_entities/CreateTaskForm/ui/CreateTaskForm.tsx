@@ -20,11 +20,8 @@ export const CreateTaskForm:
         border-mainDark border-solid border-[1px] bg-mainGray rounded-2xl">
             <h3 className="text-xl mb-[5px]">Информация</h3>
             <p className="">Всего получено файлов: {images.length}</p>
-
-            {/*Точноить 0 знаков после запятой + сделать динамически сек / мин / час*/}
-
             <p className="">Общий размер: {convertSize(images)}</p>
-            <p className="">Время обработки: ~{convertTime(images.length)}</p>
+            <p className="">Время обработки: ~{convertTime(images.length*2)}</p>
             <div className="flex w-[280px] mt-[10px]">
                 <FillButton onClick={handleCreateTask}
                             classStyles="rounded-md bg-mainGreen"
@@ -34,7 +31,7 @@ export const CreateTaskForm:
                 <FillButton onClick={handleCancelTask}
                             classStyles="bg-mainDark rounded-md"
                 >
-                    Отменить
+                    Очистить
                 </FillButton>
             </div>
         </div>

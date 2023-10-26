@@ -7,10 +7,13 @@ import {TImage} from "../../../05_entities/CreateTaskForm";
 type CreateTaskGridProps = {
     images: TImage[]
     setImages: React.Dispatch<React.SetStateAction<TImage[]>>
+    isLocalPath: boolean
 }
 
-export const CreateTaskGrid: React.FC<CreateTaskGridProps> = ({images,
-                                                              setImages}) => {
+export const CreateTaskGrid:
+    React.FC<CreateTaskGridProps> = ({images,
+                                         setImages,
+                                         isLocalPath}) => {
 
     const handleDeleteContext = (e: React.MouseEvent<HTMLDivElement>, idCell: string) => {
         e.preventDefault()
@@ -20,7 +23,7 @@ export const CreateTaskGrid: React.FC<CreateTaskGridProps> = ({images,
     }
 
     const contextMenu: TContextMenuTypeParams = {
-        cordY: 300,
+        cordY: isLocalPath ? 300 : 350,
         cordX: 120,
         contextMenuRow: [
             {id: 1, name: 'Удалить', onClick: handleDeleteContext}

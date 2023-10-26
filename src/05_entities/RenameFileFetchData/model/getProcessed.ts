@@ -1,9 +1,9 @@
-import {TFilesReq} from "./types";
 import {baseApi} from "../../../06_shared/api/baseApi";
+import {TGetProcessedReq} from "./types";
 
-export const getFiles = (path: string, count = -1): Promise<TFilesReq> => {
-    const dataBody = {path, count}
-    return baseApi<TFilesReq>('/get-files', {
+export const getProcessed = (uid: number): Promise<TGetProcessedReq> => {
+    const dataBody = {uid}
+    return baseApi<TGetProcessedReq>('/get-processed', {
         method: 'POST',
         body: JSON.stringify(dataBody),
         headers: {

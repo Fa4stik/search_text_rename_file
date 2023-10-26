@@ -17,10 +17,7 @@ export const useMainStore = create<State & Actions>()(
             (set) => ({
                 rows: [],
                 addRow: (row) => set(state => ({
-                    rows: [...state.rows, {
-                        ...row,
-                        id: (state.rows.length+1).toString(),
-                    }]
+                    rows: [...state.rows, {...row}]
                 })),
                 delRow: (id) => set(state => ({
                     rows: state.rows.filter(row => row.id !== id)

@@ -16,13 +16,14 @@ export const OptionallyInfo:
 
     const handleChangeFullPath = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPath(e.target.value)
+        setTipPaths([e.target.value.split('/').at(-1) as string])
     };
 
     const handleSendPath = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         getFiles(path, -1)
             .then(data =>
-                setImages(data.paths.map((file, id) =>
+                setImages(data.files.map((file, id) =>
                     ({id: id.toString(), name: file, path: `${path}/${file}`})
             )))
     };
@@ -30,7 +31,7 @@ export const OptionallyInfo:
     useEffect(() => {
         const fetchTips = setTimeout(() => {
             getFolders(path, 4)
-                .then(data => setTipPaths(data.paths))
+                .then(data => setTipPaths(data.folders))
                 .catch(err => setTipPaths([]))
         }, 1000)
 
@@ -38,11 +39,10 @@ export const OptionallyInfo:
     }, [path]);
 
     const handleClickTip = (e: React.MouseEvent<HTMLParagraphElement>, tipPath: string) => {
-        setPath(prevState => (
-            prevState.at(-1) === '/'
-                ? prevState+tipPath+'/'
-                : prevState+'/'+tipPath+'/'
-        ))
+        setPath(prevState => {
+            const id = prevState.lastIndexOf('/')
+            return prevState.slice(0, id)+'/'+tipPath
+        })
         setTipPaths([])
     };
 
@@ -64,12 +64,7 @@ export const OptionallyInfo:
                                             last:border-b-mainDark last:border-b-[2px]"
                                    onClick={(e) => handleClickTip(e, tipPath)}
                                 >
-                                    {path.at(-1) === '/'
-                                        ?
-                                            <>{path+tipPath}</>
-                                        :
-                                            <>{path}/{tipPath}</>
-                                    }
+                                    {tipPath}
                                 </p>
                         ))}
                     </div>

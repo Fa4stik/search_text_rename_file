@@ -1,9 +1,20 @@
-export type TFolder = string;
+type TFolderTip = string;
 export type TFoldersReq = {
-    paths: TFolder[]
+    folders: TFolderTip[]
 }
 
-export type TFile = string;
+type TFileTip = string;
 export type TFilesReq = {
-    paths: TFile[]
+    files: TFileTip[]
 }
+
+type TFilePath = string
+export type TUploadFilesReq = {
+    paths: TFilePath[];
+}
+
+export type TProcessImageReq = {
+    chunk_id: number;
+    paths: TFilePath[]
+}
+

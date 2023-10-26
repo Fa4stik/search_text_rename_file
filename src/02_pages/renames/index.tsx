@@ -1,55 +1,11 @@
 import React from 'react';
-import {columnsRename, MainTableGrid} from "../../03_widgetes/MainTable";
+import {columnsRename, MainTableGrid, useRenameStore} from "../../03_widgetes/MainTable";
 import {useNavigate} from "react-router-dom";
 import {TContextMenuTypeParams, TRow} from "../../05_entities/DataGrid";
 
-const rows: TRow[] = [
-    {
-        id: '1',
-        name: 'Обработка №',
-        countFiles: '22',
-        sizeFiles: '131',
-        timeHandle: '15',
-    },
-    {
-        id: '2',
-        name: 'Обработка №',
-        countFiles: '22',
-        sizeFiles: '131',
-        timeHandle: '15',
-    },
-    {
-        id: '3',
-        name: 'Обработка №',
-        countFiles: '22',
-        sizeFiles: '131',
-        timeHandle: '15',
-    },
-    {
-        id: '4',
-        name: 'Обработка №',
-        countFiles: '22',
-        sizeFiles: '131',
-        timeHandle: '15',
-    },
-    {
-        id: '5',
-        name: 'Обработка №',
-        countFiles: '22',
-        sizeFiles: '131',
-        timeHandle: '15',
-    },
-    {
-        id: '6',
-        name: 'Обработка №',
-        countFiles: '22',
-        sizeFiles: '131',
-        timeHandle: '15',
-    },
-]
-
 const RenamesPage = () => {
     const navigate = useNavigate()
+    const {rows, delRow} = useRenameStore()
 
     const handleOpenTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
@@ -58,6 +14,7 @@ const RenamesPage = () => {
 
     const handleSendTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
+        delRow(id)
         console.log('Отправлена задача', id)
     }
 

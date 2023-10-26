@@ -1,6 +1,5 @@
-import {TRow} from "../../../05_entities/DataGrid/model/gridTypes";
-
-export type TRowMain = TRow & {
+export type TRowMain = {
+    id: string;
     name: string;
     countFiles: string;
     sizeFiles: string;
@@ -8,14 +7,23 @@ export type TRowMain = TRow & {
     status: string;
 }
 
-export type TRowRename = TRow & {
+type TRenameFile = {
+    uid: number;
+    oldName: string;
+    dateEdit: string;
+}
+
+export type TRowRename = {
+    id: string;
     name: string;
     countFiles: string;
     sizeFiles: string;
     timeHandle: string;
+    renameFiles: TRenameFile[]
 }
 
-export type TRowReady = TRow & {
+export type TRowReady = {
+    id: string;
     name: string;
     countFiles: string;
     sizeFiles: string;
