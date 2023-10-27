@@ -7,7 +7,7 @@ import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable/mo
 type BodyGridProps = {
     width?: string
     columns: TColumn[]
-    rows: TRowMain[] | TRowRename[] | TRowReady[]
+    rows: TRowMain[] | TRowRename[] | TRowReady[] | TRow[]
     rowOnClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
     classStyles?: string;
     contextMenuOptionals?: TContextMenuTypeParams
@@ -31,6 +31,8 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
         e.stopPropagation();
         setActiveRow(id)
         setContextMenu(prevState => ({...prevState, visible: false}))
+        if (rowOnClick)
+            rowOnClick(e, id)
     };
 
     const handleContextMenu = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
@@ -89,7 +91,6 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                 {rows.map(row => (
                     <tr key={row.id} className={`hover:bg-mainGreen/[0.5] focus:bg-mainGreen transition-all ease-out
                         ${row.id === activeRow ? 'bg-mainGreen' : ''}`}
-                        onClick={(e) => rowOnClick ? rowOnClick(e, row.id) : null}
                         onClickCapture={(e) => handleChangeColor(e, row.id)}
                         onContextMenu={(e) => handleContextMenu(e, row.id)}
                     >
@@ -101,7 +102,7 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                                     <td key={row.id + column.field}
                                         className="pt-[5px]"
                                     >
-                                        {row[column.field]}
+                                        {row[column.field as keyof typeof row]}
                                     </td>
                         ))}
                     </tr>
@@ -120,7 +121,7 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                                  : contextMenuOptionals.contextMenuTable
                             }
                              handleCloseContextMenu={handleCloseContextMenu}
-                             rows={rows} activeRow={activeRow}
+                             rows={rows as TRowReady[]} activeRow={activeRow}
                 />
             )}
         </div>

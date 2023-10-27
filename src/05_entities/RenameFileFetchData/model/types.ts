@@ -1,8 +1,11 @@
-export type TBbox = {
+export type TBboxResp = {
     x: number,
     y: number,
     w: number,
     h: number
+}
+
+export type TBbox = TBboxResp & {
     word: string
 }
 
@@ -12,5 +15,11 @@ export type TGetProcessedReq = {
     new_filename: string,
     tags: string[],
     text: string[],
-    bboxes: TBbox[]
+    bboxes: TBboxResp[]
+}
+
+export type TAddFileName = {
+    uid: number,
+    filename: string,
+    is_duplicate: boolean
 }

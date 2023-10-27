@@ -1,4 +1,4 @@
-import {baseApi} from "../../../06_shared/api/baseApi";
+import {baseApi, baseApiMultipart} from "../../../06_shared/api/baseApi";
 import {TUploadFilesReq} from "./types";
 
 export const uploadFiles = (files: File[]): Promise<TUploadFilesReq> => {
@@ -6,9 +6,8 @@ export const uploadFiles = (files: File[]): Promise<TUploadFilesReq> => {
     files.forEach((file, index) => {
         formData.append('files', file)
     })
-    return baseApi<TUploadFilesReq>('/upload-files', {
+    return baseApiMultipart<TUploadFilesReq>('/upload-files', {
         method: 'POST',
         body: formData,
-        credentials: 'include'
     })
 }

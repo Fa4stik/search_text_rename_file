@@ -6,8 +6,5 @@ export const getFiles = (path: string, count = -1): Promise<TFilesReq> => {
     return baseApi<TFilesReq>('/get-files', {
         method: 'POST',
         body: JSON.stringify(dataBody),
-        headers: {
-            'Content-Type': "application/json"
-        }
     })
 }

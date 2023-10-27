@@ -6,8 +6,5 @@ export const getFolders = (path: string, count = -1): Promise<TFoldersReq> => {
     return baseApi<TFoldersReq>('/get-folders', {
         method: 'POST',
         body: JSON.stringify(bodyQuery),
-        headers: {
-            'Content-Type': "application/json"
-        }
     })
 }

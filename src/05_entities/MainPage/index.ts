@@ -1,0 +1,1 @@
+export {convertDateFull} from './lib/convertDateFull'

@@ -4,7 +4,8 @@ import {GridHeader} from "../../../04_features/GridHeader";
 import {FilesBlock, ImageWrapper, RenameFile} from "../../../04_features/RenameFiles";
 import {columnsReadyFiles} from "../../../04_features/RenameFiles/model/gridStyles";
 import {TRow} from "../../../05_entities/DataGrid";
-import {getProcessed, TBbox} from "../../../05_entities/RenameFileFetchData";
+import {getFile, getProcessed, TBbox} from "../../../05_entities/RenameFileFetchData";
+import {useRenameStore} from "../../../03_widgetes/MainTable";
 
 type PageParams = {
     idTask: string
@@ -13,41 +14,57 @@ type PageParams = {
 const RenamesCurrentPage = () => {
     const { idTask } = useParams<PageParams>()
 
-    const [tags, setTags] = useState<string[]>([
-        'Сортировка', 'ВАЕ-ТОК', 'благодарит', 'шинопроводных', 'пуско-наладку', 'электрообору',
-        'дования', 'обсенечить', 'отвечающих'
-    ])
-    const [rows, setRows] = useState<TRow[]>([
-        {id: '1', name: 'Файл №1', dateEdit: '29.09.23 15:29'},
-        {id: '2', name: 'Файл №2', dateEdit: '29.09.23 15:29'},
-        {id: '3', name: 'Файл №3', dateEdit: '29.09.23 15:29'},
-        {id: '4', name: 'Файл №4', dateEdit: '29.09.23 15:29'},
-        {id: '5', name: 'Файл №5', dateEdit: '29.09.23 15:29'},
-        {id: '6', name: 'Файл №6', dateEdit: '29.09.23 15:29'},
-    ])
-    const [bboxes, setBboxes] = useState<TBbox[]>([])
+    const {rows: renamesRows} = useRenameStore()
 
-    useEffect(() => {
-        // getProcessed()
-    }, []);
+    const [tags, setTags] = useState<string[]>([])
+    const [rows, setRows] = useState<TRow[]>(renamesRows.find(rR =>
+            rR.id === idTask)!.renameFiles.map((file, id) => ({
+                ...file,
+                is_duplicate: file.is_duplicate ? '1' : '',
+                uid: file.uid.toString(),
+                id: id.toString(),
+            })
+        )
+    )
+    const [bboxes, setBboxes] = useState<TBbox[]>([])
+    const [srcImg, setSrcImg] = useState<string>('')
+    const [nameFile, setNameFile] = useState<string>('')
+    const [activeUid, setActiveUid] = useState<number>(0)
 
     const handleClickBox = (e: React.MouseEvent<HTMLDivElement>, word: string) => {
-        console.log(word)
+        setNameFile(prevState => prevState + word + ' ')
     }
 
+    const handleClickRow = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
+        e.preventDefault()
+        const uid = parseInt(rows.find(row => row.id === id)!.uid)
+        setActiveUid(uid)
+        getProcessed(uid)
+            .then(resp => {
+                setBboxes(resp.bboxes.map((bbox, id) =>
+                    ({...bbox, word: resp.text[id]})))
+                setTags(resp.tags)
+        })
+        getFile(uid)
+            .then(resp => {
+                setSrcImg(URL.createObjectURL(resp))
+        })
+    };
+
     return (
-        <div className="flex-grow px-[40px] pt-[25px] flex flex-col">
+        <div className="flex-1 px-[40px] pt-[25px] flex flex-col overflow-hidden">
             <h1 className="text-3xl mb-[30px]">Файлы ожидающие изменения</h1>
-            <div className="flex-grow flex flex-col">
+            <div className="flex-1 flex flex-col overflow-hidden">
                 <GridHeader sorted filters nameHandle search/>
-                <div className="flex-grow flex bg-mainGray">
-                    <FilesBlock rows={rows} columns={columnsReadyFiles}/>
-                    <RenameFile setRows={setRows} tags={tags}/>
-                    {/*<ImageWrapper handleClickBox={handleClickBox}*/}
-                    {/*              myBoxes={}*/}
-                    {/*              srcImg={}*/}
-                    {/*              isDark*/}
-                    {/*/>*/}
+                <div className="flex-1 flex bg-mainGray overflow-hidden">
+                    <FilesBlock rows={rows} columns={columnsReadyFiles} rowOnClick={handleClickRow}/>
+                    <RenameFile setRows={setRows} tags={tags} idTask={idTask} activeUid={activeUid}
+                                nameFile={nameFile} setNameFile={setNameFile}/>
+                    <ImageWrapper handleClickBox={handleClickBox}
+                                  myBoxes={bboxes}
+                                  srcImg={srcImg}
+                                  isDark
+                    />
                 </div>
             </div>
         </div>

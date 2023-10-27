@@ -1,4 +1,4 @@
-import React, {CSSProperties, useRef} from 'react';
+import React, {CSSProperties, useRef, useState} from 'react';
 import {Simulate} from "react-dom/test-utils";
 import input = Simulate.input;
 
@@ -9,6 +9,7 @@ type IconInputProps = {
     classStyle?: string
     inlineStyles?: React.CSSProperties
     classStyleIco?: string
+    value?: string;
 }
 
 export const IconInput: React.FC<IconInputProps> =
@@ -17,7 +18,8 @@ export const IconInput: React.FC<IconInputProps> =
          onChange,
          classStyle,
          classStyleIco,
-         inlineStyles}) => {
+         inlineStyles,
+             value}) => {
     return (
         <label className="relative mr-[15px]">
             <img src={icon} alt="Icon for input" className={`absolute right-0 top-[2px] w-[22px] ${classStyleIco}`}/>
@@ -27,6 +29,7 @@ export const IconInput: React.FC<IconInputProps> =
                        ease-in-out focus:border-mainGreen duration-500
                        text-mainWhite border-solid border-b-[2px] border-mainWhite ${classStyle}`}
                    style={inlineStyles}
+                   value={value}
                    onChange={onChange}
             />
         </label>

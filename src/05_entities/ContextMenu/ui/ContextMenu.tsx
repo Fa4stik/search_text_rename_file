@@ -1,6 +1,7 @@
 import React from 'react';
 import {TContextMenu} from "../model/types";
 import {TContextMenuType, TContextMenuTypeParams, TRow} from "../../DataGrid";
+import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable/model/types";
 
 type ContextMenuProps = {
     contextMenu: TContextMenu;
@@ -8,7 +9,7 @@ type ContextMenuProps = {
     cordY: number;
     cordX: number;
     handleCloseContextMenu: (e: React.MouseEvent<HTMLDivElement>) => void;
-    rows: TRow[];
+    rows: TRowReady[]
     activeRow: string;
 }
 

@@ -3,11 +3,15 @@ import {dataGrid} from '../../../06_shared/ui/icon'
 import {IconButton} from "../../../06_shared/ui/button";
 import {IconInput} from "../../../06_shared/ui/input";
 import {ESizes} from "../model/sizes";
+import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable/model/types";
+import {TRow} from "../../../05_entities/DataGrid";
 
 type GridHeaderProps = {
     sorted?: boolean;
     filters?: boolean;
     nameHandle?: boolean;
+    handleChangeNameTask?: (e: React.ChangeEvent<HTMLInputElement>) => void
+    valueTask?: string
     search?: boolean;
     loadMore?: boolean;
     size?: ESizes;
@@ -18,6 +22,8 @@ export const GridHeader: React.FC<GridHeaderProps> =
          filters,
          search,
          nameHandle,
+            handleChangeNameTask,
+             valueTask,
          loadMore,
          size}) => {
 
@@ -31,10 +37,6 @@ export const GridHeader: React.FC<GridHeaderProps> =
 
     const handleLoadMore = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-    };
-
-    const handleChangeNameTask = (e: React.ChangeEvent<HTMLInputElement>) => {
-
     };
 
     const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +60,8 @@ export const GridHeader: React.FC<GridHeaderProps> =
                     Фильтр
                 </IconButton>}
                 {nameHandle && <IconInput icon={dataGrid.nameHandle}
-                                          onChange={handleChangeNameTask}
+                                          onChange={handleChangeNameTask!}
+                                          value={valueTask}
                                           classStyle="w-[150px]"
                                           classStyleIco="top-[9px]"
                                           placeholder="Обработка..."/>}
@@ -69,6 +72,7 @@ export const GridHeader: React.FC<GridHeaderProps> =
                                           inlineStyles={{
                                               width: '100px'
                                           }}
+                                          value={''}
                                           classStyleIco="w-[14px] top-[2px]"
                                           placeholder="Поиск..."/>}
                     {loadMore&& <IconButton icon={dataGrid.loadMore} onClick={handleLoadMore}>
@@ -89,7 +93,7 @@ export const GridHeader: React.FC<GridHeaderProps> =
                 Фильтр
             </IconButton>}
             {nameHandle && <IconInput icon={dataGrid.nameHandle}
-                        onChange={handleChangeNameTask}
+                        onChange={handleChangeNameTask!}
                         classStyle="w-[150px]"
                         classStyleIco="top-[9px]"
                         placeholder="Обработка..."/>}

@@ -8,6 +8,7 @@ type State = {
 
 type Actions = {
     addRow: (row: TRowMain) => void;
+    setNameHandler: (idHandler: string, newName: string) => void
     delRow: (id: string) => void;
 }
 
@@ -18,6 +19,13 @@ export const useMainStore = create<State & Actions>()(
                 rows: [],
                 addRow: (row) => set(state => ({
                     rows: [...state.rows, {...row}]
+                })),
+                setNameHandler: (idHandler, newName) => set(state => ({
+                    rows: state.rows.map(row =>
+                        row.id === idHandler
+                            ? {...row, name: newName}
+                            : row
+                    )
                 })),
                 delRow: (id) => set(state => ({
                     rows: state.rows.filter(row => row.id !== id)

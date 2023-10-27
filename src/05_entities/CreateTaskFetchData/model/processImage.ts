@@ -6,8 +6,5 @@ export const processImage = (chunk_id: number, paths: string[]): Promise<TProces
     return baseApi('/process-image', {
         method: "POST",
         body: JSON.stringify(bodyQuery),
-        headers: {
-            'Content-Type': 'application/json'
-        }
     })
 }

@@ -9,8 +9,9 @@ export type TRowMain = {
 
 type TRenameFile = {
     uid: number;
-    oldName: string;
+    name: string;
     dateEdit: string;
+    is_duplicate: boolean;
 }
 
 export type TRowRename = {

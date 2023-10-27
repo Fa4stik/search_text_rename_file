@@ -90,7 +90,7 @@ export const ImageWrapper:
     }
 
     return (
-        <div className="w-1/3 h-full">
+        <div className="w-1/3 h-full flex">
             {isDark && <svg width="0" height="0" style={{ position: 'absolute' }}>
                 <defs>
                     <mask id="myMask">
@@ -108,7 +108,7 @@ export const ImageWrapper:
                     </mask>
                 </defs>
             </svg>}
-            <div className="flex-1 ring-4 ring-blue-500 overflow-hidden"
+            <div className="flex-1 border-solid overflow-hidden"
                  ref={parentRef}
             >
                 <div>
@@ -123,7 +123,7 @@ export const ImageWrapper:
                                   onDragStart={(e) => e.preventDefault()}
                     >
                         {myBoxes.map((box, id) => (
-                            <div className={`absolute ring-1 ring-blue-500 rounded-[5px] z-30`}
+                            <div className={`absolute ring-1 ring-mainGreen rounded-[5px] z-30`}
                                  onMouseDown={(e) => handleClickBox(e, box.word)}
                                  key={id}
                                  style={{

@@ -11,7 +11,16 @@ const fetchDataBlob = (url: string, init?: RequestInit): Promise<Blob> => {
 
 export const baseApi = <T>(url: string, init?: RequestInit): Promise<T> =>
     fetchData<T>(baseUrl+url, {
-        // credentials: 'include',
+        credentials: 'include',
+        headers: {
+            'Content-Type': "application/json"
+        },
+        ...init
+    })
+
+export const baseApiMultipart = <T>(url: string, init?: RequestInit): Promise<T> =>
+    fetchData<T>(baseUrl+url, {
+        credentials: 'include',
         ...init
     })
 
