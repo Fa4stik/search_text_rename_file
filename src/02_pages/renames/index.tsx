@@ -14,6 +14,11 @@ const RenamesPage = () => {
         navigate(id)
     }
 
+    const handleOpenDoubleClickTask = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
+        e.preventDefault()
+        navigate(id)
+    }
+
     const handleSendTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
         const readyRow = rows.find(row => row.id === id)!
@@ -27,27 +32,22 @@ const RenamesPage = () => {
         })
     }
 
-    const handleSendAllTasks = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
-        e.preventDefault()
-        console.log('Отправлены все задачи')
-    }
-
     const contextMenuParams: TContextMenuTypeParams = {
         cordY: 180,
         cordX: 90,
         contextMenuRow: [
-            {id: '1', name: 'Открыть', onClick: handleOpenTask},
-            {id: '2', name: 'Отправить', onClick: handleSendTask},
-            {id: '3', name: 'Отправить все', onClick: handleSendAllTasks},
+            {id: '1', name: 'Переименование файлов', onClick: handleOpenTask},
+            {id: '2', name: 'Сохранить результаты', onClick: handleSendTask}
         ]
     }
 
     return (
         <div className="flex-grow px-[40px] pt-[25px] flex flex-col">
-            <h1 className="text-3xl mb-[30px]">Задачи ожидающие изменения</h1>
+            <h1 className="text-3xl mb-[30px]">Переименование файлов и сохранение результатов</h1>
             <MainTableGrid columns={columnsRename} rows={rows}
                            setNameHandler={setNameHandler}
                            contextMenuOptionals={contextMenuParams}
+                           rowOnDoubleClick={handleOpenDoubleClickTask}
             />
         </div>
     );

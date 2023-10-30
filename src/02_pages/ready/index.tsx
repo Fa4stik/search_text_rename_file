@@ -3,57 +3,6 @@ import {columnsReady, MainTableGrid, useReadyStore} from "../../03_widgetes/Main
 import {TContextMenuTypeParams, TRow} from "../../05_entities/DataGrid";
 import {TRowReady} from "../../03_widgetes/MainTable/model/types";
 
-// const rows: TRowReady[] = [
-//     {
-//         id: '1',
-//         name: 'Обработка №',
-//         countFiles: '22',
-//         sizeFiles: '131',
-//         timeHandle: '15',
-//         path: `C:\\Program Files\\Docker\\Docker1`
-//     },
-//     {
-//         id: '2',
-//         name: 'Обработка №',
-//         countFiles: '22',
-//         sizeFiles: '131',
-//         timeHandle: '15',
-//         path: `C:\\Program Files\\Docker\\Docker2`
-//     },
-//     {
-//         id: '3',
-//         name: 'Обработка №',
-//         countFiles: '22',
-//         sizeFiles: '131',
-//         timeHandle: '15',
-//         path: `C:\\Program Files\\Docker\\Docker3`
-//     },
-//     {
-//         id: '4',
-//         name: 'Обработка №',
-//         countFiles: '22',
-//         sizeFiles: '131',
-//         timeHandle: '15',
-//         path: `C:\\Program Files\\Docker\\Docker4`
-//     },
-//     {
-//         id: '5',
-//         name: 'Обработка №',
-//         countFiles: '22',
-//         sizeFiles: '131',
-//         timeHandle: '15',
-//         path: `C:\\Program Files\\Docker\\Docker5`
-//     },
-//     {
-//         id: '6',
-//         name: 'Обработка №',
-//         countFiles: '22',
-//         sizeFiles: '131',
-//         timeHandle: '15',
-//         path: `C:\\Program Files\\Docker\\Docker6`
-//     },
-// ]
-
 const ReadyPage = () => {
     const [activePath, setActivePath] = useState<string>('...')
     const {rows, delRow} = useReadyStore()
@@ -67,13 +16,13 @@ const ReadyPage = () => {
         cordY: 180,
         cordX: 90,
         contextMenuRow: [
-            {id: '1', dynamicName: (path) => `Расположение: ${path}`, onClick: handleFullPath}
+            {id: '1', name: 'Выгрузить результат', onClick: handleFullPath}
         ]
     }
 
     return (
         <div className="flex-grow px-[40px] pt-[25px] flex flex-col">
-            <h1 className="text-3xl mb-[30px]">Завершённый задачи</h1>
+            <h1 className="text-3xl mb-[30px]">Выгрузка результатов</h1>
             <MainTableGrid columns={columnsReady} rows={rows} contextMenuOptionals={contextMenuParams}/>
         </div>
     );

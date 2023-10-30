@@ -11,13 +11,15 @@ type BodyGridProps = {
     rowOnClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
     classStyles?: string;
     contextMenuOptionals?: TContextMenuTypeParams
+    rowOnDoubleClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
 }
 
 export const BodyGrid: React.FC<BodyGridProps> = ({rows,
          columns,
          width,
          rowOnClick, classStyles,
-                                                      contextMenuOptionals}) => {
+                                                      contextMenuOptionals,
+                                                  rowOnDoubleClick}) => {
 
     const [activeRow, setActiveRow] = useState<string>('')
     const [contextMenu, setContextMenu] =
@@ -91,6 +93,10 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                 {rows.map(row => (
                     <tr key={row.id} className={`hover:bg-mainGreen/[0.5] focus:bg-mainGreen transition-all ease-out
                         ${row.id === activeRow ? 'bg-mainGreen' : ''}`}
+                        onDoubleClick={(e) => {
+                            if (rowOnDoubleClick)
+                                rowOnDoubleClick(e, row.id)
+                        }}
                         onClickCapture={(e) => handleChangeColor(e, row.id)}
                         onContextMenu={(e) => handleContextMenu(e, row.id)}
                     >
