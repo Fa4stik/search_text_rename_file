@@ -1,4 +1,4 @@
-const baseUrl = 'http://127.0.0.1:8000/api'
+const baseUrl = 'http://213.171.5.243/api'
 
 const fetchData = <T>(url: string, init?: RequestInit): Promise<T> => {
     return fetch(url, init)
