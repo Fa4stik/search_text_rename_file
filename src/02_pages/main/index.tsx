@@ -36,7 +36,7 @@ const MainPage = () => {
 
     return (
         <div className="w-full h-full px-[40px] pt-[25px] flex flex-col">
-            <h1 className="text-3xl mb-[30px]">Список выполняемых обработок</h1>
+            <h1 className="text-3xl mb-[30px]">Список задач на распознавание текста</h1>
             {/*<PageHeader buttonProps={headerParams}/>*/}
             <MainTableGrid columns={columnsMain} rows={mainRows}
                            rowOnClick={onRowClick}

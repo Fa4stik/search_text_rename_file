@@ -7,29 +7,40 @@ import {TRowMain, TRowReady, TRowRename} from "../model/types";
 type MainTableGridProps = {
     columns: TColumnsMain | TColumnsRename | TColumnsReady
     rows: TRowMain[] | TRowRename[] | TRowReady[]
+    setNameHandler?: (idHandler: string, newName: string) => void
     rowOnClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
     contextMenuOptionals?: TContextMenuTypeParams;
-    handleChangeNameTask?: (e: React.ChangeEvent<HTMLInputElement>) => void
-    valueTask?: string
 }
 
 export const MainTableGrid: React.FC<MainTableGridProps> =
-        ({columns,
-             rows,
-             rowOnClick,
-             contextMenuOptionals,
-             handleChangeNameTask,
-         valueTask}) => {
-    return (
-        <>
-            <GridHeader sorted filters nameHandle
-                        search
-                        valueTask={valueTask}
-                        handleChangeNameTask={handleChangeNameTask}/>
-            <BodyGrid columns={columns}
-                      rows={rows} width={'100%'} rowOnClick={rowOnClick}
-                      contextMenuOptionals={contextMenuOptionals}
-            />
-        </>
-    );
-};
+    ({
+         columns,
+         rows,
+         rowOnClick,
+         contextMenuOptionals,
+         setNameHandler
+     }) => {
+
+        const [activeRowId, setActiveRowId] =
+            useState<string>('')
+
+        const myRowOnClick = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
+            if (rowOnClick)
+                rowOnClick(e, id)
+            setActiveRowId(id)
+        }
+
+        return (
+            <>
+                <GridHeader sorted filters nameHandle
+                            search
+                            rows={rows}
+                            activeRowId={activeRowId}
+                />
+                <BodyGrid columns={columns}
+                          rows={rows} width={'100%'} rowOnClick={myRowOnClick}
+                          contextMenuOptionals={contextMenuOptionals}
+                />
+            </>
+        );
+    };

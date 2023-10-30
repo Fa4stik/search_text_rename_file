@@ -16,7 +16,7 @@ const MainCreatePage = () => {
     const navigate = useNavigate()
 
     const {addRow: addMainRow, rows, delRow: delMainRow} = useMainStore();
-    const {addRow: addRenameRow} = useRenameStore()
+    const {addRow: addRenameRow, rows: renameRows} = useRenameStore()
 
     const handleCreateTask = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
@@ -40,7 +40,7 @@ const MainCreatePage = () => {
                         .then(respProcess => {
                             delMainRow(id)
                             addRenameRow({
-                                id,
+                                id: (renameRows.length+1).toString(),
                                 name: nameTask,
                                 countFiles: images.length.toString(),
                                 sizeFiles: convertSize(images),
@@ -62,7 +62,7 @@ const MainCreatePage = () => {
                 .then(respProcess => {
                     delMainRow(id)
                     addRenameRow({
-                        id,
+                        id: (renameRows.length+1).toString(),
                         name: nameTask,
                         countFiles: images.length.toString(),
                         sizeFiles: convertSize(images),

@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {TBbox} from "../../../05_entities/RenameFileFetchData";
 import {useSpring, animated} from "react-spring";
 import {useDrag, useWheel} from "@use-gesture/react";
@@ -89,12 +89,17 @@ export const ImageWrapper:
         countNewBounds()
     }
 
+    useEffect(() => {
+        console.log(myBoxes)
+    }, [myBoxes]);
+
     return (
         <div className="w-1/3 h-full flex">
-            {isDark && <svg width="0" height="0" style={{ position: 'absolute' }}>
+            {isDark && <svg xmlns="http://www.w3.org/2000/svg"
+                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                            style={{ position: 'absolute' }}>
                 <defs>
-                    <mask id="myMask">
-                        <rect width="100%" height="100%" fill="black" />
+                    <clipPath id="myMask">
                         {myBoxes.map((box, id) => (
                             <rect key={id}
                                   x={box.x}
@@ -102,10 +107,9 @@ export const ImageWrapper:
                                   width={box.w}
                                   height={box.h}
                                   rx="5"
-                                  fill="white"
                             />
                         ))}
-                    </mask>
+                    </clipPath>
                 </defs>
             </svg>}
             <div className="flex-1 border-solid overflow-hidden"
@@ -144,7 +148,7 @@ export const ImageWrapper:
                             <img src={srcImg}
                                  className="h-full max-h-none max-w-none absolute z-20"
                                  style={{
-                                     mask: 'url(#myMask)'
+                                     clipPath: `url(#myMask)`
                                  }}
                                  alt="MyImg"/>
                         </>}

@@ -7,7 +7,7 @@ export const getProcessed = (uid: number): Promise<TGetProcessedReq> => {
         method: 'POST',
         body: JSON.stringify(dataBody),
         headers: {
-            'Content-Type': "application/json"
-        }
+            'Content-Type': "application/json",
+        },
     })
 }

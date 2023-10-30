@@ -12,7 +12,7 @@ type PageParams = {
 }
 
 const RenamesCurrentPage = () => {
-    const { idTask } = useParams<PageParams>()
+    const {idTask} = useParams<PageParams>()
 
     const {rows: renamesRows} = useRenameStore()
 
@@ -44,11 +44,18 @@ const RenamesCurrentPage = () => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
                 setTags(resp.tags)
-        })
+            })
+            .catch(err => {
+                console.log(err);
+            })
         getFile(uid)
             .then(resp => {
                 setSrcImg(URL.createObjectURL(resp))
-        })
+
+            })
+            .catch(err => {
+                console.log(err);
+            })
     };
 
     return (

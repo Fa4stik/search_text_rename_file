@@ -18,9 +18,9 @@ export const LoadFilesBock:
     React.FC<LoadFilesBockProps> = ({setImages}) => {
 
     const inputFolder = useRef<HTMLInputElement>(null)
+    const buttonRef = useRef<HTMLButtonElement>(null)
 
-    const handleLoadFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
+    const loadFiles = (files: FileList) => {
         setImages([])
         if (files && files.length > 0) {
             const imageFiles = Array.from(files).filter(file => file.type.includes('image'))
@@ -35,19 +35,44 @@ export const LoadFilesBock:
                 ])
             })
         }
+    }
+
+    const handleLoadFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files)
+            loadFiles(files)
+    };
+
+    const handleDropped = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        const files = e.dataTransfer.files
+        loadFiles(files)
     };
 
     return (
-        <div className="flex-grow pb-[15px] flex">
+        <div className="flex-grow pb-[15px] flex"
+             onDragEnter={(e) =>
+                 buttonRef.current!.style.borderColor = '#15C585'
+             }
+             onDragExit={(e) =>
+                 buttonRef.current!.style.borderColor = '#434343'
+             }
+             onDrop={handleDropped}
+             onDragOver={(e) => e.preventDefault()}
+        >
             <button className="flex-grow border-dashed border-4 border-mainDark rounded-3xl
                             flex flex-col items-center justify-center"
+                    style={{
+                        transition: 'border-color ease-in-out 0.3s'
+                    }}
+                    ref={buttonRef}
                     onClick={(e) => {
                         e.preventDefault()
                         inputFolder.current!.click()
                     }}
             >
                 <img src={createTask.upload} alt="Choose folder"/>
-                <p className="text-xl">Выберите папку</p>
+                <p className="text-xl">Выберите папку / Перетащите файл(ы)</p>
             </button>
             <input type="file" hidden
                    ref={inputFolder}

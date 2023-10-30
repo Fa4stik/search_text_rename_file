@@ -1,6 +1,9 @@
-export type TRowMain = {
+type TRowPage = {
     id: string;
-    name: string;
+    name: string
+}
+
+export type TRowMain = TRowPage & {
     countFiles: string;
     sizeFiles: string;
     dataStart: string;
@@ -14,18 +17,14 @@ type TRenameFile = {
     is_duplicate: boolean;
 }
 
-export type TRowRename = {
-    id: string;
-    name: string;
+export type TRowRename = TRowPage & {
     countFiles: string;
     sizeFiles: string;
     timeHandle: string;
     renameFiles: TRenameFile[]
 }
 
-export type TRowReady = {
-    id: string;
-    name: string;
+export type TRowReady = TRowPage & {
     countFiles: string;
     sizeFiles: string;
     timeHandle: string;

@@ -9,9 +9,6 @@ const RenamesPage = () => {
     const {rows, delRow, setNameHandler} = useRenameStore()
     const {addRow: addRowReady, rows: readyRows} = useReadyStore()
 
-    const [activeRow, setActiveRow] =
-        useState<{id: string; name: string}>({} as {id: string; name: string})
-
     const handleOpenTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
         navigate(id)
@@ -45,26 +42,12 @@ const RenamesPage = () => {
         ]
     }
 
-    const handleChangeNameTask = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setActiveRow(prevState => ({...prevState, name: e.target.value}))
-        setNameHandler(activeRow.id, activeRow.name)
-    }
-
-    const rowOnClick = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
-        e.preventDefault()
-        const name = rows.find(row => row.id === id)!.name
-        setActiveRow({id, name})
-        console.log(name)
-    }
-
     return (
         <div className="flex-grow px-[40px] pt-[25px] flex flex-col">
             <h1 className="text-3xl mb-[30px]">Задачи ожидающие изменения</h1>
             <MainTableGrid columns={columnsRename} rows={rows}
+                           setNameHandler={setNameHandler}
                            contextMenuOptionals={contextMenuParams}
-                           handleChangeNameTask={handleChangeNameTask}
-                           valueTask={activeRow.name}
-                           rowOnClick={rowOnClick}
             />
         </div>
     );

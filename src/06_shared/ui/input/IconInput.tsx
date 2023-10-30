@@ -9,7 +9,7 @@ type IconInputProps = {
     classStyle?: string
     inlineStyles?: React.CSSProperties
     classStyleIco?: string
-    value?: string;
+    value: string;
 }
 
 export const IconInput: React.FC<IconInputProps> =
