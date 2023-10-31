@@ -12,14 +12,14 @@ export const BorderSelect:
                                        classStyle,
                                    onChange}) => {
     return (
-        <select name="SelectTypeTask" id=""
+        <select name="SelectTypeTask"
                 className={`bg-transparent px-[15px] py-[10px] border-[2px]
                 transition-[border-color] ease-in-out focus:border-mainGreen/[0.8]
                 border-solid border-mainDark rounded-2xl ${classStyle}`}
                 onChange={onChange}
         >
-            {options.map(option => (
-                <option value={option.value} key={option.value}>
+            {options.map((option, id) => (
+                <option value={option.value} key={option.value} selected={id === 0 ? true : false}>
                     {option.key}
                 </option>
             ))}

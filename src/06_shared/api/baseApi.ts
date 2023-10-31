@@ -1,4 +1,5 @@
-const baseUrl = 'http://213.171.5.243/api'
+// const baseUrl = 'http://213.171.5.243/api'
+const baseUrl = 'http://localhost:8000/api'
 
 const fetchData = <T>(url: string, init?: RequestInit): Promise<T> => {
     return fetch(url, init)

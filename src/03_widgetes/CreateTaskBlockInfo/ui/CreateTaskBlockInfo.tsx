@@ -1,6 +1,5 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {CreateTaskGrid, LoadFilesBock, MainInfo, OptionallyInfo} from "../../../04_features/CreateTask";
-import {TRow} from "../../../05_entities/DataGrid";
 import {TImage} from "../../../05_entities/CreateTaskForm";
 
 type CreateTaskBlockInfoProps = {
@@ -9,6 +8,7 @@ type CreateTaskBlockInfoProps = {
     setNameTask: React.Dispatch<React.SetStateAction<string>>
     isLocalPath: boolean;
     setIsLocalPath: React.Dispatch<React.SetStateAction<boolean>>
+    setCurrModel: React.Dispatch<React.SetStateAction<string>>
 }
 
 export const CreateTaskBlockInfo:
@@ -16,7 +16,8 @@ export const CreateTaskBlockInfo:
                                               setImages,
                                               setNameTask,
                                           isLocalPath,
-                                          setIsLocalPath}) => {
+                                          setIsLocalPath,
+                                          setCurrModel}) => {
 
     const changeNameTask = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNameTask(e.target.value)
@@ -28,8 +29,12 @@ export const CreateTaskBlockInfo:
                 border-solid border-[2px] border-mainDark rounded-t-2xl pt-[10px] px-[20px] border-b-transparent">
                 <h3 className="text-2xl mb-[15px]">Параметры задачи</h3>
                 <div className="flex flex-col gap-y-[10px] mb-[15px]">
-                    <MainInfo changeNameTask={changeNameTask} setIsLocalPath={setIsLocalPath}/>
+                    <MainInfo changeNameTask={changeNameTask}
+                              setIsLocalPath={setIsLocalPath}
+                              setCurrModel={setCurrModel}
+                    />
                     {!isLocalPath && <OptionallyInfo setImages={setImages}/>}
+
                 </div>
                 {isLocalPath
                     ? images?.length > 0

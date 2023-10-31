@@ -12,11 +12,17 @@ const ReadyPage = () => {
         setActivePath(rows.find(row => row.id === id)!.path)
     }
 
+    const handleDelTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
+        e.preventDefault()
+        delRow(id)
+    }
+
     const contextMenuParams: TContextMenuTypeParams = {
         cordY: 180,
         cordX: 90,
         contextMenuRow: [
-            {id: '1', name: 'Выгрузить результат', onClick: handleFullPath}
+            {id: '1', name: 'Выгрузить результат', onClick: handleFullPath},
+            {id: '2', name: 'Удалить', onClick: handleDelTask}
         ]
     }
 

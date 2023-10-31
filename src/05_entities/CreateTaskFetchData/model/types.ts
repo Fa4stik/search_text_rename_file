@@ -23,3 +23,6 @@ export type TProcessImageReq = {
     results: TProcessImageResult[]
 }
 
+export type TGetOcrModelsReq = {
+    models: string[]
+}
