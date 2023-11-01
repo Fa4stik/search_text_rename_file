@@ -29,6 +29,7 @@ export const MainInfo:
                 ({key: model, value: id})))
             setCurrModel(resp.models[0])
         })
+            .catch(err => console.log(err))
     }, []);
 
     const handleChangeFiles = (e: React.ChangeEvent<HTMLSelectElement>) => {
