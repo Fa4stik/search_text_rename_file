@@ -44,7 +44,7 @@ const RenamesPage = () => {
         cordY: 180,
         cordX: 90,
         contextMenuRow: [
-            {id: '1', name: 'Переименование файлов', onClick: handleOpenTask},
+            {id: '1', name: 'Переименовать файлы', onClick: handleOpenTask},
             {id: '2', name: 'Сохранить результаты', onClick: handleSaveTask},
             {id: '3', name: 'Выгрузить результат', onClick: handleUploadTask},
             {id: '4', name: 'Удалить', onClick: handleDelTask}
