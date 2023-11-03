@@ -19,17 +19,25 @@ const RenamesPage = () => {
         navigate(id)
     }
 
-    const handleSendTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
+    const handleSaveTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
         const readyRow = rows.find(row => row.id === id)!
         const files = readyRow.renameFiles
         addFileNames(files.map(file =>
             ({filename: file.name, is_duplicate: Boolean(file.is_duplicate), uid: file.uid}))
         ).then(resp => {
-            console.log(resp)
-            addRowReady({...readyRow, path: `path/${id}`, id: (readyRows.length+1).toString()})
-            delRow(id)
+            console.log('task save')
         })
+    }
+
+    const handleUploadTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
+        e.preventDefault()
+        console.log('upload archive')
+    }
+
+    const handleDelTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
+        e.preventDefault()
+        delRow(id)
     }
 
     const contextMenuParams: TContextMenuTypeParams = {
@@ -37,7 +45,9 @@ const RenamesPage = () => {
         cordX: 90,
         contextMenuRow: [
             {id: '1', name: 'Переименование файлов', onClick: handleOpenTask},
-            {id: '2', name: 'Сохранить результаты', onClick: handleSendTask}
+            {id: '2', name: 'Сохранить результаты', onClick: handleSaveTask},
+            {id: '3', name: 'Выгрузить результат', onClick: handleUploadTask},
+            {id: '4', name: 'Удалить', onClick: handleDelTask}
         ]
     }
 

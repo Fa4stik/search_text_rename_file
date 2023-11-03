@@ -55,14 +55,14 @@ export const Navigation: React.FC<NavigationProps> = ({routing}) => {
                                  className="h-[35px] w-auto mb-[20px]"
                             />
                         </a>
-                        <a href="#"
-                           onClick={handleChooseReady}
-                        >
-                            <img src={header.ready}
-                                 alt="Edit icon"
-                                 className="h-[35px] w-auto"
-                            />
-                        </a>
+                        {/*<a href="#"*/}
+                        {/*   onClick={handleChooseReady}*/}
+                        {/*>*/}
+                        {/*    <img src={header.ready}*/}
+                        {/*         alt="Edit icon"*/}
+                        {/*         className="h-[35px] w-auto"*/}
+                        {/*    />*/}
+                        {/*</a>*/}
                         <div className="absolute top-[3px] left-[4.5px] transition-all ease-in-out
                         bg-mainDark/[0.2] h-[50px] w-[50px] z-[-1] rounded-md"
                              ref={activeLinkRef}

@@ -1,17 +1,20 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
 
 type BorderInputProps = {
     placeholder: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     classStyle?: string;
-    value?:string
+    value?:string;
+    inlineStyles?: CSSProperties;
 }
 
 export const BorderInput: React.FC<BorderInputProps> =
     ({onChange,
      placeholder,
      classStyle,
-     value}) => {
+     value,
+     inlineStyles}) => {
+
     return (
         <input type="text" className={`bg-transparent px-[15px] py-[7px] transition-[border-color]
             ease-in-out focus:border-mainGreen/[0.8]
@@ -20,7 +23,8 @@ export const BorderInput: React.FC<BorderInputProps> =
                onChange={onChange}
                value={value}
                style={{
-                   zIndex: 20
+                   zIndex: 20,
+                   ...inlineStyles
                }}
         />
     );

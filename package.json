@@ -12,6 +12,7 @@
     "@types/react-dom": "^18.2.7",
     "@use-gesture/react": "^10.3.0",
     "compose-function": "^3.0.3",
+    "jest-fetch-mock": "^3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
@@ -48,6 +49,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/compose-function": "^0.0.31",
+    "@types/lodash": "^4.14.200",
     "tailwindcss": "^3.3.3"
   }
 }

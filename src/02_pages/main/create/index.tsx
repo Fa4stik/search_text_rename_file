@@ -13,12 +13,14 @@ import {
 } from "../../../05_entities/CreateTaskFetchData";
 import {convertTime} from "../../../03_widgetes/MainTable/lib/converTime";
 import {convertDateFull} from "../../../05_entities/MainPage";
+import {validateName} from "../../../04_features/CreateTask";
 
 const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
     const [nameTask, setNameTask] = useState<string>('')
     const [isLocalPath, setIsLocalPath] = useState<boolean>(true)
     const [currModel, setCurrModel] = useState<string>('')
+    const [isNotCorrect, setIsNotCorrect] = useState<boolean>(false)
 
     const navigate = useNavigate()
 
@@ -30,7 +32,7 @@ const MainCreatePage = () => {
             uploadFiles(images.map(image => image.image) as File[], id)
                 .then(respUpload => {
                     console.log('Files upload')
-                    processImage(parseInt(id), respUpload.paths)
+                    processImage(parseInt(id))
                         .then(respProcess => {
                             delMainRow(id)
                             addRenameRow({
@@ -53,7 +55,7 @@ const MainCreatePage = () => {
                 })
                 .catch(err => console.log(err))
         } else {
-            processImage(parseInt(id), images.map(image => image.path) as string[])
+            processImage(parseInt(id))
                 .then(respProcess => {
                     delMainRow(id)
                     addRenameRow({
@@ -78,32 +80,39 @@ const MainCreatePage = () => {
 
     const handleCreateTask = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        const dateStart = new Date()
 
-        getChunkId().then(resp => {
-            const id = resp.toString();
-            addMainRow({
-                id,
-                name: nameTask,
-                countFiles: images.length.toString(),
-                sizeFiles: convertSize(images),
-                status: 'В процессе',
-                dataStart: convertDateFull(dateStart)
-            })
+        if (validateName(nameTask)) {
+            setIsNotCorrect(false)
 
-            getCurrOCRModel().then(resp => {
-                if (resp !== currModel) {
-                    changeOCRModel(currModel).then(resp => {
-                        console.log(resp)
+            const dateStart = new Date()
+
+            getChunkId().then(resp => {
+                const id = resp.toString();
+                addMainRow({
+                    id,
+                    name: nameTask,
+                    countFiles: images.length.toString(),
+                    sizeFiles: convertSize(images),
+                    status: 'В процессе',
+                    dataStart: convertDateFull(dateStart)
+                })
+
+                getCurrOCRModel().then(resp => {
+                    if (resp !== currModel) {
+                        changeOCRModel(currModel).then(resp => {
+                            console.log(resp)
+                            prcImg(id, dateStart)
+                        })
+                    } else
                         prcImg(id, dateStart)
-                    })
-                } else
-                    prcImg(id, dateStart)
+                })
+                    .catch(err => console.log(err))
             })
                 .catch(err => console.log(err))
-        })
-            .catch(err => console.log(err))
-        navigate('/main')
+            navigate('/main')
+        } else {
+            setIsNotCorrect(true)
+        }
     };
 
     const handleCancelTask = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -122,6 +131,7 @@ const MainCreatePage = () => {
                                      setIsLocalPath={setIsLocalPath}
                                      isLocalPath={isLocalPath}
                                      setCurrModel={setCurrModel}
+                                     isNotCorrect={isNotCorrect}
                 />
                 <CreateTaskForm images={images}
                                 handleCreateTask={handleCreateTask}

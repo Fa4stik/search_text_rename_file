@@ -8,6 +8,7 @@ type MainInfoProps = {
     changeNameTask: (e: React.ChangeEvent<HTMLInputElement>) => void;
     setIsLocalPath: React.Dispatch<React.SetStateAction<boolean>>
     setCurrModel: React.Dispatch<React.SetStateAction<string>>
+    isNotCorrect?: boolean;
 }
 
 const optionsFiles: TOption[] = [
@@ -18,7 +19,8 @@ const optionsFiles: TOption[] = [
 export const MainInfo:
     React.FC<MainInfoProps> = ({changeNameTask,
          setIsLocalPath,
-                               setCurrModel}) => {
+                               setCurrModel,
+                               isNotCorrect}) => {
 
     const [optionsModels, setOptionsModels] =
         useState<TOption[]>([{key: 'easyOCR', value: 1}, {key: 'pyteceract', value: 2}])
@@ -44,7 +46,10 @@ export const MainInfo:
         <div className="flex gap-x-[15px]">
             <BorderInput placeholder={"Название задачи..."}
                          onChange={changeNameTask}
-                         classStyle="w-1/2 text-lg"
+                         classStyle={`w-1/2 text-lg`}
+                         inlineStyles={{
+                             borderColor: isNotCorrect ? 'rgb(239 68 68)' : ''
+                         }}
             />
             <BorderSelect options={optionsFiles} onChange={handleChangeFiles} classStyle="flex-grow"/>
             <BorderSelect options={optionsModels} onChange={handleChangeModel} classStyle="flex-grow"/>

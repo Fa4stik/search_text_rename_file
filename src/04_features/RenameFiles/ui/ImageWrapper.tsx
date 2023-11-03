@@ -94,7 +94,7 @@ export const ImageWrapper:
     }, [myBoxes]);
 
     return (
-        <div className="w-1/3 h-full flex">
+        <div className="w-full h-full flex">
             {isDark && <svg xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                             style={{ position: 'absolute' }}>
@@ -142,7 +142,7 @@ export const ImageWrapper:
                              ref={origImgRef}
                              onLoad={handleImageLoad}
                              className="h-full max-h-none max-w-none absolute z-0"
-                             alt="MyImg"/>
+                             alt="Выберите изображение..."/>
                         {isDark && <>
                             <div className="bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10"/>
                             <img src={srcImg}
