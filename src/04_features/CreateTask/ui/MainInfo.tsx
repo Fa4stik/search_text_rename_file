@@ -23,13 +23,13 @@ export const MainInfo:
                                isNotCorrect}) => {
 
     const [optionsModels, setOptionsModels] =
-        useState<TOption[]>([{key: 'easyOCR', value: 1}, {key: 'pyteceract', value: 2}])
+        useState<TOption[]>([{key: 'uploading model...', value: 1}])
 
     useEffect(() => {
         getOcrModels().then(resp => {
             setOptionsModels(resp.models.map((model, id) =>
                 ({key: model, value: id})))
-            setCurrModel(resp.models[0])
+            setCurrModel(resp.models[1])
         })
             .catch(err => console.log(err))
     }, []);

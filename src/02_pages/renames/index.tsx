@@ -2,11 +2,11 @@ import React from 'react';
 import {columnsRename, MainTableGrid, useReadyStore, useRenameStore} from "../../03_widgetes/MainTable";
 import {useNavigate} from "react-router-dom";
 import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
+import {archiveChunk} from "../../05_entities/RenameFileFetchData";
 
 const RenamesPage = () => {
     const navigate = useNavigate()
     const {rows, delRow, setNameHandler} = useRenameStore()
-    const {addRow: addRowReady, rows: readyRows} = useReadyStore()
 
     const handleOpenTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
@@ -20,7 +20,12 @@ const RenamesPage = () => {
 
     const handleUploadTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
-        console.log('upload archive')
+        const nameTask = rows.find(row => row.id === id)!.name
+        archiveChunk(id, nameTask)
+            .then(resp => {
+                window.open(resp)
+            })
+            .catch(err => console.log(err))
     }
 
     const handleDelTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
