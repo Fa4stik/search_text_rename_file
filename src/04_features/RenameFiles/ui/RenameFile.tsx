@@ -6,6 +6,7 @@ import {TRow} from "../../../05_entities/DataGrid";
 import {useParams} from "react-router-dom";
 import {useRenameStore} from "../../../03_widgetes/MainTable";
 import {convertDateFull} from "../../../05_entities/MainPage";
+import {addFileName} from "../../../05_entities/RenameFileFetchData";
 
 type RenameFileProps = {
     setRows: React.Dispatch<React.SetStateAction<TRow[]>>
@@ -22,14 +23,17 @@ export const RenameFile:
                                  idTask, activeUid}) => {
     const {setFileName} = useRenameStore()
     const handleSetNameFile = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
         setRows(prevState => prevState.map(row =>
             row.uid === activeUid.toString()
                 ? {...row, name: nameFile, dateEdit: convertDateFull(new Date())}
                 : row
         ))
         setFileName(idTask!, activeUid, nameFile)
+        addFileName(activeUid, nameFile, false).then(resp => {
+            console.log('Update file name', resp)
+        }).catch(err => console.log(err))
         setNameFile('')
-        e.preventDefault()
     };
 
     const changeTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

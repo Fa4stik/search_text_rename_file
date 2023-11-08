@@ -1,8 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {columnsRename, MainTableGrid, useReadyStore, useRenameStore} from "../../03_widgetes/MainTable";
 import {useNavigate} from "react-router-dom";
-import {TContextMenuTypeParams, TRow} from "../../05_entities/DataGrid";
-import {addFileNames} from "../../05_entities/RenameFileFetchData/model/addFileNames";
+import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
 
 const RenamesPage = () => {
     const navigate = useNavigate()
@@ -17,17 +16,6 @@ const RenamesPage = () => {
     const handleOpenDoubleClickTask = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
         e.preventDefault()
         navigate(id)
-    }
-
-    const handleSaveTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
-        e.preventDefault()
-        const readyRow = rows.find(row => row.id === id)!
-        const files = readyRow.renameFiles
-        addFileNames(files.map(file =>
-            ({filename: file.name, is_duplicate: Boolean(file.is_duplicate), uid: file.uid}))
-        ).then(resp => {
-            console.log('task save')
-        })
     }
 
     const handleUploadTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
@@ -45,9 +33,8 @@ const RenamesPage = () => {
         cordX: 90,
         contextMenuRow: [
             {id: '1', name: 'Переименовать файлы', onClick: handleOpenTask},
-            {id: '2', name: 'Сохранить результаты', onClick: handleSaveTask},
-            {id: '3', name: 'Выгрузить результат', onClick: handleUploadTask},
-            {id: '4', name: 'Удалить', onClick: handleDelTask}
+            {id: '2', name: 'Выгрузить результат', onClick: handleUploadTask},
+            {id: '3', name: 'Удалить', onClick: handleDelTask}
         ]
     }
 

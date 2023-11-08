@@ -19,7 +19,7 @@ const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
     const [nameTask, setNameTask] = useState<string>('')
     const [isLocalPath, setIsLocalPath] = useState<boolean>(true)
-    const [currModel, setCurrModel] = useState<string>('')
+    const [currModel, setCurrModel] = useState<string>('easyOCR')
     const [isNotCorrect, setIsNotCorrect] = useState<boolean>(false)
 
     const navigate = useNavigate()
