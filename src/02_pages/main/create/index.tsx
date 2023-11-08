@@ -32,7 +32,7 @@ const MainCreatePage = () => {
             uploadFiles(images.map(image => image.image) as File[], id)
                 .then(respUpload => {
                     console.log('Files upload')
-                    processChunk(parseInt(id))
+                    processChunk(parseInt(id), currModel)
                         .then(respProcess => {
                             delMainRow(id)
                             addRenameRow({
@@ -55,7 +55,7 @@ const MainCreatePage = () => {
                 })
                 .catch(err => console.log(err))
         } else {
-            processChunk(parseInt(id))
+            processChunk(parseInt(id), currModel)
                 .then(respProcess => {
                     delMainRow(id)
                     addRenameRow({
@@ -97,16 +97,18 @@ const MainCreatePage = () => {
                     dataStart: convertDateFull(dateStart)
                 })
 
-                getCurrOCRModel().then(resp => {
-                    if (resp !== currModel) {
-                        changeOCRModel(currModel).then(resp => {
-                            console.log(resp)
-                            prcImg(id, dateStart)
-                        })
-                    } else
-                        prcImg(id, dateStart)
-                })
-                    .catch(err => console.log(err))
+                prcImg(id, dateStart)
+
+                // getCurrOCRModel().then(resp => {
+                //     if (resp !== currModel) {
+                //         changeOCRModel(currModel).then(resp => {
+                //             console.log(resp)
+                //             prcImg(id, dateStart)
+                //         })
+                //     } else
+                //         prcImg(id, dateStart)
+                // })
+                //     .catch(err => console.log(err))
             })
                 .catch(err => console.log(err))
             navigate('/main')
