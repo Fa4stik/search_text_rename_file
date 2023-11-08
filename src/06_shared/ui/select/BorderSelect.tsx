@@ -19,7 +19,7 @@ export const BorderSelect:
                 onChange={onChange}
         >
             {options.map((option, id) => (
-                <option value={option.value} key={option.value} selected={id === 0 ? true : false}>
+                <option value={option.value} key={option.value} selected={id === 1 ? true : false}>
                     {option.key}
                 </option>
             ))}

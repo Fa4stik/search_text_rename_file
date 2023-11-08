@@ -7,7 +7,7 @@ import {useNavigate} from "react-router-dom";
 import {
     changeOCRModel,
     getChunkId,
-    getCurrOCRModel,
+    getCurrOCRModel, processChunk,
     processImage,
     uploadFiles
 } from "../../../05_entities/CreateTaskFetchData";
@@ -32,7 +32,7 @@ const MainCreatePage = () => {
             uploadFiles(images.map(image => image.image) as File[], id)
                 .then(respUpload => {
                     console.log('Files upload')
-                    processImage(parseInt(id))
+                    processChunk(parseInt(id))
                         .then(respProcess => {
                             delMainRow(id)
                             addRenameRow({
@@ -55,7 +55,7 @@ const MainCreatePage = () => {
                 })
                 .catch(err => console.log(err))
         } else {
-            processImage(parseInt(id))
+            processChunk(parseInt(id))
                 .then(respProcess => {
                     delMainRow(id)
                     addRenameRow({
@@ -117,7 +117,6 @@ const MainCreatePage = () => {
 
     const handleCancelTask = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        const date = new Date()
         setImages([])
     };
 

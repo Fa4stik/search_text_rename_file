@@ -28,7 +28,7 @@ export const LoadFilesBock:
             Array.from(imageFiles).forEach((file, id) => {
                 setImages(prevState => [...prevState,
                     {
-                        id: id.toString(),
+                        id: (id+1).toString(),
                         name: convertNameFile(file.name),
                         image: file
                     }

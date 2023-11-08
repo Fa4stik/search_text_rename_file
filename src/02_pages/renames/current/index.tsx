@@ -4,7 +4,7 @@ import {GridHeader} from "../../../04_features/GridHeader";
 import {FilesBlock, ImageWrapper, RenameFile} from "../../../04_features/RenameFiles";
 import {columnsReadyFiles} from "../../../04_features/RenameFiles/model/gridStyles";
 import {TRow} from "../../../05_entities/DataGrid";
-import {getFile, getProcessed, TBbox} from "../../../05_entities/RenameFileFetchData";
+import {getDataById, getFile, TBbox} from "../../../05_entities/RenameFileFetchData";
 import {useRenameStore} from "../../../03_widgetes/MainTable";
 
 type PageParams = {
@@ -22,7 +22,7 @@ const RenamesCurrentPage = () => {
                 ...file,
                 is_duplicate: file.is_duplicate ? '1' : '',
                 uid: file.uid.toString(),
-                id: id.toString(),
+                id: (id+1).toString(),
             })
         )
     )
@@ -35,6 +35,13 @@ const RenamesCurrentPage = () => {
     const [isResizeCol, setIsResizeCol] = useState<boolean>(false)
 
     const resizeColRef = useRef<HTMLDivElement>(null)
+    const tableContentRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        // const tableContentSizes = tableContentRef.current!.getBoundingClientRect()
+        // imgWrapperRef.current!.style.width =
+        //     `${tableContentSizes.width-resizeColRef.current!.getBoundingClientRect().width-2}px`
+    }, []);
 
     const handleClickBox = (e: React.MouseEvent<HTMLDivElement>, word: string) => {
         setNameFile(prevState => prevState + word + ' ')
@@ -44,7 +51,7 @@ const RenamesCurrentPage = () => {
         e.preventDefault()
         const uid = parseInt(rows.find(row => row.id === id)!.uid)
         setActiveUid(uid)
-        getProcessed(uid)
+        getDataById(uid)
             .then(resp => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
@@ -83,12 +90,12 @@ const RenamesCurrentPage = () => {
 
     return (
         <div className="flex-1 px-[40px] pt-[25px] flex flex-col overflow-hidden">
-            <h1 className="text-3xl mb-[30px]">Файлы ожидающие изменения</h1>
+            <h1 className="text-3xl mb-[30px]">Переименование файлов</h1>
             <div className="flex-1 flex flex-col overflow-hidden"
                  onMouseUp={stopResized} onMouseLeave={stopResized} onMouseMove={handleResizeBlocks}
             >
                 <GridHeader sorted filters/>
-                <div className="flex-1 flex bg-mainGray overflow-hidden">
+                <div className="flex-1 flex bg-mainGray overflow-hidden" ref={tableContentRef}>
                     <div className="w-1/3 h-full flex flex-col"
                          ref={resizeColRef}
                     >
@@ -117,6 +124,9 @@ const RenamesCurrentPage = () => {
                                   myBoxes={bboxes}
                                   srcImg={srcImg}
                                   isDark
+                                  isRefresh
+                                  isRotate
+                                  isZoom
                     />
                 </div>
             </div>

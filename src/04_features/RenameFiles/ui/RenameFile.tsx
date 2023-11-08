@@ -64,7 +64,7 @@ export const RenameFile:
                 <textarea name="" id="" placeholder="Новое название файла..."
                           onChange={changeTextArea}
                           value={nameFile}
-                          className="mb-[10px] rounded-2xl border-[2px] py-[5px] px-[10px] h-full
+                          className="mb-[10px] rounded-2xl border-[2px] py-[5px] px-[10px] h-full max-h-[60px]
                                       border-solid border-mainDark focus:outline-none w-full resize-none bg-transparent"
                 />
                 <FillButton onClick={handleSetNameFile}

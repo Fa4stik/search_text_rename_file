@@ -37,7 +37,6 @@ const MainPage = () => {
     return (
         <div className="w-full h-full px-[40px] pt-[25px] flex flex-col">
             <h1 className="text-3xl mb-[30px]">Загрузка файлов на распознавание</h1>
-            {/*<PageHeader buttonProps={headerParams}/>*/}
             <MainTableGrid columns={columnsMain} rows={mainRows}
                            rowOnClick={onRowClick}
                            contextMenuOptionals={contextMenuParams}/>

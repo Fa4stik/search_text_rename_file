@@ -36,7 +36,8 @@ export const CreateTaskGrid:
             <GridHeader sorted/>
             <BodyGrid width={'100%'}
                       columns={columnsCreateTask}
-                      rows={images.map(image => ({id: image.id, name: image.name}))}
+                      rows={images.map((image, id) =>
+                          ({id: image.id, name: image.name}))}
                       classStyles="bg-white"
                       contextMenuOptionals={contextMenu}
             />

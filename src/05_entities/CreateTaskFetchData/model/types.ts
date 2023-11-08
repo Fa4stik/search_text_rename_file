@@ -1,3 +1,5 @@
+import {isNumber} from "lodash";
+
 type TFolderTip = string;
 export type TFoldersReq = {
     folders: TFolderTip[]
@@ -21,6 +23,16 @@ type TProcessImageResult = {
 export type TProcessImageReq = {
     chunk_id: number;
     results: TProcessImageResult[]
+}
+
+type TProcessChunkResult = {
+    uid: number,
+    old_filename: string,
+    duplicate_id: number
+}
+export type TProcessChunkReq = {
+    chunk_id: number,
+    results: TProcessChunkResult[]
 }
 
 export type TGetOcrModelsReq = {

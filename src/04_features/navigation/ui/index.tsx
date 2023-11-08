@@ -69,7 +69,7 @@ export const Navigation: React.FC<NavigationProps> = ({routing}) => {
                         />
                     </div>
                 </div>
-                <div className="flex-grow overflow-hidden flex flex-col justify-start">
+                <div className="flex-1 overflow-hidden flex flex-col justify-start">
                     {routing}
                 </div>
             </div>
