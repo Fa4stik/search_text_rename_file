@@ -163,7 +163,7 @@ export const ImageWrapper:
             imgBlockRef.current!.style.width = `${width}px`;
             imgBlockRef.current!.style.height = `${height}px`;
 
-            if (myParSizes.width < width)
+            if (width > height)
                 apiWheel.start({
                     scale: myParSizes.width / width, onChange: () => {
                         countNewBounds()
