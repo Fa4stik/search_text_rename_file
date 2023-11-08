@@ -316,21 +316,25 @@ export const ImageWrapper:
                         </>}
                     </animated.div>
                 </div>
-                <div className="py-[10px] bottom-[20px] left-1/2 -translate-x-1/2
+                <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2
                 bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer">
                     {isRotate && <>
                         <img src={imageWrapper.left} alt="Left"
+                             className="h-full"
                              onClick={handleRotateLeft}
                         />
                         <img src={imageWrapper.right} alt="Right"
+                             className="h-full"
                              onClick={handleRotateRight}
                         />
                     </>}
                     {isZoom && <>
                         <img src={imageWrapper.zoomIn} alt="Zoom In"
+                             className="h-full"
                              onClick={handleZoomIn}
                         />
                         <img src={imageWrapper.zoomOut} alt="Zoom Out"
+                             className="h-full"
                              onClick={handleZoomOut}
                         />
                     </>}
