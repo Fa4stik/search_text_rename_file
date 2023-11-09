@@ -6,6 +6,8 @@ import {columnsReadyFiles} from "../../../04_features/RenameFiles/model/gridStyl
 import {TRow} from "../../../05_entities/DataGrid";
 import {getDataById, getFile, TBbox} from "../../../05_entities/RenameFileFetchData";
 import {useRenameStore} from "../../../03_widgetes/MainTable";
+import {getOcrModels} from "../../../05_entities/CreateTaskFetchData";
+import {TOption} from "../../../06_shared/model/typeSelect";
 
 type PageParams = {
     idTask: string
@@ -33,6 +35,9 @@ const RenamesCurrentPage = () => {
     const [startPos, setStartPos] = useState<number>(0)
     const [isResizeRow, setIsResizeRow] = useState<boolean>(false)
     const [isResizeCol, setIsResizeCol] = useState<boolean>(false)
+    const [models, setModels] = useState<TOption[]>([])
+    const [currRotate, setCurrRotate] =
+        useState<number>(0)
 
     const resizeColRef = useRef<HTMLDivElement>(null)
     const tableContentRef = useRef<HTMLDivElement>(null)
@@ -41,6 +46,13 @@ const RenamesCurrentPage = () => {
         // const tableContentSizes = tableContentRef.current!.getBoundingClientRect()
         // imgWrapperRef.current!.style.width =
         //     `${tableContentSizes.width-resizeColRef.current!.getBoundingClientRect().width-2}px`
+    }, []);
+
+    // get models
+    useEffect(() => {
+        getOcrModels().then(resp => {
+            setModels(resp.models.map((model, id) => ({key: id, value: model})))
+        }).catch(err => console.log(err))
     }, []);
 
     const handleClickBox = (e: React.MouseEvent<HTMLDivElement>, word: string) => {
@@ -88,6 +100,10 @@ const RenamesCurrentPage = () => {
         }
     };
 
+    const handleRegenerateImg = (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => {
+        console.log(value, currRotate)
+    }
+
     return (
         <div className="flex-1 px-[40px] pt-[25px] flex flex-col overflow-hidden">
             <h1 className="text-3xl mb-[30px]">Переименование файлов</h1>
@@ -127,6 +143,10 @@ const RenamesCurrentPage = () => {
                                   isRefresh
                                   isRotate
                                   isZoom
+                                  handleChoseOption={handleRegenerateImg}
+                                  models={models}
+                                  setCurrRotate={setCurrRotate}
+                                  currRotate={currRotate}
                     />
                 </div>
             </div>

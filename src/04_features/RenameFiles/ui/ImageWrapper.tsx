@@ -3,6 +3,9 @@ import {TBbox} from "../../../05_entities/RenameFileFetchData";
 import {useSpring, animated} from "react-spring";
 import {useDrag, useWheel} from "@use-gesture/react";
 import {imageWrapper} from "../../../06_shared/ui/icon";
+import {DropDownMenu} from "../../../05_entities/DropDownMenu";
+import {getOcrModels} from "../../../05_entities/CreateTaskFetchData";
+import {TOption} from "../../../06_shared/model/typeSelect";
 
 type ImageWrapperProps = {
     myBoxes: TBbox[];
@@ -12,6 +15,10 @@ type ImageWrapperProps = {
     isRotate?: boolean
     isZoom?: boolean
     isRefresh?: boolean
+    handleChoseOption?: (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => void
+    models: TOption[],
+    currRotate: number,
+    setCurrRotate: React.Dispatch<React.SetStateAction<number>>
 }
 
 export const ImageWrapper:
@@ -21,10 +28,15 @@ export const ImageWrapper:
                                        handleClickBox,
                                    isZoom,
                                    isRefresh,
-                                   isRotate}) => {
+                                   isRotate,
+                                   handleChoseOption,
+                                   models,
+                                   setCurrRotate,
+                                   currRotate}) => {
 
     const [lastScale, setLastScale] = useState<number>(0)
-    const [currRotate, setCurrRotate] = useState<number>(0)
+    const [isActiveRefresh, setIsActiveRefresh] =
+        useState<boolean>(false)
     const [bounds, setBounds] =
         useState<{ left: number, right: number, top: number, bottom: number }>(
             {left: 0, right: 0, top: 0, bottom: 0}
@@ -229,7 +241,7 @@ export const ImageWrapper:
 
     const handleRefresh = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
-        console.log('refresh')
+        setIsActiveRefresh(prevState => !prevState)
     };
 
     return (
@@ -344,6 +356,12 @@ export const ImageWrapper:
                         />
                     }
                 </div>
+                {isActiveRefresh && <div className="absolute bottom-[75px] left-1/2 z-50">
+                    <DropDownMenu options={models}
+                                  setIsActiveRefresh={setIsActiveRefresh}
+                                  handleChoseOption={handleChoseOption}
+                    />
+                </div>}
             </div>
         </div>
     );

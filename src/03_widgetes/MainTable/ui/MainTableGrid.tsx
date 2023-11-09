@@ -11,6 +11,7 @@ type MainTableGridProps = {
     rowOnClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
     contextMenuOptionals?: TContextMenuTypeParams;
     rowOnDoubleClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
+    textEmptyTable?: string
 }
 
 export const MainTableGrid: React.FC<MainTableGridProps> =
@@ -20,7 +21,8 @@ export const MainTableGrid: React.FC<MainTableGridProps> =
          rowOnClick,
          contextMenuOptionals,
          setNameHandler,
-        rowOnDoubleClick
+         rowOnDoubleClick,
+         textEmptyTable
      }) => {
 
         const [activeRowId, setActiveRowId] =
@@ -43,6 +45,7 @@ export const MainTableGrid: React.FC<MainTableGridProps> =
                           rows={rows} width={'100%'} rowOnClick={myRowOnClick}
                           contextMenuOptionals={contextMenuOptionals}
                           rowOnDoubleClick={rowOnDoubleClick}
+                          textEmptyTable={textEmptyTable}
                 />
             </>
         );

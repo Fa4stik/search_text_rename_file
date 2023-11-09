@@ -12,6 +12,7 @@ type BodyGridProps = {
     classStyles?: string;
     contextMenuOptionals?: TContextMenuTypeParams
     rowOnDoubleClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
+    textEmptyTable?: string
 }
 
 export const BodyGrid: React.FC<BodyGridProps> = ({rows,
@@ -19,7 +20,8 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
          width,
          rowOnClick, classStyles,
                                                       contextMenuOptionals,
-                                                  rowOnDoubleClick}) => {
+                                                  rowOnDoubleClick,
+                                                  textEmptyTable}) => {
 
     const [activeRow, setActiveRow] = useState<string>('')
     const [contextMenu, setContextMenu] =
@@ -116,7 +118,9 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                 </tbody>
             </table>
             {rows.length === 0
-                ? <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">Список пуст</div>
+                ? <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    {textEmptyTable ?? 'Список пуст'}
+                    </div>
                 : null}
             {contextMenu.visible && contextMenuOptionals && (
                 <ContextMenu contextMenu={contextMenu}

@@ -39,7 +39,9 @@ const MainPage = () => {
             <h1 className="text-3xl mb-[30px]">Загрузка файлов на распознавание</h1>
             <MainTableGrid columns={columnsMain} rows={mainRows}
                            rowOnClick={onRowClick}
-                           contextMenuOptionals={contextMenuParams}/>
+                           contextMenuOptionals={contextMenuParams}
+                           textEmptyTable={'Нажмите правую кнопку, чтобы создать задачу'}
+            />
         </div>
     );
 };

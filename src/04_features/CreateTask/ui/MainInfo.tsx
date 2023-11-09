@@ -23,7 +23,7 @@ export const MainInfo:
                                isNotCorrect}) => {
 
     const [optionsModels, setOptionsModels] =
-        useState<TOption[]>([{key: 'uploading model...', value: 1}])
+        useState<TOption[]>([{key: 'загрузка моделей...', value: 1}])
 
     useEffect(() => {
         getOcrModels().then(resp => {

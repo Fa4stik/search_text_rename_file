@@ -5,6 +5,6 @@ export const processChunk = (chunk_id: number, model_type: string): Promise<TPro
     const bodyQuery = {chunk_id, model_type}
     return baseApi('/process-chunk/', {
         method: 'POST',
-        body: JSON.stringify(bodyQuery)
+        body: JSON.stringify(bodyQuery),
     })
 }
