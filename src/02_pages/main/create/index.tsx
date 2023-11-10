@@ -98,17 +98,6 @@ const MainCreatePage = () => {
                 })
 
                 prcImg(id, dateStart)
-
-                // getCurrOCRModel().then(resp => {
-                //     if (resp !== currModel) {
-                //         changeOCRModel(currModel).then(resp => {
-                //             console.log(resp)
-                //             prcImg(id, dateStart)
-                //         })
-                //     } else
-                //         prcImg(id, dateStart)
-                // })
-                //     .catch(err => console.log(err))
             })
                 .catch(err => console.log(err))
             navigate('/main')

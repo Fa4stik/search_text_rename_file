@@ -6,21 +6,14 @@ type FilesBlockProps = {
     columns: TColumnReadyFiles
     rows: TRow[]
     rowOnClick: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
-    height?: string
 }
 
 export const FilesBlock:
     React.FC<FilesBlockProps> = ({rows,
                                      columns,
-                                     rowOnClick,
-                                 height}) => {
+                                     rowOnClick}) => {
 
     return (
-        <div className="w-full h-1/2 flex flex-col" style={{
-            height
-        }}
-        >
-            <BodyGrid width="100%" columns={columns} rows={rows} rowOnClick={rowOnClick}/>
-        </div>
+        <BodyGrid width="100%" columns={columns} rows={rows} rowOnClick={rowOnClick}/>
     );
 };

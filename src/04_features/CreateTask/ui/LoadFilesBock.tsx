@@ -2,7 +2,7 @@ import React, {useRef} from 'react';
 import {createTask} from "../../../06_shared/ui/icon";
 import {TRow} from "../../../05_entities/DataGrid";
 import {TImage} from "../../../05_entities/CreateTaskForm";
-import {convertNameFile} from "../model/convertNameFile";
+import {convertNameFile} from "../lib/convertNameFile";
 
 declare module "react" {
     interface InputHTMLAttributes<T> extends HTMLAttributes<T> {

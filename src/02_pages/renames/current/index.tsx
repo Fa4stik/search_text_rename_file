@@ -8,6 +8,7 @@ import {getDataById, getFile, TBbox} from "../../../05_entities/RenameFileFetchD
 import {useRenameStore} from "../../../03_widgetes/MainTable";
 import {getOcrModels} from "../../../05_entities/CreateTaskFetchData";
 import {TOption} from "../../../06_shared/model/typeSelect";
+import {convertNameFile} from "../../../04_features/CreateTask";
 
 type PageParams = {
     idTask: string
@@ -32,21 +33,15 @@ const RenamesCurrentPage = () => {
     const [srcImg, setSrcImg] = useState<string>('')
     const [nameFile, setNameFile] = useState<string>('')
     const [activeUid, setActiveUid] = useState<number>(0)
-    const [startPos, setStartPos] = useState<number>(0)
     const [isResizeRow, setIsResizeRow] = useState<boolean>(false)
     const [isResizeCol, setIsResizeCol] = useState<boolean>(false)
     const [models, setModels] = useState<TOption[]>([])
     const [currRotate, setCurrRotate] =
         useState<number>(0)
 
+    const resizeRowRef = useRef<HTMLDivElement>(null)
     const resizeColRef = useRef<HTMLDivElement>(null)
     const tableContentRef = useRef<HTMLDivElement>(null)
-
-    useEffect(() => {
-        // const tableContentSizes = tableContentRef.current!.getBoundingClientRect()
-        // imgWrapperRef.current!.style.width =
-        //     `${tableContentSizes.width-resizeColRef.current!.getBoundingClientRect().width-2}px`
-    }, []);
 
     // get models
     useEffect(() => {
@@ -62,6 +57,8 @@ const RenamesCurrentPage = () => {
     const handleClickRow = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
         e.preventDefault()
         const uid = parseInt(rows.find(row => row.id === id)!.uid)
+        const name = rows.find(row => row.id === id)!.name
+        setNameFile(name)
         setActiveUid(uid)
         getDataById(uid)
             .then(resp => {
@@ -89,14 +86,23 @@ const RenamesCurrentPage = () => {
 
     const handleResizeBlocks = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isResizeCol) {
-            // x
-            // const oldWidth = resizeColRef.current!.getBoundingClientRect().width
-            // const newWidth = oldWidth + (e.clientX - startPos);
-            // resizeColRef.current!.style.width = `900px`;
+            const tableContentWidth = tableContentRef.current!.getBoundingClientRect().width
+            const rightLimit = (tableContentWidth*2)/3
+            const leftLimit = (tableContentWidth)/4
+            const newWidth = e.clientX - resizeColRef.current!.getBoundingClientRect().left;
+            if (newWidth >= leftLimit && newWidth <= rightLimit) {
+                resizeColRef.current!.style.width = `${newWidth}px`;
+            }
         }
 
         if (isResizeRow) {
-            // y
+            const tableContentHeight = tableContentRef.current!.getBoundingClientRect().height
+            const upLimit = (tableContentHeight)/4
+            const downLimit = (tableContentHeight*2)/3
+            const newHeight = e.clientY - resizeRowRef.current!.getBoundingClientRect().top;
+            if (newHeight >= upLimit && newHeight <= downLimit) {
+                resizeRowRef.current!.style.height = `${newHeight}px`;
+            }
         }
     };
 
@@ -115,14 +121,16 @@ const RenamesCurrentPage = () => {
                     <div className="w-1/3 h-full flex flex-col"
                          ref={resizeColRef}
                     >
-                        <FilesBlock rows={rows}
-                                    columns={columnsReadyFiles}
-                                    rowOnClick={handleClickRow}
-                        />
-                        <div className="w-full h-[2px] bg-mainDark cursor-row-resize"
+                        <div className="w-full h-1/2 flex flex-col select-none" ref={resizeRowRef}>
+                            <FilesBlock rows={rows.map(row =>
+                                ({...row, name: convertNameFile(row.name, 15)}))}
+                                        columns={columnsReadyFiles}
+                                        rowOnClick={handleClickRow}
+                            />
+                        </div>
+                        <div className="w-full h-[4px] bg-mainDark cursor-row-resize"
                              onMouseDown={(e) => {
                                  e.preventDefault()
-                                 setStartPos(e.clientY)
                                  setIsResizeRow(true)
                              }}
                         />
@@ -132,7 +140,6 @@ const RenamesCurrentPage = () => {
                     <div className="w-[2px] h-full bg-mainDark cursor-col-resize"
                          onMouseDown={(e) => {
                              e.preventDefault()
-                             setStartPos(e.clientX)
                              setIsResizeCol(true)
                          }}
                     />
