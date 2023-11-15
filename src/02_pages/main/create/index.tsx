@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {CreateTaskForm, TImage} from "../../../05_entities/CreateTaskForm";
 import {CreateTaskBlockInfo} from "../../../03_widgetes/CreateTaskBlockInfo";
 import {useMainStore, useRenameStore} from "../../../03_widgetes/MainTable";
@@ -8,7 +8,7 @@ import {
     changeOCRModel,
     getChunkId,
     getCurrOCRModel, processChunk,
-    processImage,
+    processImage, TProcessChunkReq,
     uploadFiles
 } from "../../../05_entities/CreateTaskFetchData";
 import {convertTime} from "../../../03_widgetes/MainTable/lib/converTime";
@@ -24,36 +24,75 @@ const MainCreatePage = () => {
 
     const navigate = useNavigate()
 
-    const {addRow: addMainRow, rows, delRow: delMainRow} = useMainStore();
+    const {addRow: addMainRow, rows, delRow: delMainRow, setStatus} = useMainStore();
     const {addRow: addRenameRow, rows: renameRows} = useRenameStore()
+
+    const ws = useRef<WebSocket | null>(null)
 
     const prcImg = (id: string, dateStart: Date) => {
         if (isLocalPath) {
-            uploadFiles(images.map(image => image.image) as File[], id)
-                .then(respUpload => {
-                    console.log('Files upload')
-                    processChunk(parseInt(id), currModel)
-                        .then(respProcess => {
-                            delMainRow(id)
-                            addRenameRow({
-                                id,
-                                name: nameTask,
-                                countFiles: images.length.toString(),
-                                sizeFiles: convertSize(images),
-                                timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
-                                renameFiles: respProcess.results.map(process =>
-                                    ({
-                                        is_duplicate: false,
-                                        uid: process.uid,
-                                        dateEdit: convertDateFull(new Date()),
-                                        name: process.old_filename
+            const imagesPromise = images.map(file => uploadFiles(file.image as File, id))
+            Promise.all(imagesPromise)
+                .then(() => {
+                    let myInterval: NodeJS.Timer
+
+                    ws.current = new WebSocket('ws://217.18.62.178/ws?' +
+                        new URLSearchParams({chunkId: id, ocr_model_type: currModel}))
+
+                    ws.current!.onopen = () => {
+                        console.log('Ws open')
+                        myInterval = setInterval(() => {
+                            ws.current!.send('update')
+                            console.log('update ws')
+                        }, 5000)
+                    }
+
+                    ws.current!.onmessage = (mess) => {
+                        const resp: TProcessChunkReq = JSON.parse(mess.data)
+                        delMainRow(id)
+                        addRenameRow({
+                                        id,
+                                        name: nameTask,
+                                        countFiles: images.length.toString(),
+                                        sizeFiles: convertSize(images),
+                                        timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
+                                        renameFiles: resp.results.map(process =>
+                                            ({
+                                                is_duplicate: false,
+                                                uid: process.uid,
+                                                dateEdit: convertDateFull(new Date()),
+                                                name: process.old_filename
+                                            })
+                                        )
                                     })
-                                )
-                            })
-                        })
-                        .catch(err => console.log(err))
+                    }
+
+                    ws.current!.onclose = () => {
+                        console.log('Ws close')
+                        clearInterval(myInterval)
+                    }
                 })
-                .catch(err => console.log(err))
+            // Promise.all(imagesPromise)
+            //     .then(() => processChunk(parseInt(id), currModel))
+            //     .then(respProcess => {
+            //         delMainRow(id)
+            //         addRenameRow({
+            //             id,
+            //             name: nameTask,
+            //             countFiles: images.length.toString(),
+            //             sizeFiles: convertSize(images),
+            //             timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
+            //             renameFiles: respProcess.results.map(process =>
+            //                 ({
+            //                     is_duplicate: false,
+            //                     uid: process.uid,
+            //                     dateEdit: convertDateFull(new Date()),
+            //                     name: process.old_filename
+            //                 })
+            //             )
+            //         })
+            //     })
+            //     .catch(err => setStatus(id, 'Ошибка обработки'))
         } else {
             processChunk(parseInt(id), currModel)
                 .then(respProcess => {
@@ -74,7 +113,7 @@ const MainCreatePage = () => {
                         )
                     })
                 })
-                .catch(err => console.log(err))
+                .catch(err => setStatus(id, 'Ошибка обработки'))
         }
     }
 

@@ -1,5 +1,7 @@
-const baseUrl = 'http://213.171.5.243/api'
+const baseUrl = 'http://217.18.62.178'
 // const baseUrl = 'http://localhost:8000/api'
+// 217.18.62.178 - новый
+// 213.171.5.243 - старый
 
 const fetchData = <T>(url: string, init?: RequestInit): Promise<T> => {
     return fetch(url, init)

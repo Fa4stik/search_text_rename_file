@@ -37,7 +37,9 @@ export const CreateTaskBlockInfo:
                               isNotCorrect={isNotCorrect}
                     />
                     {isNotCorrect &&
-                        <p className="text-[13px] -my-[5px] ml-[10px] text-red-400">*Некорректное название задачи</p>}
+                        <p className="text-[13px] -my-[5px] ml-[10px] text-red-400">
+                            *Некорректное название задачи, нельзя использовать символы \ / : ? " &lt; &gt; |
+                        </p>}
                     {!isLocalPath && <OptionallyInfo setImages={setImages}/>}
 
                 </div>

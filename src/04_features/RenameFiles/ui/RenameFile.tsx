@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {GridHeader} from "../../GridHeader";
 import {ESizes} from "../../GridHeader/model/sizes";
 import {FillButton} from "../../../06_shared/ui/button";
@@ -7,6 +7,7 @@ import {useParams} from "react-router-dom";
 import {useRenameStore} from "../../../03_widgetes/MainTable";
 import {convertDateFull} from "../../../05_entities/MainPage";
 import {addFileName} from "../../../05_entities/RenameFileFetchData";
+import {validateName} from "../../CreateTask";
 
 type RenameFileProps = {
     setRows: React.Dispatch<React.SetStateAction<TRow[]>>
@@ -22,18 +23,26 @@ export const RenameFile:
                                  tags, nameFile, setNameFile,
                                  idTask, activeUid}) => {
     const {setFileName} = useRenameStore()
+
+    const [isNotCorrectName, setIsNotCorrectName] = useState<boolean>(false)
+
     const handleSetNameFile = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        setRows(prevState => prevState.map(row =>
-            row.uid === activeUid.toString()
-                ? {...row, name: nameFile, dateEdit: convertDateFull(new Date())}
-                : row
-        ))
-        setFileName(idTask!, activeUid, nameFile)
-        addFileName(activeUid, nameFile, false).then(resp => {
-            console.log('Update file name', resp)
-        }).catch(err => console.log(err))
-        setNameFile('')
+        if (validateName(nameFile)) {
+            setIsNotCorrectName(false)
+            setRows(prevState => prevState.map(row =>
+                row.uid === activeUid.toString()
+                    ? {...row, name: nameFile, dateEdit: convertDateFull(new Date())}
+                    : row
+            ))
+            setFileName(idTask!, activeUid, nameFile)
+            addFileName(activeUid, nameFile, false).then(resp => {
+                console.log('Update file name', resp)
+            }).catch(err => console.log(err))
+            setNameFile('')
+        } else {
+            setIsNotCorrectName(true)
+        }
     };
 
     const changeTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -68,11 +77,16 @@ export const RenameFile:
                 <textarea name="" id="" placeholder="Новое название файла..."
                           onChange={changeTextArea}
                           value={nameFile}
-                          className="mb-[10px] rounded-2xl border-[2px] py-[5px] px-[10px] h-full min-h-[60px] max-h-[100px]
-                                      border-solid border-mainDark focus:outline-none w-full resize-none bg-transparent"
+                          className={`mb-[10px] rounded-2xl border-[2px] py-[5px] px-[10px] h-full min-h-[60px] max-h-[100px]
+                              border-solid focus:outline-none w-full resize-none bg-transparent 
+                              ${isNotCorrectName ? 'border-red-400' : 'border-mainDark'}`}
                 />
+                {isNotCorrectName &&
+                    <p className="text-[13px] -mt-[5px] mb-[5px] ml-[10px] text-red-400">
+                        *Некорректное название файла, нельзя использовать символы \ / : ? " &lt; &gt; |
+                    </p>}
                 <FillButton onClick={handleSetNameFile}
-                            classStyles="bg-mainGreen rounded-md"
+                            classStyles={`${isNotCorrectName ? 'bg-red-400' : 'bg-mainGreen'} rounded-md`}
                 >
                     Изменить
                 </FillButton>

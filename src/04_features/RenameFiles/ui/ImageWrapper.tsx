@@ -1,11 +1,13 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {TBbox} from "../../../05_entities/RenameFileFetchData";
-import {useSpring, animated} from "react-spring";
+import {animated, useSpring} from "react-spring";
 import {useDrag, useWheel} from "@use-gesture/react";
 import {imageWrapper} from "../../../06_shared/ui/icon";
 import {DropDownMenu} from "../../../05_entities/DropDownMenu";
-import {getOcrModels} from "../../../05_entities/CreateTaskFetchData";
 import {TOption} from "../../../06_shared/model/typeSelect";
+
+const minSizeScaleImg = 0.1
+const maxSizeScaleImg = 15
 
 type ImageWrapperProps = {
     myBoxes: TBbox[];
@@ -159,7 +161,7 @@ export const ImageWrapper:
         const scaleFactor = 0.003;
         const newScale = scale.get() - (dy - lastScale) * scaleFactor;
         setLastScale(dy);
-        const clampedScale = Math.max(0.5, Math.min(newScale, 3));
+        const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
         apiWheel.start({scale: clampedScale})
 
         updateBounds()
@@ -195,7 +197,7 @@ export const ImageWrapper:
         const scaleFactor = 1.1;
         const newScale = scale.get() * scaleFactor;
         setLastScale(newScale);
-        const clampedScale = Math.max(0.5, Math.min(newScale, 3));
+        const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
         apiWheel.start({
             scale: clampedScale, onChange: () => {
                 updateBounds()
@@ -207,7 +209,7 @@ export const ImageWrapper:
         const scaleFactor = 0.9;
         const newScale = scale.get() * scaleFactor;
         setLastScale(newScale);
-        const clampedScale = Math.max(0.5, Math.min(newScale, 3));
+        const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
         apiWheel.start({
             scale: clampedScale, onChange: () => {
                 updateBounds()
@@ -328,7 +330,7 @@ export const ImageWrapper:
                         </>}
                     </animated.div>
                 </div>
-                <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2
+                <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-[200px]
                 bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer">
                     {isRotate && <>
                         <img src={imageWrapper.left} alt="Left"

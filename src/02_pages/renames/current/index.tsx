@@ -89,20 +89,18 @@ const RenamesCurrentPage = () => {
             const tableContentWidth = tableContentRef.current!.getBoundingClientRect().width
             const rightLimit = (tableContentWidth*2)/3
             const leftLimit = (tableContentWidth)/4
-            const newWidth = e.clientX - resizeColRef.current!.getBoundingClientRect().left;
-            if (newWidth >= leftLimit && newWidth <= rightLimit) {
-                resizeColRef.current!.style.width = `${newWidth}px`;
-            }
+            const deltaX = e.clientX - resizeColRef.current!.getBoundingClientRect().left;
+            const newWidth = Math.min(Math.max(leftLimit, deltaX), rightLimit)
+            resizeColRef.current!.style.width = `${newWidth}px`;
         }
 
         if (isResizeRow) {
             const tableContentHeight = tableContentRef.current!.getBoundingClientRect().height
             const upLimit = (tableContentHeight)/4
             const downLimit = (tableContentHeight*2)/3
-            const newHeight = e.clientY - resizeRowRef.current!.getBoundingClientRect().top;
-            if (newHeight >= upLimit && newHeight <= downLimit) {
-                resizeRowRef.current!.style.height = `${newHeight}px`;
-            }
+            const deltaY = e.clientY - resizeRowRef.current!.getBoundingClientRect().top;
+            const newHeight = Math.min(Math.max(upLimit, deltaY), downLimit)
+            resizeRowRef.current!.style.height = `${newHeight}px`;
         }
     };
 
@@ -123,7 +121,7 @@ const RenamesCurrentPage = () => {
                     >
                         <div className="w-full h-1/2 flex flex-col select-none" ref={resizeRowRef}>
                             <FilesBlock rows={rows.map(row =>
-                                ({...row, name: convertNameFile(row.name, 15)}))}
+                                ({...row, name: convertNameFile(row.name, 15, true)}))}
                                         columns={columnsReadyFiles}
                                         rowOnClick={handleClickRow}
                             />
