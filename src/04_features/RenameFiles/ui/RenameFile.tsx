@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {GridHeader} from "../../GridHeader";
 import {ESizes} from "../../GridHeader/model/sizes";
 import {FillButton} from "../../../06_shared/ui/button";
@@ -6,8 +6,9 @@ import {TRow} from "../../../05_entities/DataGrid";
 import {useParams} from "react-router-dom";
 import {useRenameStore} from "../../../03_widgetes/MainTable";
 import {convertDateFull} from "../../../05_entities/MainPage";
-import {addFileName} from "../../../05_entities/RenameFileFetchData";
+import {addFileName, getPermatags, rmPermatag, setPermatag} from "../../../05_entities/RenameFileFetchData";
 import {validateName} from "../../CreateTask";
+import {TagGroup} from "../../../05_entities/RenameFiles";
 
 type RenameFileProps = {
     setRows: React.Dispatch<React.SetStateAction<TRow[]>>
@@ -24,7 +25,15 @@ export const RenameFile:
                                  idTask, activeUid}) => {
     const {setFileName} = useRenameStore()
 
+    const [permaTags, setPremaTags] = useState<string[]>([])
     const [isNotCorrectName, setIsNotCorrectName] = useState<boolean>(false)
+
+    useEffect(() => {
+        getPermatags()
+            .then(resp => {
+                setPremaTags(resp.tags)
+            })
+    }, []);
 
     const handleSetNameFile = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
@@ -50,27 +59,39 @@ export const RenameFile:
     }
 
     const handleClickTag = (e: React.MouseEvent<HTMLParagraphElement>, tag: string) => {
-        setNameFile(prevState => prevState + tag + " ")
+        setNameFile(prevState =>
+            prevState === ''
+                ? tag
+                : prevState + ` ${tag}`
+        )
     };
+
+    const handleDelTag = (e: React.MouseEvent<SVGSVGElement>, tag: string) => {
+        e.stopPropagation()
+        rmPermatag(tag)
+            .then(resp => {
+                setPremaTags(prevState => prevState.filter(myTag => myTag !== tag))
+            })
+    }
+
+    const handleBlurTag = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPermatag(e.target.value)
+            .then(resp => resp)
+    }
 
     return (
         <div className="w-full h-full flex flex-col py-[10px] px-[30px] overflow-y-scroll">
             <div className="flex flex-col mb-[10px]">
                 <h3 className="text-xl mb-[5px]">Тэги</h3>
-                <GridHeader sorted filters size={ESizes.XL}/>
-                <div className="flex flex-wrap flex-grow border-[2px]
-                            border-solid border-mainDark rounded-b-3xl p-[10px] gap-[5px] relative">
-                    {tags.length > 0
-                        ? tags.map((tag, id) => (
-                        <p key={id} className="bg-mainTags/[0.3] py-[2px] px-[7px]
-                                    rounded-full cursor-pointer"
-                           onClick={(e) => handleClickTag(e, tag)}
-                        >
-                            {tag}
-                        </p>))
-                        : <p className="w-full text-center">Тегов не найдено</p>
-                    }
-                </div>
+                <TagGroup name={'Общие теги'} tags={tags} handleClickTag={handleClickTag}/>
+                <TagGroup name={'Перма теги'} tags={permaTags}
+                          handleClickTag={handleClickTag}
+                          handleDelTag={handleDelTag}
+                          handleBlurTag={handleBlurTag}
+                          setTags={setPremaTags}
+                          isAddTag
+                          isDeleteTag
+                />
             </div>
             <div className="flex flex-col flex-grow items-start">
                 <h3 className="text-xl mb-[5px]">Новое название файла</h3>

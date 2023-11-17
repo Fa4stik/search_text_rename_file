@@ -11,6 +11,7 @@ type Actions = {
     addRow: (row: TRowRename) => void;
     setFileName: (idHandler: string, uid: number, newName: string) => void;
     setNameHandler: (idHandler: string, newName: string) => void
+    updateUid: (oldUid: number, newUid: number) => void;
     delRow: (id: string) => void;
 }
 
@@ -43,6 +44,15 @@ export const useRenameStore = create<State & Actions>()(
                 })),
                 delRow: (id) => set((state) => ({
                     rows: state.rows.filter(row => row.id !== id)
+                })),
+                updateUid: (oldUid, newUid) => set((state) => ({
+                    rows: state.rows.map(row =>
+                        ({...row, renameFiles: row.renameFiles.map(file =>
+                                file.uid === oldUid
+                                    ? {...file, uid: newUid}
+                                    : file
+                            )})
+                    )
                 }))
             }),
             {name: 'useRenameStore'}

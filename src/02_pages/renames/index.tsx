@@ -21,7 +21,7 @@ const RenamesPage = () => {
     const handleUploadTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
         const nameTask = rows.find(row => row.id === id)!.name
-        archiveChunk(id, nameTask)
+        archiveChunk(id, encodeURI(nameTask))
             .then(resp => {
                 window.open(resp)
             })

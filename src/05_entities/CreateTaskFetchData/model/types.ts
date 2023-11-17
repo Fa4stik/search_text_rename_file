@@ -15,16 +15,6 @@ export type TUploadFilesReq = {
     paths: TFilePath[];
 }
 
-type TProcessImageResult = {
-    duplicate_id: number,
-    old_filename: string,
-    uid: number;
-}
-export type TProcessImageReq = {
-    chunk_id: number;
-    results: TProcessImageResult[]
-}
-
 type TProcessChunkResult = {
     uid: number,
     old_filename: string,

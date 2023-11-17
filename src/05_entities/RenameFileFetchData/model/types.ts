@@ -23,3 +23,17 @@ export type TAddFileName = {
     filename: string,
     is_duplicate: boolean
 }
+
+export type TGetPermaTagsReq = {
+    tags: string[]
+}
+
+export type TRmPermaTagsReq = {
+    response: boolean
+}
+
+export type TProcessImgReq = {
+    uid: number,
+    old_filename: string,
+    duplicate_id: number
+}

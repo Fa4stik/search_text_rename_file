@@ -5,6 +5,7 @@ import {useDrag, useWheel} from "@use-gesture/react";
 import {imageWrapper} from "../../../06_shared/ui/icon";
 import {DropDownMenu} from "../../../05_entities/DropDownMenu";
 import {TOption} from "../../../06_shared/model/typeSelect";
+import {LoadingDotRight} from "../../../06_shared/ui/loading";
 
 const minSizeScaleImg = 0.1
 const maxSizeScaleImg = 15
@@ -17,6 +18,9 @@ type ImageWrapperProps = {
     isRotate?: boolean
     isZoom?: boolean
     isRefresh?: boolean
+    isCut?: boolean
+    isLoading?: boolean
+    // handleRegenerate
     handleChoseOption?: (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => void
     models: TOption[],
     currRotate: number,
@@ -24,17 +28,21 @@ type ImageWrapperProps = {
 }
 
 export const ImageWrapper:
-    React.FC<ImageWrapperProps> = ({isDark,
+    React.FC<ImageWrapperProps> = ({
+                                       isDark,
                                        srcImg,
                                        myBoxes,
                                        handleClickBox,
-                                   isZoom,
-                                   isRefresh,
-                                   isRotate,
-                                   handleChoseOption,
-                                   models,
-                                   setCurrRotate,
-                                   currRotate}) => {
+                                       isZoom,
+                                       isRefresh,
+                                       isRotate,
+                                       handleChoseOption,
+                                       models,
+                                       setCurrRotate,
+                                       currRotate,
+                                       isCut,
+                                       isLoading
+                                   }) => {
 
     const [lastScale, setLastScale] = useState<number>(0)
     const [isActiveRefresh, setIsActiveRefresh] =
@@ -220,7 +228,7 @@ export const ImageWrapper:
     const handleRotateLeft = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
         setCurrRotate(prevState => {
-            prevState-=90;
+            prevState -= 90;
             if (prevState % 180 === 0)
                 countNewBounds()
             else
@@ -232,7 +240,7 @@ export const ImageWrapper:
     const handleRotateRight = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
         setCurrRotate(prevState => {
-            prevState+=90;
+            prevState += 90;
             if (prevState % 180 === 0)
                 countNewBounds()
             else
@@ -268,6 +276,8 @@ export const ImageWrapper:
             <div className="flex-1 overflow-hidden relative"
                  ref={parentRef}
             >
+                {isLoading &&
+                    <LoadingDotRight/>}
                 <div>
                     <animated.div className="relative"
                                   ref={imgBlockRef}
@@ -352,11 +362,21 @@ export const ImageWrapper:
                              onClick={handleZoomOut}
                         />
                     </>}
+                    {isCut &&
+                        <>
+                            <img src={imageWrapper.rectangle} alt="Cut Rectungle"
+                                 className="h-full"
+                                // onClick={handleCutRectungle}
+                            />
+                            <img src={imageWrapper.square} alt="Cut Square"
+                                 className="h-full"
+                                // onClick={handleCutSquare}
+                            />
+                        </>}
                     {isRefresh &&
                         <img src={imageWrapper.refresh} alt="Regenerate" className="h-full"
                              onClick={handleRefresh}
-                        />
-                    }
+                        />}
                 </div>
                 {isActiveRefresh && <div className="absolute bottom-[75px] left-1/2 z-50">
                     <DropDownMenu options={models}

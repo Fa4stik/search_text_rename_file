@@ -51,8 +51,14 @@ export const MainInfo:
                              borderColor: isNotCorrect ? 'rgb(239 68 68)' : ''
                          }}
             />
-            <BorderSelect options={optionsFiles} onChange={handleChangeFiles} classStyle="flex-grow"/>
-            <BorderSelect options={optionsModels} onChange={handleChangeModel} classStyle="flex-grow"/>
+            <BorderSelect options={optionsFiles}
+                          onChange={handleChangeFiles}
+                          classStyle="flex-grow"
+                          defaultValue={1}/>
+            <BorderSelect options={optionsModels}
+                          onChange={handleChangeModel}
+                          classStyle="flex-grow"
+                          defaultValue={1}/>
         </div>
     );
 };
