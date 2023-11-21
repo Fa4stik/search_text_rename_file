@@ -37,3 +37,10 @@ export type TProcessImgReq = {
     old_filename: string,
     duplicate_id: number
 }
+
+export type TImgSizes = {
+    x1: number,
+    y1: number,
+    width: number,
+    height: number
+}

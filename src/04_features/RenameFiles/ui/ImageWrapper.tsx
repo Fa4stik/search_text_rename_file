@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {TBbox} from "../../../05_entities/RenameFileFetchData";
+import {TBbox, TImgSizes} from "../../../05_entities/RenameFileFetchData";
 import {animated, useSpring} from "react-spring";
 import {useDrag, useWheel} from "@use-gesture/react";
 import {imageWrapper} from "../../../06_shared/ui/icon";
@@ -20,11 +20,12 @@ type ImageWrapperProps = {
     isRefresh?: boolean
     isCut?: boolean
     isLoading?: boolean
-    // handleRegenerate
     handleChoseOption?: (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => void
     models: TOption[],
     currRotate: number,
     setCurrRotate: React.Dispatch<React.SetStateAction<number>>
+    setCurrCrop: React.Dispatch<React.SetStateAction<number>>
+    setImgSizes: React.Dispatch<React.SetStateAction<TImgSizes>>
 }
 
 export const ImageWrapper:
@@ -39,9 +40,11 @@ export const ImageWrapper:
                                        handleChoseOption,
                                        models,
                                        setCurrRotate,
+                                       setCurrCrop,
                                        currRotate,
                                        isCut,
-                                       isLoading
+                                       isLoading,
+                                       setImgSizes
                                    }) => {
 
     const [lastScale, setLastScale] = useState<number>(0)
@@ -51,6 +54,10 @@ export const ImageWrapper:
         useState<{ left: number, right: number, top: number, bottom: number }>(
             {left: 0, right: 0, top: 0, bottom: 0}
         )
+    const [isRecActive, setIsRecActive] =
+        useState<boolean>(false)
+    const [isSquareActive, setIsSquareActive] =
+        useState<boolean>(false)
 
     const origImgRef = useRef<HTMLImageElement>(null)
     const imgBlockRef = useRef<HTMLImageElement>(null)
@@ -181,9 +188,10 @@ export const ImageWrapper:
             const height = origImgRef.current.naturalHeight;
             const myParSizes = parentRef.current!.getBoundingClientRect()
 
-
             imgBlockRef.current!.style.width = `${width}px`;
             imgBlockRef.current!.style.height = `${height}px`;
+
+            setImgSizes({x1: 0, y1: 0, width, height})
 
             if (width > height)
                 apiWheel.start({
@@ -252,6 +260,18 @@ export const ImageWrapper:
     const handleRefresh = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
         setIsActiveRefresh(prevState => !prevState)
+    };
+
+    const handleCutRectangle = () => {
+        setIsRecActive(prevState => !prevState)
+        setIsSquareActive(false)
+        isRecActive ? setCurrCrop(0.66) : setCurrCrop(0)
+    };
+
+    const handleCutSquare = () => {
+        setIsRecActive(false)
+        setIsSquareActive(prevState => !prevState)
+        isRecActive ? setCurrCrop(1) : setCurrCrop(0)
     };
 
     return (
@@ -340,7 +360,7 @@ export const ImageWrapper:
                         </>}
                     </animated.div>
                 </div>
-                <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-[200px]
+                <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-[280px]
                 bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer">
                     {isRotate && <>
                         <img src={imageWrapper.left} alt="Left"
@@ -365,12 +385,14 @@ export const ImageWrapper:
                     {isCut &&
                         <>
                             <img src={imageWrapper.rectangle} alt="Cut Rectungle"
-                                 className="h-full"
-                                // onClick={handleCutRectungle}
+                                 className={`h-full rounded-md transition-all ease-in-out duration-500
+                                 ${isRecActive && 'bg-mainGreen/[0.6]'}`}
+                                 onClick={handleCutRectangle}
                             />
                             <img src={imageWrapper.square} alt="Cut Square"
-                                 className="h-full"
-                                // onClick={handleCutSquare}
+                                 className={`h-full rounded-md transition-all ease-in-out duration-500
+                                 ${isSquareActive && 'bg-mainGreen/[0.6]'}`}
+                                 onClick={handleCutSquare}
                             />
                         </>}
                     {isRefresh &&

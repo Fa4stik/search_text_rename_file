@@ -4,7 +4,7 @@ import {GridHeader} from "../../../04_features/GridHeader";
 import {FilesBlock, ImageWrapper, RenameFile} from "../../../04_features/RenameFiles";
 import {columnsReadyFiles} from "../../../04_features/RenameFiles/model/gridStyles";
 import {TRow} from "../../../05_entities/DataGrid";
-import {getDataById, getFile, processImage, TBbox} from "../../../05_entities/RenameFileFetchData";
+import {getDataById, getFile, processImage, TBbox, TImgSizes} from "../../../05_entities/RenameFileFetchData";
 import {useRenameStore} from "../../../03_widgetes/MainTable";
 import {getOcrModels} from "../../../05_entities/CreateTaskFetchData";
 import {TOption} from "../../../06_shared/model/typeSelect";
@@ -40,6 +40,9 @@ const RenamesCurrentPage = () => {
         useState<number>(0)
     const [isLoadingImgWrapper, setIsLoadingImgWrapper] =
         useState<boolean>(false)
+    const [currCrop, setCurrCrop] = useState<number>(0)
+    const [imgSizes, setImgSizes] =
+        useState<TImgSizes>({x1: 0, y1: 0, width: 0, height: 0})
 
     const resizeRowRef = useRef<HTMLDivElement>(null)
     const resizeColRef = useRef<HTMLDivElement>(null)
@@ -110,9 +113,10 @@ const RenamesCurrentPage = () => {
         }
     };
 
-    const handleRegenerateImg = (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => {
+    const handleRegenerateImg = (e: React.MouseEvent<HTMLSpanElement>, ocr_type_model: string | number) => {
         setIsLoadingImgWrapper(prevState => !prevState)
-        processImage(activeUid, value.toString(), currRotate)
+        processImage(activeUid, ocr_type_model.toString(),
+            currRotate, currCrop, imgSizes)
             .then(resp => {
                 updateUid(activeUid, resp.uid)
                 setActiveUid(resp.uid)
@@ -128,7 +132,7 @@ const RenamesCurrentPage = () => {
                     })
                 getFile(resp.uid)
                     .then(resp => {
-                        setSrcImg(resp)
+                        setSrcImg(resp+`?${new Date().getTime()}`)
                     })
                     .catch(err => {
                         console.log(err);
@@ -151,7 +155,7 @@ const RenamesCurrentPage = () => {
                     >
                         <div className="w-full h-1/2 flex flex-col select-none" ref={resizeRowRef}>
                             <FilesBlock rows={rows.map(row =>
-                                ({...row, name: convertNameFile(row.name, 15, true)}))}
+                                ({...row, name: convertNameFile(row.name, 35, true)}))}
                                         columns={columnsReadyFiles}
                                         rowOnClick={handleClickRow}
                             />
@@ -174,15 +178,14 @@ const RenamesCurrentPage = () => {
                     <ImageWrapper handleClickBox={handleClickBox}
                                   myBoxes={bboxes}
                                   srcImg={srcImg}
-                                  isDark
-                                  isRefresh
-                                  isRotate
-                                  isZoom
+                                  isDark isRefresh isRotate isZoom isCut
                                   isLoading={isLoadingImgWrapper}
                                   handleChoseOption={handleRegenerateImg}
                                   models={models}
                                   setCurrRotate={setCurrRotate}
                                   currRotate={currRotate}
+                                  setCurrCrop={setCurrCrop}
+                                  setImgSizes={setImgSizes}
                     />
                 </div>
             </div>

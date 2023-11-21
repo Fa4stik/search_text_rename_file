@@ -1,7 +1,7 @@
 export {getFile} from './model/getFile'
 export {getDataById} from './model/getDataById'
 export {addFileName} from './model/addFileName'
-export type {TBbox} from './model/types'
+export type {TBbox, TImgSizes} from './model/types'
 export {archiveChunk} from './model/archiveChunk'
 export { getPermatags } from './model/getPermatags'
 export { rmPermatag } from './model/rmPermatag'

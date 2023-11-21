@@ -33,6 +33,7 @@ export const RenameFile:
             .then(resp => {
                 setPremaTags(resp.tags)
             })
+            .catch(err => console.log(err))
     }, []);
 
     const handleSetNameFile = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -83,8 +84,12 @@ export const RenameFile:
         <div className="w-full h-full flex flex-col py-[10px] px-[30px] overflow-y-scroll">
             <div className="flex flex-col mb-[10px]">
                 <h3 className="text-xl mb-[5px]">Тэги</h3>
-                <TagGroup name={'Общие теги'} tags={tags} handleClickTag={handleClickTag}/>
-                <TagGroup name={'Перма теги'} tags={permaTags}
+                <TagGroup name={'Общие'}
+                          tags={tags}
+                          handleClickTag={handleClickTag}
+                          isShowTags
+                />
+                <TagGroup name={'Пользователя'} tags={permaTags}
                           handleClickTag={handleClickTag}
                           handleDelTag={handleDelTag}
                           handleBlurTag={handleBlurTag}

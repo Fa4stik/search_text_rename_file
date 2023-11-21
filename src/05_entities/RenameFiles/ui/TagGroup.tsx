@@ -9,6 +9,7 @@ type TagGroupProps = {
     handleClickTag: (e: React.MouseEvent<HTMLParagraphElement>, tag: string) => void
     handleDelTag?: (e: React.MouseEvent<SVGSVGElement>, tag: string) => void
     handleBlurTag?: (e: React.ChangeEvent<HTMLInputElement>) => void
+    isShowTags?: boolean
 }
 
 export const TagGroup: React.FC<TagGroupProps>
@@ -20,7 +21,8 @@ export const TagGroup: React.FC<TagGroupProps>
            setTags,
            handleDelTag,
            handleClickTag,
-           handleBlurTag
+           handleBlurTag,
+           isShowTags
        }) => {
 
     const [isShowInput, setIsShowInput] = useState<boolean>(false)
@@ -61,8 +63,7 @@ export const TagGroup: React.FC<TagGroupProps>
                             overflow-hidden"
                  ref={contTagRef}
             >
-                {tags.length > 0
-                    ? <>{tags.map((tag, id) => (
+                    <>{tags.map((tag, id) => (
                         <div key={id} className="bg-mainTags/[0.3] py-[2px] px-[7px]
                                     rounded-2xl cursor-pointer relative"
                              onClick={(e) => handleClickTag(e, tag)}
@@ -118,8 +119,7 @@ export const TagGroup: React.FC<TagGroupProps>
                             </>
                         }
                     </>
-                    : <p className="w-full text-center">Тегов не найдено</p>
-                }
+                {isShowTags && tags.length === 0 && <p className="w-full text-center">Тегов не найдено</p>}
             </div>
         </div>
     );
