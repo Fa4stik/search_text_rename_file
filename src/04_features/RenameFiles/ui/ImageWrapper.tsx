@@ -263,15 +263,19 @@ export const ImageWrapper:
     };
 
     const handleCutRectangle = () => {
-        setIsRecActive(prevState => !prevState)
+        setIsRecActive(prevState => {
+            !prevState ? setCurrCrop(0.66) : setCurrCrop(0)
+            return !prevState
+        })
         setIsSquareActive(false)
-        isRecActive ? setCurrCrop(0.66) : setCurrCrop(0)
     };
 
     const handleCutSquare = () => {
         setIsRecActive(false)
-        setIsSquareActive(prevState => !prevState)
-        isRecActive ? setCurrCrop(1) : setCurrCrop(0)
+        setIsSquareActive(prevState => {
+            !prevState ? setCurrCrop(1) : setCurrCrop(0)
+            return !prevState
+        })
     };
 
     return (
