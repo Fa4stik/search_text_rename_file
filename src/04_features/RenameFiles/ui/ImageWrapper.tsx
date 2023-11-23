@@ -389,7 +389,7 @@ export const ImageWrapper:
                     {isCut &&
                         <>
                             <img src={imageWrapper.rectangle} alt="Cut Rectungle"
-                                 className={`h-full rounded-md transition-all ease-in-out duration-500
+                                 className={`h-full rounded-md transition-all ease-in-out duration-500 rotate-90
                                  ${isRecActive && 'bg-mainGreen/[0.6]'}`}
                                  onClick={handleCutRectangle}
                             />
