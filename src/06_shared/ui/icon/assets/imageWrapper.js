@@ -5,6 +5,7 @@ import zoomOut from './ImageWrapper/Zoom Out.svg'
 import refresh from './ImageWrapper/refresh2.svg'
 import rectangle from './ImageWrapper/crop_3_2_FILL0_wght400_GRAD0_opsz24.svg'
 import square from './ImageWrapper/crop_square_FILL0_wght400_GRAD0_opsz24.svg'
+import cut from './ImageWrapper/content_cut_FILL0_wght400_GRAD0_opsz24.svg'
 
 export const imageWrapper = {
     left,
@@ -13,5 +14,6 @@ export const imageWrapper = {
     zoomOut,
     refresh,
     rectangle,
-    square
+    square,
+    cut
 }

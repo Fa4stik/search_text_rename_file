@@ -54,11 +54,13 @@ export const MainInfo:
             <BorderSelect options={optionsFiles}
                           onChange={handleChangeFiles}
                           classStyle="flex-grow"
-                          defaultValue={1}/>
+                          defaultValue={1}
+            />
             <BorderSelect options={optionsModels}
                           onChange={handleChangeModel}
                           classStyle="flex-grow"
-                          defaultValue={1}/>
+                          defaultValue={1}
+            />
         </div>
     );
 };

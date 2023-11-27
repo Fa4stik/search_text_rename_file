@@ -13,6 +13,7 @@ export type TGetProcessedReq = {
     path: string,
     old_filename: string,
     new_filename: string,
+    angle: number,
     tags: string[],
     text: string[],
     bboxes: TBboxResp[]
