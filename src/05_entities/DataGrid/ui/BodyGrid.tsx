@@ -67,7 +67,7 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
     };
 
     return (
-        <div className={`flex-grow bg-mainGray overflow-y-scroll relative ${classStyles}`}
+        <div className={`flex-grow bg-mainGray overflow-y-scroll relative select-none ${classStyles}`}
              ref={tableScrollRef}
              onContextMenu={handleContextMenuTable}
              onClick={handleCloseContextMenu}
