@@ -3,6 +3,8 @@ import {imageWrapper} from "../../../06_shared/ui/icon";
 import {DropDownMenu} from "../../DropDownMenu";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {SpringRef, SpringValue} from "react-spring";
+import {TImgRect} from "../model/imgTypes";
+import {TImgSizes} from "../../RenameFileFetchData";
 
 type BottomPanelImgWrapProps = {
     isRotate?: boolean
@@ -19,6 +21,11 @@ type BottomPanelImgWrapProps = {
     updateBounds: () => void
     models: TOption[]
     setCurrCrop: React.Dispatch<React.SetStateAction<number>>
+    isEdit: boolean
+    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
+    setIsEmptyImgRect: React.Dispatch<React.SetStateAction<boolean>>
+    setImgRect: React.Dispatch<React.SetStateAction<TImgSizes>>
+    origImgSizes: TImgSizes
 }
 
 export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
@@ -36,7 +43,11 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
            setCurrRotate,
            apiWheel,
            models,
-           setCurrCrop
+           setCurrCrop,
+           setImgRect,
+           setIsEmptyImgRect,
+           setIsEdit,
+           isEdit, origImgSizes
        }) => {
 
     const [isActiveRefresh, setIsActiveRefresh] =
@@ -44,7 +55,6 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
     const [isRecActive, setIsRecActive] =
         useState<boolean>(false)
     const [isSquareActive, setIsSquareActive] = useState<boolean>();
-    const [isEdit, setIsEdit] = useState<boolean>(false);
 
     const handleRotateLeft = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
@@ -87,6 +97,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         })
         setIsSquareActive(false)
         setIsEdit(false)
+        setImgRect(origImgSizes)
     };
 
     const handleCutSquare = () => {
@@ -96,6 +107,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
             !prevState ? setCurrCrop(1) : setCurrCrop(0)
             return !prevState
         })
+        setImgRect(origImgSizes)
     };
 
     const handleRefresh = (e: React.MouseEvent<HTMLImageElement>) => {
@@ -106,7 +118,11 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
     const handleCut = (e: React.MouseEvent<HTMLImageElement>) => {
         setIsSquareActive(false)
         setIsRecActive(false)
-        setIsEdit(prevState => !prevState)
+        setIsEdit(prevState => {
+            !prevState && setImgRect({x1: 0, width: 0, y1: 0, height: 0})
+            return !prevState
+        })
+        setIsEmptyImgRect(true)
     };
 
     return (
@@ -159,6 +175,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
                     <DropDownMenu options={models}
                                   setIsActiveRefresh={setIsActiveRefresh}
                                   handleChoseOption={handleChoseOption}
+                                  setIsEdit={setIsEdit}
                     />
                 </div>}
             </div>

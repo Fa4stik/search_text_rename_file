@@ -21,7 +21,9 @@ const RenamesCurrentPage = () => {
 
     const [tags, setTags] = useState<string[]>([])
     const [rows, setRows] = useState<TRow[]>(renamesRows.find(rR =>
-            rR.id === idTask)!.renameFiles.map((file, id) => ({
+        rR.id === idTask)!.renameFiles
+        .filter(file => file.uid)
+        .map((file, id) => ({
                 ...file,
                 is_duplicate: file.is_duplicate ? '1' : '',
                 uid: file.uid.toString(),
@@ -41,7 +43,7 @@ const RenamesCurrentPage = () => {
     const [isLoadingImgWrapper, setIsLoadingImgWrapper] =
         useState<boolean>(false)
     const [currCrop, setCurrCrop] = useState<number>(0)
-    const [imgSizes, setImgSizes] =
+    const [imgRect, setImgRect] =
         useState<TImgSizes>({x1: 0, y1: 0, width: 0, height: 0})
 
     const resizeRowRef = useRef<HTMLDivElement>(null)
@@ -117,7 +119,7 @@ const RenamesCurrentPage = () => {
     const handleRegenerateImg = (e: React.MouseEvent<HTMLSpanElement>, ocr_type_model: string | number) => {
         setIsLoadingImgWrapper(prevState => !prevState)
         processImage(activeUid, ocr_type_model.toString(),
-            currRotate, currCrop, imgSizes)
+            currRotate, currCrop, imgRect)
             .then(resp => {
                 updateUid(activeUid, resp.uid)
                 setActiveUid(resp.uid)
@@ -133,7 +135,7 @@ const RenamesCurrentPage = () => {
                     })
                 getFile(resp.uid)
                     .then(resp => {
-                        setSrcImg(resp+`?${new Date().getTime()}`)
+                        setSrcImg(resp + `?${new Date().getTime()}`)
                     })
                     .catch(err => {
                         console.log(err);
@@ -186,7 +188,8 @@ const RenamesCurrentPage = () => {
                                   setCurrRotate={setCurrRotate}
                                   currRotate={currRotate}
                                   setCurrCrop={setCurrCrop}
-                                  setImgSizes={setImgSizes}
+                                  setImgRect={setImgRect}
+                                  imgRect={imgRect}
                     />
                 </div>
             </div>

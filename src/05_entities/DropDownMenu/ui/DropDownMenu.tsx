@@ -5,14 +5,17 @@ type DropDownMenuProps = {
     options: TOption[]
     setIsActiveRefresh: React.Dispatch<React.SetStateAction<boolean>>
     handleChoseOption?: (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => void
+    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const DropDownMenu: React.FC<DropDownMenuProps> = ({options,
                                                               setIsActiveRefresh,
-                                                          handleChoseOption}) => {
+                                                          handleChoseOption,
+                                                              setIsEdit}) => {
     const handleChooseOption = (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => {
         e.preventDefault()
         setIsActiveRefresh(false)
+        setIsEdit(false)
         handleChoseOption && handleChoseOption(e, value)
     }
 
