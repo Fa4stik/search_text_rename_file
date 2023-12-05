@@ -15,16 +15,14 @@ const floorNumbers = (...objects: NumberObjects[]): NumberObjects[] => {
 export const processImage = (uid: number, ocr_model_type: string,
                              angle: number, w2h_koeff: number,
                              imgSize: TImgSizes): Promise<TProcessImgReq> => {
-    const [numbers] = floorNumbers({...imgSize})
+    const [sizes] = floorNumbers({...imgSize})
     const bodyQuery = {
         uid,
         ocr_model_type,
         pipeline_params: {
             angle,
             w2h_koeff,
-            cut: {
-                ...numbers
-            }
+            cut: { ...sizes }
         }
     }
     return baseApi('/process-image/', {
