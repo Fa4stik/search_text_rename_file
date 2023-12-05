@@ -83,7 +83,7 @@ const RenamesCurrentPage = () => {
             })
         getFile(uid)
             .then(resp => {
-                setSrcImg(resp)
+                setSrcImg(resp+`?timestamp=${new Date()}`)
 
             })
             .catch(err => {

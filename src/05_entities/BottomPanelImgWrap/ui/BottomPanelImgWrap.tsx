@@ -58,15 +58,18 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
 
     const handleRotateLeft = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
+        e.stopPropagation()
         setCurrRotate(prevState => prevState -= 90)
     };
 
     const handleRotateRight = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
+        e.stopPropagation()
         setCurrRotate(prevState => prevState += 90)
     };
 
     const handleZoomIn = (e: React.MouseEvent<HTMLImageElement>) => {
+        e.stopPropagation()
         const scaleFactor = 1.1;
         const newScale = scale.get() * scaleFactor;
         setLastScale(newScale);
@@ -79,6 +82,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
     };
 
     const handleZoomOut = (e: React.MouseEvent<HTMLImageElement>) => {
+        e.stopPropagation()
         const scaleFactor = 0.9;
         const newScale = scale.get() * scaleFactor;
         setLastScale(newScale);
@@ -90,7 +94,8 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         })
     };
 
-    const handleCutRectangle = () => {
+    const handleCutRectangle = (e: React.MouseEvent<HTMLImageElement>) => {
+        e.stopPropagation()
         setIsRecActive(prevState => {
             !prevState ? setCurrCrop(0.66) : setCurrCrop(0)
             return !prevState
@@ -112,10 +117,12 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
 
     const handleRefresh = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
+        e.stopPropagation()
         setIsActiveRefresh(prevState => !prevState)
     };
 
     const handleCut = (e: React.MouseEvent<HTMLImageElement>) => {
+        e.stopPropagation()
         setIsSquareActive(false)
         setIsRecActive(false)
         setIsEdit(prevState => {
@@ -129,7 +136,9 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         <>
             <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-[320px]
                 bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer
-                after:relative after:-ml-[10px]">
+                after:relative after:-ml-[10px]"
+                 // onClick={(e) => e.stopPropagation()}
+            >
                 {isRotate && <>
                     <img src={imageWrapper.left} alt="Left"
                          className="h-full"
