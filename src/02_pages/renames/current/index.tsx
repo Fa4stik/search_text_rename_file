@@ -76,7 +76,7 @@ const RenamesCurrentPage = () => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
                 setTags(resp.tags)
-                setCurrRotate(resp.angle)
+                setCurrRotate(0)
             })
             .catch(err => {
                 console.log(err);
