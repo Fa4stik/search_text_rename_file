@@ -61,8 +61,10 @@ const MainCreatePage = () => {
                                     })
                     }
 
-                    ws.current!.onclose = () => {
-                        console.log('Ws close')
+                    ws.current!.onclose = (mess) => {
+                        if (mess.code !== 1000) {
+                            setStatus(id, 'Ошибка обработки')
+                        }
                         clearInterval(myInterval)
                     }
                 })
