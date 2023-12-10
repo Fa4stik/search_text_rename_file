@@ -207,6 +207,36 @@ export const ImageWrapper:
     const [isResizeRight, setIsResizeRight] = useState<boolean>(false)
     const [isResizeDown, setIsResizeDown] = useState<boolean>(false)
     const [isResizeLeft, setIsResizeLeft] = useState<boolean>(false)
+    const [topLeft, setTopLeft] =
+        useState<{top: number, left: number}>(() => {
+            const normalizedRotate = currRotate % 360;
+            let left = 0
+            let top = 0
+
+            if (normalizedRotate === 0) {
+                left = (origImgSizes.width - origImgSizes.height)/2
+                top = (origImgSizes.width - origImgSizes.height)/2
+            }
+
+            if (normalizedRotate === 90 || normalizedRotate === -270) {
+                left = -(origImgSizes.width - origImgSizes.height)/2
+                top = (origImgSizes.width - origImgSizes.height)/2
+            }
+
+            if (normalizedRotate === 180 || normalizedRotate === -180) {
+                left = -(origImgSizes.width - origImgSizes.height)/2
+                top = -(origImgSizes.width - origImgSizes.height)/2
+            }
+
+            if (normalizedRotate === 270 || normalizedRotate === -90) {
+                left = (origImgSizes.width - origImgSizes.height)/2
+                top = -(origImgSizes.width - origImgSizes.height)/2
+            }
+
+            console.log(top, left, currRotate)
+
+            return {top, left}
+        })
 
     const getRelativeCord = (e: React.MouseEvent<HTMLDivElement>) => {
         const blockElement = e.currentTarget;
@@ -414,8 +444,6 @@ export const ImageWrapper:
                         {!isEdit &&
                             <div className="absolute z-30"
                                  style={{
-                                     top: 0,
-                                     left: 0,
                                      width: '100%',
                                      height: '100%',
                                      transform: `rotate(${currRotate}deg)`,

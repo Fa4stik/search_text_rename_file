@@ -76,7 +76,7 @@ const RenamesCurrentPage = () => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
                 setTags(resp.tags)
-                setCurrRotate(0)
+                setCurrRotate(resp.angle)
             })
             .catch(err => {
                 console.log(err);
@@ -129,6 +129,7 @@ const RenamesCurrentPage = () => {
                         setBboxes(resp.bboxes.map((bbox, id) =>
                             ({...bbox, word: resp.text[id]})))
                         setTags(resp.tags)
+                        setCurrRotate(resp.angle)
                     })
                     .catch(err => {
                         console.log(err);
@@ -178,6 +179,7 @@ const RenamesCurrentPage = () => {
                              setIsResizeCol(true)
                          }}
                     />
+                    {/*isDark*/}
                     <ImageWrapper handleClickBox={handleClickBox}
                                   myBoxes={bboxes}
                                   srcImg={srcImg}
