@@ -111,11 +111,21 @@ export const RenameFile:
                     <p className="text-[13px] -mt-[5px] mb-[5px] ml-[10px] text-red-400">
                         *Некорректное название файла, нельзя использовать символы \ / : ? " &lt; &gt; |
                     </p>}
-                <FillButton onClick={handleSetNameFile}
-                            classStyles={`${isNotCorrectName ? 'bg-red-400' : 'bg-mainGreen'} rounded-md`}
-                >
-                    Изменить
-                </FillButton>
+                <div className="flex gap-x-1">
+                    <FillButton onClick={handleSetNameFile}
+                                classStyles={`${isNotCorrectName ? 'bg-red-400' : 'bg-mainGreen'} rounded-md`}
+                    >
+                        Изменить
+                    </FillButton>
+                    <FillButton onClick={(e) => {
+                        e.preventDefault()
+                        setNameFile('')
+                    }}
+                                classStyles="rounded-md bg-mainDark"
+                    >
+                        Очистить
+                    </FillButton>
+                </div>
             </div>
         </div>
     );

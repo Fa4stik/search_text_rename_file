@@ -1,10 +1,11 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {imageWrapper} from "../../../06_shared/ui/icon";
 import {DropDownMenu} from "../../DropDownMenu";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {SpringRef, SpringValue} from "react-spring";
 import {TImgRect} from "../model/imgTypes";
 import {TImgSizes} from "../../RenameFileFetchData";
+import current from "../../../02_pages/renames/current";
 
 type BottomPanelImgWrapProps = {
     isRotate?: boolean
@@ -59,13 +60,19 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
     const handleRotateLeft = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
         e.stopPropagation()
-        setCurrRotate(prevState => prevState -= 90)
+        setCurrRotate(prevState => prevState-90 < 0
+            ? prevState = 270
+            : prevState -= 90
+        )
     };
 
     const handleRotateRight = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
         e.stopPropagation()
-        setCurrRotate(prevState => prevState += 90)
+        setCurrRotate(prevState => prevState+90 === 360
+            ? prevState = 0
+            : prevState += 90
+        )
     };
 
     const handleZoomIn = (e: React.MouseEvent<HTMLImageElement>) => {

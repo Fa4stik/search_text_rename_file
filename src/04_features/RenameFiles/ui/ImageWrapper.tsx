@@ -5,6 +5,7 @@ import {useDrag, useWheel} from "@use-gesture/react";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {LoadingDotRight} from "../../../06_shared/ui/loading";
 import {BottomPanelImgWrap, TCord, TImgRect} from "../../../05_entities/BottomPanelImgWrap";
+import current from "../../../02_pages/renames/current";
 
 const minSizeScaleImg = 0.1
 const maxSizeScaleImg = 15
@@ -207,36 +208,6 @@ export const ImageWrapper:
     const [isResizeRight, setIsResizeRight] = useState<boolean>(false)
     const [isResizeDown, setIsResizeDown] = useState<boolean>(false)
     const [isResizeLeft, setIsResizeLeft] = useState<boolean>(false)
-    const [topLeft, setTopLeft] =
-        useState<{top: number, left: number}>(() => {
-            const normalizedRotate = currRotate % 360;
-            let left = 0
-            let top = 0
-
-            if (normalizedRotate === 0) {
-                left = (origImgSizes.width - origImgSizes.height)/2
-                top = (origImgSizes.width - origImgSizes.height)/2
-            }
-
-            if (normalizedRotate === 90 || normalizedRotate === -270) {
-                left = -(origImgSizes.width - origImgSizes.height)/2
-                top = (origImgSizes.width - origImgSizes.height)/2
-            }
-
-            if (normalizedRotate === 180 || normalizedRotate === -180) {
-                left = -(origImgSizes.width - origImgSizes.height)/2
-                top = -(origImgSizes.width - origImgSizes.height)/2
-            }
-
-            if (normalizedRotate === 270 || normalizedRotate === -90) {
-                left = (origImgSizes.width - origImgSizes.height)/2
-                top = -(origImgSizes.width - origImgSizes.height)/2
-            }
-
-            console.log(top, left, currRotate)
-
-            return {top, left}
-        })
 
     const getRelativeCord = (e: React.MouseEvent<HTMLDivElement>) => {
         const blockElement = e.currentTarget;
@@ -246,25 +217,39 @@ export const ImageWrapper:
         const relativeY = (e.clientY - blockRect.top)/scale.get()
         return {relativeX, relativeY}
     }
+
     const handleDownRect = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault()
         if (isEdit && isEmptyImgRect) {
-            const {relativeX, relativeY} = getRelativeCord(e);
+            const blockElement = e.currentTarget;
+            const blockRect = blockElement.getBoundingClientRect()
 
-            setStartCord({x: relativeX, y: relativeY})
+            const relativeX = (e.clientX - blockRect.left)/scale.get()
+            const relativeY = (e.clientY - blockRect.top)/scale.get()
+
+            if (currRotate === 0) {
+                setStartCord({x: relativeX, y: relativeY})
+            }
+
+            if (currRotate === 270) {
+                setStartCord({x: blockRect.height/scale.get() - relativeY, y: relativeX })
+            }
+
+            if (currRotate === 180) {
+                setStartCord({x: blockRect.width/scale.get()-relativeX, y: blockRect.height/scale.get()-relativeY })
+            }
+
+            if (currRotate === 90) {
+                setStartCord({x: relativeY, y: blockRect.width/scale.get() - relativeX })
+            }
+
             setIsStartDrawRect(true)
             setIsEmptyImgRect(false)
         }
     };
+
     const handleUpRect = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isStartDrawRect) {
-            const {relativeX, relativeY} = getRelativeCord(e)
-
-            const x1 = Math.min(startCord.x, relativeX);
-            const y1 = Math.min(startCord.y, relativeY);
-            const width = Math.abs(relativeX - startCord.x);
-            const height = Math.abs(relativeY - startCord.y);
-            setImgRect({ x1, y1, width, height });
             setIsStartDrawRect(false)
         }
         setIsResizeUp(false)
@@ -274,15 +259,43 @@ export const ImageWrapper:
     };
     const handleMoveRect = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isStartDrawRect) {
-            const {relativeX, relativeY} = getRelativeCord(e)
+            const blockElement = e.currentTarget;
+            const blockRect = blockElement.getBoundingClientRect()
 
-            const x1 = Math.min(startCord.x, relativeX);
-            const y1 = Math.min(startCord.y, relativeY);
-            const width = Math.abs(relativeX - startCord.x);
-            const height = Math.abs(relativeY - startCord.y);
+            const relativeX = (e.clientX - blockRect.left)/scale.get()
+            const relativeY = (e.clientY - blockRect.top)/scale.get()
 
-            // Обновление состояния
-            setImgRect({ x1, y1, width, height });
+            let x1: number, y1: number, width: number, height: number;
+
+            if (currRotate === 0) {
+                x1 = Math.min(startCord.x, relativeX);
+                y1 = Math.min(startCord.y, relativeY);
+                width = Math.abs(relativeX - startCord.x);
+                height = Math.abs(relativeY - startCord.y);
+            }
+
+            if (currRotate === 270) {
+                y1 = Math.min(startCord.y, relativeX);
+                x1 = Math.min((blockRect.height/scale.get() - relativeY), startCord.x);
+                height = Math.abs(relativeX - startCord.y)
+                width = Math.abs((blockRect.height/scale.get() - relativeY) - startCord.x)
+            }
+
+            if (currRotate === 180) {
+                x1 = Math.min(blockRect.width/scale.get()-relativeX, startCord.x);
+                y1 = Math.min(blockRect.height/scale.get()-relativeY, startCord.y);
+                width = Math.abs(blockRect.width/scale.get()-relativeX - startCord.x);
+                height = Math.abs(blockRect.height/scale.get()-relativeY - startCord.y);
+            }
+
+            if (currRotate === 90) {
+                y1 = Math.min((blockRect.width/scale.get() - relativeX), startCord.y);
+                x1 = Math.min(startCord.x, relativeY);
+                height = Math.abs((blockRect.width/scale.get() - relativeX) - startCord.y)
+                width = Math.abs(relativeY - startCord.x)
+            }
+
+            setImgRect(prevState => ({ x1, y1, width, height }));
         }
 
         if (isResizeUp) {
@@ -323,15 +336,46 @@ export const ImageWrapper:
             }));
         }
     };
+
     const handleLeaveMouse = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isStartDrawRect) {
-            const {relativeX, relativeY} = getRelativeCord(e)
+            const blockElement = e.currentTarget;
+            const blockRect = blockElement.getBoundingClientRect()
 
-            const x1 = Math.min(startCord.x, relativeX);
-            const y1 = Math.min(startCord.y, relativeY);
-            const width = Math.abs(relativeX - startCord.x);
-            const height = Math.abs(relativeY - startCord.y);
-            setImgRect({ x1, y1, width, height });
+            const relativeX = (e.clientX - blockRect.left)/scale.get()
+            const relativeY = (e.clientY - blockRect.top)/scale.get()
+
+            let x1: number, y1: number, width: number, height: number;
+
+            if (currRotate === 0) {
+                x1 = Math.min(startCord.x, relativeX);
+                y1 = Math.min(startCord.y, relativeY);
+                width = Math.abs(relativeX - startCord.x);
+                height = Math.abs(relativeY - startCord.y);
+            }
+
+            if (currRotate === 270) {
+                y1 = Math.min(startCord.y, relativeX);
+                x1 = Math.min((blockRect.height/scale.get() - relativeY), startCord.x);
+                height = Math.abs(relativeX - startCord.y) - 5
+                width = Math.abs((blockRect.height/scale.get() - relativeY) - startCord.x) - 5
+            }
+
+            if (currRotate === 180) {
+                x1 = Math.min(blockRect.width/scale.get()-relativeX, startCord.x);
+                y1 = Math.min(blockRect.height/scale.get()-relativeY, startCord.y);
+                width = Math.abs(blockRect.width/scale.get()-relativeX - startCord.x);
+                height = Math.abs(blockRect.height/scale.get()-relativeY - startCord.y);
+            }
+
+            if (currRotate === 90) {
+                y1 = Math.min((blockRect.width/scale.get() - relativeX), startCord.y);
+                x1 = Math.min(startCord.x, relativeY);
+                height = Math.abs((blockRect.width/scale.get() - relativeX) - startCord.y)
+                width = Math.abs(relativeY - startCord.x)
+            }
+
+            setImgRect(prevState => ({ x1, y1, width, height }));
             setIsStartDrawRect(false)
         }
         setIsResizeUp(false)
@@ -343,6 +387,10 @@ export const ImageWrapper:
     useEffect(() => {
         !isEdit && setImgRect(origImgSizes)
     }, [isEdit]);
+
+    useEffect(() => {
+        console.log(currRotate)
+    }, [currRotate]);
 
     return (
         <div className="flex-1 flex overflow-hidden cursor-grab">
@@ -376,7 +424,7 @@ export const ImageWrapper:
                 {isLoading &&
                     <LoadingDotRight/>}
                 <div>
-                    <animated.div className={`relative ${isEdit ? 'cursor-copy': 'cursor-grab'}`}
+                    <animated.div className={`relative`}
                                   ref={imgBlockRef}
                                   {...(!isEdit && bindDrag())}
                                   {...bindWheel()}
@@ -386,52 +434,7 @@ export const ImageWrapper:
                                       transformOrigin: 'center'
                                   }}
                                   onDragStart={(e) => e.preventDefault()}
-                                  onMouseDown={handleDownRect}
-                                  onMouseUp={handleUpRect}
-                                  onMouseMove={handleMoveRect}
-                                  onMouseLeave={handleLeaveMouse}
                     >
-                        {isEdit && !isEmptyImgRect && <svg xmlns="http://www.w3.org/2000/svg"
-                                                           xmlnsXlink="http://www.w3.org/1999/xlink"
-                                                           className="absolute z-50 w-full h-full top-0 left-0"
-                        >
-                            <line x1={imgRect.x1} y1={imgRect.y1}
-                                  x2={imgRect.x1 + imgRect.width} y2={imgRect.y1}
-                                  stroke="black"
-                                  strokeWidth={5}
-                                  className="cursor-row-resize z-50"
-                                  onMouseDown={() => {
-                                      setIsResizeUp(true)
-                                  }}
-                            />
-                            <line x1={imgRect.x1 + imgRect.width} y1={imgRect.y1}
-                                  x2={imgRect.x1 + imgRect.width} y2={imgRect.y1 + imgRect.height}
-                                  stroke="black"
-                                  strokeWidth={5}
-                                  className="cursor-col-resize z-50"
-                                  onMouseDown={() => {
-                                      setIsResizeRight(true)
-                                  }}
-                            />
-                            <line x1={imgRect.x1} y1={imgRect.y1 + imgRect.height}
-                                  x2={imgRect.x1 + imgRect.width} y2={imgRect.y1 + imgRect.height}
-                                  strokeWidth={5}
-                                  stroke="black"
-                                  className="cursor-row-resize z-50"
-                                  onMouseDown={() => {
-                                      setIsResizeDown(true)
-                                  }}
-                            />
-                            <line x1={imgRect.x1} y1={imgRect.y1}
-                                  x2={imgRect.x1} y2={imgRect.y1 + imgRect.height}
-                                  stroke="black"
-                                  strokeWidth={5}
-                                  className="cursor-col-resize z-50"
-                                  onMouseDown={() => {
-                                      setIsResizeLeft(true)
-                                  }}
-                            />
-                        </svg>}
                         <img src={srcImg}
                              ref={origImgRef}
                              onLoad={handleImageLoad}
@@ -464,20 +467,66 @@ export const ImageWrapper:
                                 ))}
                             </div>}
                         {isDark && <>
-                            <div className="bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10"
+                            <div className={`bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10 ${isEdit ? 'cursor-copy': 'cursor-grab'}`}
                                  style={{
                                      transform: `rotate(${currRotate}deg)`,
                                      transformOrigin: 'center'
                                  }}
-                            />
-                            <img src={srcImg}
-                                 className="h-full max-h-none max-w-none absolute z-20"
-                                 style={{
-                                     clipPath: `${isEdit ? 'url(#cropMask)' : 'url(#contentMask)'}`,
-                                     transform: `rotate(${currRotate}deg)`,
-                                     transformOrigin: 'center'
-                                 }}
-                                 alt="MyImg"/>
+                                 onMouseDown={handleDownRect}
+                                 onMouseUp={handleUpRect}
+                                 onMouseMove={handleMoveRect}
+                                 onMouseLeave={handleLeaveMouse}
+                            >
+                                {isEdit && !isEmptyImgRect && <svg xmlns="http://www.w3.org/2000/svg"
+                                                                   xmlnsXlink="http://www.w3.org/1999/xlink"
+                                                                   className="absolute z-50 w-full h-full top-0 left-0"
+                                >
+                                    <line x1={imgRect.x1} y1={imgRect.y1}
+                                          x2={imgRect.x1 + imgRect.width} y2={imgRect.y1}
+                                          stroke="black"
+                                          strokeWidth={5}
+                                          className="cursor-row-resize z-50"
+                                          // onMouseDown={() => {
+                                          //     setIsResizeUp(true)
+                                          // }}
+                                    />
+                                    <line x1={imgRect.x1 + imgRect.width} y1={imgRect.y1}
+                                          x2={imgRect.x1 + imgRect.width} y2={imgRect.y1 + imgRect.height}
+                                          stroke="black"
+                                          strokeWidth={5}
+                                          className="cursor-col-resize z-50"
+                                          // onMouseDown={() => {
+                                          //     setIsResizeRight(true)
+                                          // }}
+                                    />
+                                    <line x1={imgRect.x1} y1={imgRect.y1 + imgRect.height}
+                                          x2={imgRect.x1 + imgRect.width} y2={imgRect.y1 + imgRect.height}
+                                          strokeWidth={5}
+                                          stroke="black"
+                                          className="cursor-row-resize z-50"
+                                          // onMouseDown={() => {
+                                          //     setIsResizeDown(true)
+                                          // }}
+                                    />
+                                    <line x1={imgRect.x1} y1={imgRect.y1}
+                                          x2={imgRect.x1} y2={imgRect.y1 + imgRect.height}
+                                          stroke="black"
+                                          strokeWidth={5}
+                                          className="cursor-col-resize z-50"
+                                          // onMouseDown={() => {
+                                          //     setIsResizeLeft(true)
+                                          // }}
+                                    />
+                                </svg>}
+                                <img src={srcImg}
+                                     className="h-full max-h-none max-w-none z-20"
+                                     style={{
+                                         // transform: `rotate(${currRotate}deg)`,
+                                         // transformOrigin: 'center',
+                                         clipPath: `${isEdit ? 'url(#cropMask)' : 'url(#contentMask)'}`,
+                                     }}
+                                     alt="MyImg"/>
+                            </div>
                         </>}
                     </animated.div>
                 </div>

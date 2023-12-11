@@ -76,7 +76,7 @@ const RenamesCurrentPage = () => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
                 setTags(resp.tags)
-                setCurrRotate(resp.angle)
+                setCurrRotate(0)
             })
             .catch(err => {
                 console.log(err);
@@ -123,13 +123,12 @@ const RenamesCurrentPage = () => {
             .then(resp => {
                 updateUid(activeUid, resp.uid)
                 setActiveUid(resp.uid)
-                setCurrRotate(0)
                 getDataById(resp.uid)
                     .then(resp => {
                         setBboxes(resp.bboxes.map((bbox, id) =>
                             ({...bbox, word: resp.text[id]})))
                         setTags(resp.tags)
-                        setCurrRotate(resp.angle)
+                        setCurrRotate(0)
                     })
                     .catch(err => {
                         console.log(err);
