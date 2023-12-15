@@ -84,18 +84,39 @@ export const RenameFile:
         <div className="w-full h-full flex flex-col py-[10px] px-[30px] overflow-y-scroll">
             <div className="flex flex-col mb-[10px]">
                 <h3 className="text-xl mb-[5px]">Тэги</h3>
-                <TagGroup name={'Общие'}
-                          tags={tags}
-                          handleClickTag={handleClickTag}
-                          isShowTags
-                />
-                <TagGroup name={'Пользователя'} tags={permaTags}
+                {/*<TagGroup name={'Общие'}*/}
+                {/*          tags={tags}*/}
+                {/*          handleClickTag={handleClickTag}*/}
+                {/*          isShowTags*/}
+                {/*/>*/}
+                {/*<TagGroup name={'Пользователя'} tags={permaTags}*/}
+                {/*          handleClickTag={handleClickTag}*/}
+                {/*          handleDelTag={handleDelTag}*/}
+                {/*          handleBlurTag={handleBlurTag}*/}
+                {/*          setTags={setPremaTags}*/}
+                {/*          isAddTag*/}
+                {/*          isDeleteTag*/}
+                {/*/>*/}
+                <TagGroup name={'Названия'} tags={['АК', 'БЦ']}
                           handleClickTag={handleClickTag}
                           handleDelTag={handleDelTag}
                           handleBlurTag={handleBlurTag}
                           setTags={setPremaTags}
                           isAddTag
                           isDeleteTag
+                />
+                <TagGroup name={'Масштабы'} tags={['1к200', '1к500']}
+                          handleClickTag={handleClickTag}
+                          handleDelTag={handleDelTag}
+                          handleBlurTag={handleBlurTag}
+                          setTags={setPremaTags}
+                          isAddTag
+                          isDeleteTag
+                />
+                <TagGroup name={'Даты'}
+                          tags={['11.12.2023']}
+                          handleClickTag={() => console.log()}
+                          isShowTags
                 />
             </div>
             <div className="flex flex-col flex-grow items-start">

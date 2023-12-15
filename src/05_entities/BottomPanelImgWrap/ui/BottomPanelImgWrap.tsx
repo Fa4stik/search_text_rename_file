@@ -79,7 +79,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         e.stopPropagation()
         const scaleFactor = 1.1;
         const newScale = scale.get() * scaleFactor;
-        setLastScale(newScale);
+        setLastScale(prevState => prevState-=102);
         const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
         apiWheel.start({
             scale: clampedScale, onChange: () => {

@@ -108,7 +108,10 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                                     null
                                 :
                                     <td key={row.id + column.field}
-                                        className={`pt-[5px] ${row[column.field as keyof typeof row] === 'В процессе' ? 'animate-pulse' : ''}`}
+                                        className={`pt-[5px] ${row[column.field as keyof typeof row] === 'В процессе' 
+                                            && 'animate-pulse'}
+                                            ${row[column.field as keyof typeof row] === 'Ошибка обработки'
+                                            && 'text-red-500'} `}
                                     >
                                         {row[column.field as keyof typeof row]}
                                     </td>

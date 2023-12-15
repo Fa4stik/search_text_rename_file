@@ -6,6 +6,8 @@ import {TOption} from "../../../06_shared/model/typeSelect";
 import {LoadingDotRight} from "../../../06_shared/ui/loading";
 import {BottomPanelImgWrap, TCord, TImgRect} from "../../../05_entities/BottomPanelImgWrap";
 import current from "../../../02_pages/renames/current";
+import {Simulate} from "react-dom/test-utils";
+import change = Simulate.change;
 
 const minSizeScaleImg = 0.1
 const maxSizeScaleImg = 15
@@ -54,10 +56,14 @@ export const ImageWrapper:
             {left: 0, right: 0, top: 0, bottom: 0}
         )
 
+    // Размеры оригинального изображения
     const origImgRef = useRef<HTMLImageElement>(null)
+    // Блок с изображение уже отформатированный с учётом зума
     const imgBlockRef = useRef<HTMLImageElement>(null)
+    // Размеры окна, в котором изменяется изображение
     const parentRef = useRef<HTMLDivElement>(null)
 
+    // Рассчёт границ для изображения (условно, если изображение не вписывается в parentRef, то мы центрируем его parentRef)
     const countNewBounds = () => {
         const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
         const sizeMyParent = parentRef.current!.getBoundingClientRect()
@@ -99,6 +105,8 @@ export const ImageWrapper:
         if (y.get() < newTop)
             apiDrag.start({y: newTop})
     }
+
+    // Тот же самыый расчёт, но только при повороте, заменяем высоту на ширину и наоборот
     const countNewBoundsRotate = () => {
         const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
         const sizeMyParent = parentRef.current!.getBoundingClientRect()
@@ -140,11 +148,15 @@ export const ImageWrapper:
         if (y.get() < newTop)
             apiDrag.start({y: newTop})
     }
+
     const updateBounds = () =>
         currRotate % 180 === 0 ? countNewBounds() : countNewBoundsRotate()
+
+    // Хук для перемещения изображения
     const [{x, y}, apiDrag] =
         useSpring(() => (
             {x: 0, y: 0}))
+
     const bindDrag = useDrag(({
                                   down,
                                   offset: [ox, oy]
@@ -155,9 +167,11 @@ export const ImageWrapper:
         eventOptions: {capture: true},
         rubberband: true
     })
+
+    // Хук для изменения размеров изображения
     const [{scale}, apiWheel] =
         useSpring(() => ({scale: 1}))
-    const bindWheel = useWheel(({offset: [dx, dy]}) => {
+        const bindWheel = useWheel(({offset: [dx, dy]}) => {
         const scaleFactor = 0.003;
         const newScale = scale.get() - (dy - lastScale) * scaleFactor;
         setLastScale(dy);
@@ -166,9 +180,13 @@ export const ImageWrapper:
 
         updateBounds()
     }, {})
+
+    // При изменении размеров изображения пересчитываем границы для parentRef
     useEffect(() => {
         updateBounds()
     }, [currRotate]);
+
+    // При загрузке изображения вписываем его либо по ширине, либо по высооте
     const handleImageLoad = () => {
         if (origImgRef.current) {
             const width = origImgRef.current.naturalWidth;
@@ -209,6 +227,7 @@ export const ImageWrapper:
     const [isResizeDown, setIsResizeDown] = useState<boolean>(false)
     const [isResizeLeft, setIsResizeLeft] = useState<boolean>(false)
 
+    // Получение координат для выделяемого блока
     const getRelativeCord = (e: React.MouseEvent<HTMLDivElement>) => {
         const blockElement = e.currentTarget;
         const blockRect = blockElement.getBoundingClientRect()
@@ -218,6 +237,7 @@ export const ImageWrapper:
         return {relativeX, relativeY}
     }
 
+    // Обработка при начале выделения области
     const handleDownRect = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault()
         if (isEdit && isEmptyImgRect) {
@@ -248,8 +268,20 @@ export const ImageWrapper:
         }
     };
 
+    // Обработка при конце выделения области
     const handleUpRect = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isStartDrawRect) {
+            const sizeMyParent = parentRef.current!.getBoundingClientRect()
+            if (imgRect.width > imgRect.height) {
+                apiWheel({scale: sizeMyParent.width/imgRect.width, onChange: () => {
+                        updateBounds()
+                    }})
+            } else {
+                console.log('HEIGHT')
+                apiWheel({scale: sizeMyParent.height/imgRect.height, onChange: () => {
+                        updateBounds()
+                    }})
+            }
             setIsStartDrawRect(false)
         }
         setIsResizeUp(false)
@@ -257,6 +289,8 @@ export const ImageWrapper:
         setIsResizeDown(false)
         setIsResizeLeft(false)
     };
+
+    // Обработка движения выделения
     const handleMoveRect = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isStartDrawRect) {
             const blockElement = e.currentTarget;
@@ -337,6 +371,7 @@ export const ImageWrapper:
         }
     };
 
+    // Обработка если курсор вышел за пределлы текущего изображения
     const handleLeaveMouse = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isStartDrawRect) {
             const blockElement = e.currentTarget;
@@ -384,13 +419,20 @@ export const ImageWrapper:
         setIsResizeLeft(false)
     };
 
+    // Обработка при изменении границ изображения
+    useEffect(() => {
+        const sizeMyParent = parentRef.current!.getBoundingClientRect()
+        if (imgRect.width > imgRect.height) {
+            apiDrag.start({x: bounds.right - imgRect.x1+20, y: bounds.bottom-imgRect.y1+20})
+        } else {
+            apiDrag.start({x: -(Math.abs(bounds.right)+imgRect.x1/2), y: -(Math.abs(bounds.bottom)+imgRect.y1)+20})
+        }
+    }, [bounds])
+
+    // Обработка для выделения облоасти изображения
     useEffect(() => {
         !isEdit && setImgRect(origImgSizes)
     }, [isEdit]);
-
-    useEffect(() => {
-        console.log(currRotate)
-    }, [currRotate]);
 
     return (
         <div className="flex-1 flex overflow-hidden cursor-grab">

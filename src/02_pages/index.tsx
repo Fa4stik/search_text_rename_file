@@ -1,5 +1,5 @@
-import React, {lazy, useEffect} from 'react';
-import {Route, Routes, useNavigate} from 'react-router-dom';
+import React, {lazy} from 'react';
+import {Route, Routes} from 'react-router-dom';
 
 const LendingPage = lazy(() => import('./lending'));
 const MainPage = lazy(() => import("./main"))
@@ -8,6 +8,7 @@ const ReadyPage = lazy(() => import("./ready"))
 const NotFoundPage = lazy(() => import("./notFound"))
 const MainCreatePage = lazy(() => import("./main/create"))
 const RenamesCurrentPage = lazy(() => import("./renames/current"))
+const VersionPage = lazy(() => import("./version"))
 
 export const Routing = () => {
     return (
@@ -18,6 +19,7 @@ export const Routing = () => {
             <Route path="renames" element={<RenamesPage/>}/>
             <Route path="renames/:idTask" element={<RenamesCurrentPage/>}/>
             <Route path="ready" element={<ReadyPage/>}/>
+            <Route path="version" element={<VersionPage/>}/>
             <Route path="*" element={<NotFoundPage/>}/>
         </Routes>
     );

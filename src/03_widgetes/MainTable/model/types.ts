@@ -7,6 +7,7 @@ export type TRowMain = TRowPage & {
     countFiles: string;
     sizeFiles: string;
     dataStart: string;
+    textColor?: string
     status: string;
 }
 
