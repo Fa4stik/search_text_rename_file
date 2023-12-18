@@ -1,11 +1,9 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {imageWrapper} from "../../../06_shared/ui/icon";
 import {DropDownMenu} from "../../DropDownMenu";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {SpringRef, SpringValue} from "react-spring";
-import {TImgRect} from "../model/imgTypes";
-import {TImgSizes} from "../../RenameFileFetchData";
-import current from "../../../02_pages/renames/current";
+import {TImgSizes} from "../../FetchPipeline";
 
 type BottomPanelImgWrapProps = {
     isRotate?: boolean
@@ -77,28 +75,24 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
 
     const handleZoomIn = (e: React.MouseEvent<HTMLImageElement>) => {
         e.stopPropagation()
-        const scaleFactor = 1.1;
-        const newScale = scale.get() * scaleFactor;
-        setLastScale(prevState => prevState-=102);
+        const scaleFactor = 0.001;
+        const newScale = scale.get() + 102 * scaleFactor;
+        setLastScale(prevState => prevState-102);
         const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
-        apiWheel.start({
-            scale: clampedScale, onChange: () => {
+        apiWheel.start({scale: clampedScale, onChange: () => {
                 updateBounds()
-            }
-        })
+            }})
     };
 
     const handleZoomOut = (e: React.MouseEvent<HTMLImageElement>) => {
         e.stopPropagation()
-        const scaleFactor = 0.9;
-        const newScale = scale.get() * scaleFactor;
-        setLastScale(newScale);
+        const scaleFactor = 0.001;
+        const newScale = scale.get() - 102 * scaleFactor;
+        setLastScale(prevState => prevState+102);
         const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
-        apiWheel.start({
-            scale: clampedScale, onChange: () => {
+        apiWheel.start({scale: clampedScale, onChange: () => {
                 updateBounds()
-            }
-        })
+            }})
     };
 
     const handleCutRectangle = (e: React.MouseEvent<HTMLImageElement>) => {

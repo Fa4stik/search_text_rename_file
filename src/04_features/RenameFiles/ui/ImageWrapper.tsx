@@ -1,13 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {TBbox, TImgSizes} from "../../../05_entities/RenameFileFetchData";
 import {animated, useSpring} from "react-spring";
 import {useDrag, useWheel} from "@use-gesture/react";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {LoadingDotRight} from "../../../06_shared/ui/loading";
-import {BottomPanelImgWrap, TCord, TImgRect} from "../../../05_entities/BottomPanelImgWrap";
-import current from "../../../02_pages/renames/current";
+import {BottomPanelImgWrap, TCord} from "../../../05_entities/BottomPanelImgWrap";
 import {Simulate} from "react-dom/test-utils";
-import change = Simulate.change;
+import {TBbox, TImgSizes} from "../../../05_entities/FetchPipeline";
 
 const minSizeScaleImg = 0.1
 const maxSizeScaleImg = 15
@@ -55,6 +53,10 @@ export const ImageWrapper:
         useState<{ left: number, right: number, top: number, bottom: number }>(
             {left: 0, right: 0, top: 0, bottom: 0}
         )
+    const [isHiddenBottomPanel, setIsHiddenBottomPanel] =
+        useState<boolean>(false)
+    const [transformOrigin, setTransformOrigin] =
+        useState<string>('')
 
     // Размеры оригинального изображения
     const origImgRef = useRef<HTMLImageElement>(null)
@@ -67,6 +69,7 @@ export const ImageWrapper:
     const countNewBounds = () => {
         const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
         const sizeMyParent = parentRef.current!.getBoundingClientRect()
+
         const origWidthImg = sizeMyImg.width / scale.get();
         const origHeightImg = sizeMyImg.height / scale.get();
 
@@ -75,8 +78,8 @@ export const ImageWrapper:
         let newLeft = -(sizeMyImg.width - sizeMyParent.width) + newRight
         let newTop = -(sizeMyImg.height - sizeMyParent.height) + newBottom
 
-        const centerX = (sizeMyParent.width - origWidthImg) / 2
-        const centerY = (sizeMyParent.height - origHeightImg) / 2
+        const centerX = -(sizeMyParent.width - origWidthImg) / 2
+        const centerY = -(sizeMyParent.height - origHeightImg) / 2
 
         const tempBottom = newBottom;
         newBottom = newBottom < newTop ? centerY : newBottom
@@ -104,6 +107,7 @@ export const ImageWrapper:
 
         if (y.get() < newTop)
             apiDrag.start({y: newTop})
+
     }
 
     // Тот же самыый расчёт, но только при повороте, заменяем высоту на ширину и наоборот
@@ -171,13 +175,13 @@ export const ImageWrapper:
     // Хук для изменения размеров изображения
     const [{scale}, apiWheel] =
         useSpring(() => ({scale: 1}))
-        const bindWheel = useWheel(({offset: [dx, dy]}) => {
+
+    const bindWheel = useWheel(({event, offset: [dx, dy]}) => {
         const scaleFactor = 0.003;
         const newScale = scale.get() - (dy - lastScale) * scaleFactor;
         setLastScale(dy);
         const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
         apiWheel.start({scale: clampedScale})
-
         updateBounds()
     }, {})
 
@@ -431,8 +435,19 @@ export const ImageWrapper:
 
     // Обработка для выделения облоасти изображения
     useEffect(() => {
-        !isEdit && setImgRect(origImgSizes)
+        if (!isEdit) {
+            setImgRect(origImgSizes)
+            setIsEmptyImgRect(true)
+        }
     }, [isEdit]);
+
+    useEffect(() => {
+        if (isEmptyImgRect && isEdit || isStartDrawRect) {
+            setIsHiddenBottomPanel(true)
+        } else {
+            setIsHiddenBottomPanel(false)
+        }
+    }, [isEdit, isEmptyImgRect, isStartDrawRect]);
 
     return (
         <div className="flex-1 flex overflow-hidden cursor-grab">
@@ -473,7 +488,7 @@ export const ImageWrapper:
                                   style={{
                                       x, y,
                                       transform: scale.to(s => `scale(${s})`),
-                                      transformOrigin: 'center'
+                                      // transformOrigin: `central`
                                   }}
                                   onDragStart={(e) => e.preventDefault()}
                     >
@@ -509,15 +524,16 @@ export const ImageWrapper:
                                 ))}
                             </div>}
                         {isDark && <>
-                            <div className={`bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10 ${isEdit ? 'cursor-copy': 'cursor-grab'}`}
-                                 style={{
-                                     transform: `rotate(${currRotate}deg)`,
-                                     transformOrigin: 'center'
-                                 }}
-                                 onMouseDown={handleDownRect}
-                                 onMouseUp={handleUpRect}
-                                 onMouseMove={handleMoveRect}
-                                 onMouseLeave={handleLeaveMouse}
+                            <div
+                                className={`bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10 ${isEdit ? 'cursor-copy' : 'cursor-grab'}`}
+                                style={{
+                                    transform: `rotate(${currRotate}deg)`,
+                                    transformOrigin: 'center'
+                                }}
+                                onMouseDown={handleDownRect}
+                                onMouseUp={handleUpRect}
+                                onMouseMove={handleMoveRect}
+                                onMouseLeave={handleLeaveMouse}
                             >
                                 {isEdit && !isEmptyImgRect && <svg xmlns="http://www.w3.org/2000/svg"
                                                                    xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -528,36 +544,36 @@ export const ImageWrapper:
                                           stroke="black"
                                           strokeWidth={5}
                                           className="cursor-row-resize z-50"
-                                          // onMouseDown={() => {
-                                          //     setIsResizeUp(true)
-                                          // }}
+                                        // onMouseDown={() => {
+                                        //     setIsResizeUp(true)
+                                        // }}
                                     />
                                     <line x1={imgRect.x1 + imgRect.width} y1={imgRect.y1}
                                           x2={imgRect.x1 + imgRect.width} y2={imgRect.y1 + imgRect.height}
                                           stroke="black"
                                           strokeWidth={5}
                                           className="cursor-col-resize z-50"
-                                          // onMouseDown={() => {
-                                          //     setIsResizeRight(true)
-                                          // }}
+                                        // onMouseDown={() => {
+                                        //     setIsResizeRight(true)
+                                        // }}
                                     />
                                     <line x1={imgRect.x1} y1={imgRect.y1 + imgRect.height}
                                           x2={imgRect.x1 + imgRect.width} y2={imgRect.y1 + imgRect.height}
                                           strokeWidth={5}
                                           stroke="black"
                                           className="cursor-row-resize z-50"
-                                          // onMouseDown={() => {
-                                          //     setIsResizeDown(true)
-                                          // }}
+                                        // onMouseDown={() => {
+                                        //     setIsResizeDown(true)
+                                        // }}
                                     />
                                     <line x1={imgRect.x1} y1={imgRect.y1}
                                           x2={imgRect.x1} y2={imgRect.y1 + imgRect.height}
                                           stroke="black"
                                           strokeWidth={5}
                                           className="cursor-col-resize z-50"
-                                          // onMouseDown={() => {
-                                          //     setIsResizeLeft(true)
-                                          // }}
+                                        // onMouseDown={() => {
+                                        //     setIsResizeLeft(true)
+                                        // }}
                                     />
                                 </svg>}
                                 <img src={srcImg}
@@ -572,24 +588,26 @@ export const ImageWrapper:
                         </>}
                     </animated.div>
                 </div>
-                <BottomPanelImgWrap
-                    isCut isRefresh isRotate isZoom
-                    isEdit={isEdit}
-                    setLastScale={setLastScale}
-                    updateBounds={updateBounds}
-                    setCurrRotate={setCurrRotate}
-                    apiWheel={apiWheel}
-                    maxSizeScaleImg={maxSizeScaleImg}
-                    minSizeScaleImg={minSizeScaleImg}
-                    scale={scale}
-                    handleChoseOption={handleChoseOption}
-                    models={models}
-                    setCurrCrop={setCurrCrop}
-                    setImgRect={setImgRect}
-                    setIsEmptyImgRect={setIsEmptyImgRect}
-                    setIsEdit={setIsEdit}
-                    origImgSizes={origImgSizes}
-                />
+                {!isHiddenBottomPanel &&
+                    <BottomPanelImgWrap
+                        isCut isRefresh isRotate isZoom
+                        isEdit={isEdit}
+                        setLastScale={setLastScale}
+                        updateBounds={updateBounds}
+                        setCurrRotate={setCurrRotate}
+                        apiWheel={apiWheel}
+                        maxSizeScaleImg={maxSizeScaleImg}
+                        minSizeScaleImg={minSizeScaleImg}
+                        scale={scale}
+                        handleChoseOption={handleChoseOption}
+                        models={models}
+                        setCurrCrop={setCurrCrop}
+                        setImgRect={setImgRect}
+                        setIsEmptyImgRect={setIsEmptyImgRect}
+                        setIsEdit={setIsEdit}
+                        origImgSizes={origImgSizes}
+                    />
+                }
             </div>
         </div>
     );

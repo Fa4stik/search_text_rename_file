@@ -4,10 +4,10 @@ import {CreateTaskBlockInfo} from "../../../03_widgetes/CreateTaskBlockInfo";
 import {useMainStore, useRenameStore} from "../../../03_widgetes/MainTable";
 import {convertSize} from "../../../03_widgetes/MainTable/lib/convertSize";
 import {useNavigate} from "react-router-dom";
-import {getChunkId, processChunk, TProcessChunkReq, uploadFiles} from "../../../05_entities/CreateTaskFetchData";
 import {convertTime} from "../../../03_widgetes/MainTable/lib/converTime";
 import {convertDateFull} from "../../../05_entities/MainPage";
 import {validateName} from "../../../04_features/CreateTask";
+import {getChunkId, processChunk, TProcessChunkResp, uploadFiles} from "../../../05_entities/FetchPipeline";
 
 const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
@@ -42,7 +42,7 @@ const MainCreatePage = () => {
                     }
 
                     ws.current!.onmessage = (mess) => {
-                        const resp: TProcessChunkReq = JSON.parse(mess.data)
+                        const resp: TProcessChunkResp = JSON.parse(mess.data)
                         delMainRow(id)
                         addRenameRow({
                                         id,
@@ -68,6 +68,7 @@ const MainCreatePage = () => {
                         clearInterval(myInterval)
                     }
                 })
+                .catch(err => console.log(err))
         } else {
             processChunk(parseInt(id), currModel)
                 .then(respProcess => {

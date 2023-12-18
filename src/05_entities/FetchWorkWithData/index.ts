@@ -1,0 +1,5 @@
+export {delDataByChunkId} from './model/delDataByChunkId'
+export {getDataByChunkId} from './model/getDataByChunkId'
+export {getFile} from './model/getFile'
+export {getFiles} from './model/getFiles'
+export {getFolders} from './model/getFolders'

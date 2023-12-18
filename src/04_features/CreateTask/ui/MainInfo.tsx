@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {BorderInput} from "../../../06_shared/ui/input";
 import {BorderSelect} from "../../../06_shared/ui/select";
 import {TOption} from "../../../06_shared/model/typeSelect";
-import {getOcrModels} from "../../../05_entities/CreateTaskFetchData";
+import {getOcrModels} from "../../../05_entities/FetchOCR";
 
 type MainInfoProps = {
     changeNameTask: (e: React.ChangeEvent<HTMLInputElement>) => void;

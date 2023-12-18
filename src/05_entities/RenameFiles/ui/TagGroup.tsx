@@ -3,13 +3,13 @@ import React, {useEffect, useRef, useState} from 'react';
 type TagGroupProps = {
     name: string
     tags: string[]
-    setTags?: React.Dispatch<React.SetStateAction<string[]>>
+    handleSetTag?: (newTag: string) => void
     isDeleteTag?: boolean
     isAddTag?: boolean
-    handleClickTag: (e: React.MouseEvent<HTMLParagraphElement>, tag: string) => void
-    handleDelTag?: (e: React.MouseEvent<SVGSVGElement>, tag: string) => void
-    handleBlurTag?: (e: React.ChangeEvent<HTMLInputElement>) => void
+    handleClickTag: (tag: string) => void
+    handleDelTag?: (tag: string) => void
     isShowTags?: boolean
+    validator?: (value: string) => string
 }
 
 export const TagGroup: React.FC<TagGroupProps>
@@ -18,14 +18,16 @@ export const TagGroup: React.FC<TagGroupProps>
            isDeleteTag,
            isAddTag,
            tags,
-           setTags,
+           handleSetTag,
            handleDelTag,
            handleClickTag,
-           handleBlurTag,
-           isShowTags
+           isShowTags, validator
        }) => {
 
     const [isShowInput, setIsShowInput] = useState<boolean>(false)
+
+    const [localTags, setLocalTags] =
+        useState<string[]>(tags)
 
     const inpRef = useRef<HTMLInputElement>(null)
     const svgArrowRef = useRef<SVGSVGElement>(null)
@@ -63,16 +65,20 @@ export const TagGroup: React.FC<TagGroupProps>
                             overflow-hidden"
                  ref={contTagRef}
             >
-                    <>{tags.map((tag, id) => (
+                    <>{localTags.map((tag, id) => (
                         <div key={id} className="bg-mainTags/[0.3] py-[2px] px-[7px]
                                     rounded-2xl cursor-pointer relative"
-                             onClick={(e) => handleClickTag(e, tag)}
+                             onClick={(e) => handleClickTag(tag)}
                         >
                             {tag}
                             {isDeleteTag &&
                                 <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"
                                      className="absolute right-0 top-0 h-[10px] w-[10px] fill-mainDark"
-                                     onClick={e => handleDelTag && handleDelTag(e, tag)}
+                                     onClick={e => {
+                                         e.stopPropagation()
+                                         handleDelTag && handleDelTag(tag)
+                                         setLocalTags(prevState => prevState.filter(t => t !== tag))
+                                     }}
                                 >
                                     <path d="m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144
                                     144-144 144 56 56ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54
@@ -88,6 +94,10 @@ export const TagGroup: React.FC<TagGroupProps>
                                 rounded-2xl cursor-pointer relative">
                                         <input type="text" className="outline-none border-none bg-transparent w-1"
                                                ref={inpRef}
+                                               onChange={(e) => {
+                                                   if (validator)
+                                                       e.target.value = validator(e.target.value);
+                                               }}
                                                onInput={(e) => {
                                                    inpRef.current!.style.width = inpRef.current!.scrollWidth + 'px';
                                                }}
@@ -98,9 +108,9 @@ export const TagGroup: React.FC<TagGroupProps>
                                                        }, 0)
                                                }}
                                                onBlur={(e) => {
-                                                   setTags && setTags(prevState => [...prevState, e.target.value])
+                                                   setLocalTags(prevState => [...prevState, e.target.value])
+                                                   handleSetTag && handleSetTag(e.target.value)
                                                    setIsShowInput(prevState => !prevState)
-                                                   handleBlurTag && handleBlurTag(e)
                                                }}
                                         />
                                     </div>}

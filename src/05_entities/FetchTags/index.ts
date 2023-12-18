@@ -1,0 +1,5 @@
+export {delTagById} from './model/delTagById'
+export {delTagByName} from './model/delTagByName'
+export {getGroupTags} from './model/getGroupTags'
+export {getTags} from './model/getTags'
+export {setTag} from './model/setTag'

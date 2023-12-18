@@ -1,4 +1,3 @@
-import {TAddFileName} from "./types";
 import {baseApi} from "../../../06_shared/api/baseApi";
 
 export const addFileName = (uid: number, filename: string, is_duplicate: boolean): Promise<boolean> => {

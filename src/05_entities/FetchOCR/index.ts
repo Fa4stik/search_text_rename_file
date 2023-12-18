@@ -1,0 +1,1 @@
+export {getOcrModels} from './model/getOcrModels'

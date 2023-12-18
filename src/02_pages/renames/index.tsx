@@ -2,7 +2,7 @@ import React from 'react';
 import {columnsRename, MainTableGrid, useReadyStore, useRenameStore} from "../../03_widgetes/MainTable";
 import {useNavigate} from "react-router-dom";
 import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
-import {archiveChunk} from "../../05_entities/RenameFileFetchData";
+import {archiveChunk} from "../../05_entities/FetchPipeline";
 
 const RenamesPage = () => {
     const navigate = useNavigate()

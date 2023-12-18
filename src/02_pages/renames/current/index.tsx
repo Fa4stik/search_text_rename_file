@@ -4,11 +4,12 @@ import {GridHeader} from "../../../04_features/GridHeader";
 import {FilesBlock, ImageWrapper, RenameFile} from "../../../04_features/RenameFiles";
 import {columnsReadyFiles} from "../../../04_features/RenameFiles/model/gridStyles";
 import {TRow} from "../../../05_entities/DataGrid";
-import {getDataById, getFile, processImage, TBbox, TImgSizes} from "../../../05_entities/RenameFileFetchData";
 import {useRenameStore} from "../../../03_widgetes/MainTable";
-import {getOcrModels} from "../../../05_entities/CreateTaskFetchData";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {convertNameFile} from "../../../04_features/CreateTask";
+import {getDataById, processImage, TBbox, TImgSizes} from "../../../05_entities/FetchPipeline";
+import {getOcrModels} from "../../../05_entities/FetchOCR";
+import {getFile} from "../../../05_entities/FetchWorkWithData";
 
 type PageParams = {
     idTask: string
@@ -19,7 +20,6 @@ const RenamesCurrentPage = () => {
 
     const {rows: renamesRows, updateUid} = useRenameStore()
 
-    const [tags, setTags] = useState<string[]>([])
     const [rows, setRows] = useState<TRow[]>(renamesRows.find(rR =>
         rR.id === idTask)!.renameFiles
         .filter(file => file.uid)
@@ -75,7 +75,6 @@ const RenamesCurrentPage = () => {
             .then(resp => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
-                setTags(resp.tags)
                 setCurrRotate(0)
             })
             .catch(err => {
@@ -121,19 +120,18 @@ const RenamesCurrentPage = () => {
         processImage(activeUid, ocr_type_model.toString(),
             currRotate, currCrop, imgRect)
             .then(resp => {
-                updateUid(activeUid, resp.uid)
-                setActiveUid(resp.uid)
-                getDataById(resp.uid)
+                updateUid(activeUid, resp.chunk_id)
+                setActiveUid(resp.chunk_id)
+                getDataById(resp.chunk_id)
                     .then(resp => {
                         setBboxes(resp.bboxes.map((bbox, id) =>
                             ({...bbox, word: resp.text[id]})))
-                        setTags(resp.tags)
                         setCurrRotate(0)
                     })
                     .catch(err => {
                         console.log(err);
                     })
-                getFile(resp.uid)
+                getFile(resp.chunk_id)
                     .then(resp => {
                         setSrcImg(resp + `?${new Date().getTime()}`)
                     })
@@ -169,7 +167,7 @@ const RenamesCurrentPage = () => {
                                  setIsResizeRow(true)
                              }}
                         />
-                        <RenameFile setRows={setRows} tags={tags} idTask={idTask} activeUid={activeUid}
+                        <RenameFile setRows={setRows} idTask={idTask} activeUid={activeUid}
                                     nameFile={nameFile} setNameFile={setNameFile}/>
                     </div>
                     <div className="w-[2px] h-full bg-mainDark cursor-col-resize"

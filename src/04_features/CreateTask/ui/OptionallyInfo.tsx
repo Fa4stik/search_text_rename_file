@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {BorderInput} from "../../../06_shared/ui/input";
 import {FillButton} from "../../../06_shared/ui/button";
-import {getFiles, getFolders} from "../../../05_entities/CreateTaskFetchData";
 import {TImage} from "../../../05_entities/CreateTaskForm";
+import {getFiles, getFolders} from "../../../05_entities/FetchWorkWithData";
 
 type OptionallyInfoProps = {
     setImages: React.Dispatch<React.SetStateAction<TImage[]>>

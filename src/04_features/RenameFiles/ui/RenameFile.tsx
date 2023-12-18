@@ -1,39 +1,61 @@
 import React, {useEffect, useState} from 'react';
-import {GridHeader} from "../../GridHeader";
-import {ESizes} from "../../GridHeader/model/sizes";
 import {FillButton} from "../../../06_shared/ui/button";
 import {TRow} from "../../../05_entities/DataGrid";
-import {useParams} from "react-router-dom";
 import {useRenameStore} from "../../../03_widgetes/MainTable";
 import {convertDateFull} from "../../../05_entities/MainPage";
-import {addFileName, getPermatags, rmPermatag, setPermatag} from "../../../05_entities/RenameFileFetchData";
 import {validateName} from "../../CreateTask";
 import {TagGroup} from "../../../05_entities/RenameFiles";
+import {getGroupTags, getTags} from "../../../05_entities/FetchTags";
+import {addFileName} from "../../../05_entities/FetchPipeline";
+import {setTag} from "../../../05_entities/FetchTags";
+import {delTagByName} from "../../../05_entities/FetchTags";
+import {validateDate} from "../lib/validateDate";
 
 type RenameFileProps = {
     setRows: React.Dispatch<React.SetStateAction<TRow[]>>
     nameFile: string
-    tags: string[]
     setNameFile: React.Dispatch<React.SetStateAction<string>>
     idTask?: string
     activeUid: number
 }
 
+type TGroupTag = {
+    uid: number,
+    name: string,
+    content: string[]
+}
+
 export const RenameFile:
     React.FC<RenameFileProps> = ({setRows,
-                                 tags, nameFile, setNameFile,
+                                 nameFile, setNameFile,
                                  idTask, activeUid}) => {
     const {setFileName} = useRenameStore()
 
-    const [permaTags, setPremaTags] = useState<string[]>([])
+    const [groupTags, setGroupTags] =
+        useState<TGroupTag[]>([])
     const [isNotCorrectName, setIsNotCorrectName] = useState<boolean>(false)
 
     useEffect(() => {
-        getPermatags()
-            .then(resp => {
-                setPremaTags(resp.tags)
+        getGroupTags()
+            .then(groupTagsResp => {
+                const tagPromises = groupTagsResp.map(gTag =>
+                    getTags(gTag.uid)
+                        .then((resp): TGroupTag => ({
+                            uid: gTag.uid,
+                            name: gTag.name,
+                            content: resp.tags ?? []
+                        }))
+                        .catch(err => console.log(err))
+                );
+                return Promise.all(tagPromises);
             })
-            .catch(err => console.log(err))
+            .then(groupTagsData => {
+                setGroupTags(groupTagsData as TGroupTag[])
+            })
+            .catch(err => console.log(err));
+        return () => {
+            setGroupTags([])
+        }
     }, []);
 
     const handleSetNameFile = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -46,9 +68,11 @@ export const RenameFile:
                     : row
             ))
             setFileName(idTask!, activeUid, nameFile)
-            addFileName(activeUid, nameFile, false).then(resp => {
-                console.log('Update file name', resp)
-            }).catch(err => console.log(err))
+            addFileName(activeUid, nameFile, false)
+                .then(resp => {
+                    console.log('Update file name', resp)
+                })
+                .catch(err => console.log(err))
             setNameFile('')
         } else {
             setIsNotCorrectName(true)
@@ -59,64 +83,43 @@ export const RenameFile:
         setNameFile(e.target.value)
     }
 
-    const handleClickTag = (e: React.MouseEvent<HTMLParagraphElement>, tag: string) => {
+    const handleClickTag = (tag: string) => {
         setNameFile(prevState =>
             prevState === ''
                 ? tag
-                : prevState + ` ${tag}`
+                : prevState + `, ${tag}`
         )
     };
 
-    const handleDelTag = (e: React.MouseEvent<SVGSVGElement>, tag: string) => {
-        e.stopPropagation()
-        rmPermatag(tag)
+    const handleDelTag = (tag: string, groupId: number) => {
+        delTagByName(tag, 1)
             .then(resp => {
-                setPremaTags(prevState => prevState.filter(myTag => myTag !== tag))
+                // setPremaTags(prevState => prevState.filter(myTag => myTag !== tag))
             })
     }
 
-    const handleBlurTag = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPermatag(e.target.value)
-            .then(resp => resp)
+    const handleSetTag = (newTag: string, groupId: number) => {
+        setTag(newTag, groupId)
     }
 
     return (
         <div className="w-full h-full flex flex-col py-[10px] px-[30px] overflow-y-scroll">
             <div className="flex flex-col mb-[10px]">
                 <h3 className="text-xl mb-[5px]">Тэги</h3>
-                {/*<TagGroup name={'Общие'}*/}
-                {/*          tags={tags}*/}
-                {/*          handleClickTag={handleClickTag}*/}
-                {/*          isShowTags*/}
-                {/*/>*/}
-                {/*<TagGroup name={'Пользователя'} tags={permaTags}*/}
-                {/*          handleClickTag={handleClickTag}*/}
-                {/*          handleDelTag={handleDelTag}*/}
-                {/*          handleBlurTag={handleBlurTag}*/}
-                {/*          setTags={setPremaTags}*/}
-                {/*          isAddTag*/}
-                {/*          isDeleteTag*/}
-                {/*/>*/}
-                <TagGroup name={'Названия'} tags={['АК', 'БЦ']}
-                          handleClickTag={handleClickTag}
-                          handleDelTag={handleDelTag}
-                          handleBlurTag={handleBlurTag}
-                          setTags={setPremaTags}
-                          isAddTag
-                          isDeleteTag
-                />
-                <TagGroup name={'Масштабы'} tags={['1к200', '1к500']}
-                          handleClickTag={handleClickTag}
-                          handleDelTag={handleDelTag}
-                          handleBlurTag={handleBlurTag}
-                          setTags={setPremaTags}
-                          isAddTag
-                          isDeleteTag
-                />
+                {groupTags.map((gTag, id) => (
+                    <TagGroup name={gTag.name} tags={gTag.content}
+                              handleClickTag={handleClickTag}
+                              handleDelTag={(tag) => handleDelTag(tag, gTag.uid)}
+                              handleSetTag={(tag) => handleSetTag(tag, gTag.uid)}
+                              key={id}
+                              isAddTag isDeleteTag
+                    />
+                ))}
                 <TagGroup name={'Даты'}
                           tags={['11.12.2023']}
-                          handleClickTag={() => console.log()}
-                          isShowTags
+                          validator={validateDate}
+                          handleClickTag={handleClickTag}
+                          isShowTags isDeleteTag isAddTag
                 />
             </div>
             <div className="flex flex-col flex-grow items-start">
