@@ -5,7 +5,7 @@ import {useRenameStore} from "../../../03_widgetes/MainTable";
 import {convertDateFull} from "../../../05_entities/MainPage";
 import {validateName} from "../../CreateTask";
 import {TagGroup} from "../../../05_entities/RenameFiles";
-import {getGroupTags, getTags} from "../../../05_entities/FetchTags";
+import {delTagById, getGroupTags, getTagsByGroup, TGroupTag, TTag} from "../../../05_entities/FetchTags";
 import {addFileName} from "../../../05_entities/FetchPipeline";
 import {setTag} from "../../../05_entities/FetchTags";
 import {delTagByName} from "../../../05_entities/FetchTags";
@@ -17,12 +17,6 @@ type RenameFileProps = {
     setNameFile: React.Dispatch<React.SetStateAction<string>>
     idTask?: string
     activeUid: number
-}
-
-type TGroupTag = {
-    uid: number,
-    name: string,
-    content: string[]
 }
 
 export const RenameFile:
@@ -39,7 +33,7 @@ export const RenameFile:
         getGroupTags()
             .then(groupTagsResp => {
                 const tagPromises = groupTagsResp.map(gTag =>
-                    getTags(gTag.uid)
+                    getTagsByGroup(gTag.uid)
                         .then((resp): TGroupTag => ({
                             uid: gTag.uid,
                             name: gTag.name,
@@ -91,11 +85,8 @@ export const RenameFile:
         )
     };
 
-    const handleDelTag = (tag: string, groupId: number) => {
-        delTagByName(tag, 1)
-            .then(resp => {
-                // setPremaTags(prevState => prevState.filter(myTag => myTag !== tag))
-            })
+    const handleDelTag = (tagId: number, groupId: number) => {
+        delTagById(tagId)
     }
 
     const handleSetTag = (newTag: string, groupId: number) => {
@@ -107,7 +98,7 @@ export const RenameFile:
             <div className="flex flex-col mb-[10px]">
                 <h3 className="text-xl mb-[5px]">Тэги</h3>
                 {groupTags.map((gTag, id) => (
-                    <TagGroup name={gTag.name} tags={gTag.content}
+                    <TagGroup name={gTag.name} tags={gTag}
                               handleClickTag={handleClickTag}
                               handleDelTag={(tag) => handleDelTag(tag, gTag.uid)}
                               handleSetTag={(tag) => handleSetTag(tag, gTag.uid)}
@@ -115,11 +106,12 @@ export const RenameFile:
                               isAddTag isDeleteTag
                     />
                 ))}
-                <TagGroup name={'Даты'}
-                          tags={['11.12.2023']}
+                <TagGroup name={'Дата'}
+                          count={1}
+                          tags={{} as TGroupTag}
                           validator={validateDate}
                           handleClickTag={handleClickTag}
-                          isShowTags isDeleteTag isAddTag
+                          isDeleteTag isAddTag
                 />
             </div>
             <div className="flex flex-col flex-grow items-start">

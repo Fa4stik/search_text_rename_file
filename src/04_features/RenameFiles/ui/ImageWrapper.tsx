@@ -4,10 +4,8 @@ import {useDrag, useWheel} from "@use-gesture/react";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {LoadingDotRight} from "../../../06_shared/ui/loading";
 import {BottomPanelImgWrap, TCord} from "../../../05_entities/BottomPanelImgWrap";
-import {Simulate} from "react-dom/test-utils";
 import {TBbox, TImgSizes} from "../../../05_entities/FetchPipeline";
 
-const minSizeScaleImg = 0.1
 const maxSizeScaleImg = 15
 
 type ImageWrapperProps = {
@@ -49,14 +47,14 @@ export const ImageWrapper:
                                    }) => {
 
     const [lastScale, setLastScale] = useState<number>(0)
+    const [minSizeScaleImg, setMinSizeScaleImg] =
+        useState<number>(0.1)
     const [bounds, setBounds] =
         useState<{ left: number, right: number, top: number, bottom: number }>(
             {left: 0, right: 0, top: 0, bottom: 0}
         )
     const [isHiddenBottomPanel, setIsHiddenBottomPanel] =
         useState<boolean>(false)
-    const [transformOrigin, setTransformOrigin] =
-        useState<string>('')
 
     // Размеры оригинального изображения
     const origImgRef = useRef<HTMLImageElement>(null)
@@ -78,8 +76,8 @@ export const ImageWrapper:
         let newLeft = -(sizeMyImg.width - sizeMyParent.width) + newRight
         let newTop = -(sizeMyImg.height - sizeMyParent.height) + newBottom
 
-        const centerX = -(sizeMyParent.width - origWidthImg) / 2
-        const centerY = -(sizeMyParent.height - origHeightImg) / 2
+        const centerX = (sizeMyParent.width - origWidthImg) / 2
+        const centerY = (sizeMyParent.height - origHeightImg) / 2
 
         const tempBottom = newBottom;
         newBottom = newBottom < newTop ? centerY : newBottom
@@ -203,18 +201,22 @@ export const ImageWrapper:
             setImgRect({x1: 0, y1: 0, width, height})
             setOrigSizes({x1: 0, y1: 0, width, height})
 
-            if (width > height)
+            if (width > height) {
                 apiWheel.start({
                     scale: myParSizes.width / width, onChange: () => {
                         countNewBounds()
                     }
                 })
-            else
+                setMinSizeScaleImg(myParSizes.width / width)
+            }
+            else {
                 apiWheel.start({
                     scale: myParSizes.height / height, onChange: () => {
                         countNewBounds()
                     }
                 })
+                setMinSizeScaleImg(myParSizes.height / height)
+            }
         }
         countNewBounds()
     }
@@ -275,17 +277,6 @@ export const ImageWrapper:
     // Обработка при конце выделения области
     const handleUpRect = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isStartDrawRect) {
-            const sizeMyParent = parentRef.current!.getBoundingClientRect()
-            if (imgRect.width > imgRect.height) {
-                apiWheel({scale: sizeMyParent.width/imgRect.width, onChange: () => {
-                        updateBounds()
-                    }})
-            } else {
-                console.log('HEIGHT')
-                apiWheel({scale: sizeMyParent.height/imgRect.height, onChange: () => {
-                        updateBounds()
-                    }})
-            }
             setIsStartDrawRect(false)
         }
         setIsResizeUp(false)
@@ -423,16 +414,6 @@ export const ImageWrapper:
         setIsResizeLeft(false)
     };
 
-    // Обработка при изменении границ изображения
-    useEffect(() => {
-        const sizeMyParent = parentRef.current!.getBoundingClientRect()
-        if (imgRect.width > imgRect.height) {
-            apiDrag.start({x: bounds.right - imgRect.x1+20, y: bounds.bottom-imgRect.y1+20})
-        } else {
-            apiDrag.start({x: -(Math.abs(bounds.right)+imgRect.x1/2), y: -(Math.abs(bounds.bottom)+imgRect.y1)+20})
-        }
-    }, [bounds])
-
     // Обработка для выделения облоасти изображения
     useEffect(() => {
         if (!isEdit) {
@@ -448,6 +429,37 @@ export const ImageWrapper:
             setIsHiddenBottomPanel(false)
         }
     }, [isEdit, isEmptyImgRect, isStartDrawRect]);
+
+    useEffect(() => {
+        if (isEdit && !isStartDrawRect) {
+            const sizeMyParent = parentRef.current!.getBoundingClientRect()
+            if (imgRect.width > imgRect.height) {
+                apiWheel({scale: sizeMyParent.width/imgRect.width, onChange: () => {
+                        updateBounds()
+                    }})
+            } else {
+                apiWheel({scale: sizeMyParent.height/imgRect.height, onChange: () => {
+                        updateBounds()
+                    }})
+            }
+        }
+    }, [isStartDrawRect]);
+
+
+    useEffect(() => {
+        if (isEdit) {
+            const sizeMyParent = parentRef.current!.getBoundingClientRect()
+            const imgRectX = imgRect.x1*scale.get()
+            const imgRectY = imgRect.y1*scale.get()
+            const imgRectW = imgRect.width*scale.get()
+            const imgRectH = imgRect.height*scale.get()
+            const leftX = bounds.right-imgRectX
+            const leftY = bounds.bottom-imgRectY
+            const deltaX = (sizeMyParent.width - imgRectW)/2+leftX
+            const deltaY = (sizeMyParent.height - imgRectH)/2+leftY
+            apiDrag.start({x: deltaX, y: deltaY})
+        }
+    }, [bounds]);
 
     return (
         <div className="flex-1 flex overflow-hidden cursor-grab">

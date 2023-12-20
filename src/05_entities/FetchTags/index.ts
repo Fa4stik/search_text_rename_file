@@ -1,5 +1,6 @@
 export {delTagById} from './model/delTagById'
 export {delTagByName} from './model/delTagByName'
 export {getGroupTags} from './model/getGroupTags'
-export {getTags} from './model/getTags'
+export {getTagsByGroup} from './model/getTagsByGroup'
 export {setTag} from './model/setTag'
+export type {TTag, TGroupTag} from './model/types'

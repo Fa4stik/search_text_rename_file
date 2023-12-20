@@ -58,6 +58,7 @@ const RenamesCurrentPage = () => {
     }, []);
 
     const handleClickBox = (e: React.MouseEvent<HTMLDivElement>, word: string) => {
+        e.stopPropagation()
         setNameFile(prevState =>
             prevState.length === 0
                 ? word
