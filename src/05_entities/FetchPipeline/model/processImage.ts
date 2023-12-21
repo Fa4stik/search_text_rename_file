@@ -1,5 +1,5 @@
 import {baseApi} from "../../../06_shared/api/baseApi";
-import {TImgSizes, TProcessChunkResp} from "./types";
+import {TImgSizes, TProcessChunkResp, TProcessImgResp} from "./types";
 
 type NumberObjects = {[key: string]: number}
 const floorNumbers = (...objects: NumberObjects[]): NumberObjects[] => {
@@ -14,7 +14,7 @@ const floorNumbers = (...objects: NumberObjects[]): NumberObjects[] => {
 
 export const processImage = (uid: number, ocr_model_type: string,
                              angle: number, w2h_koeff: number,
-                             imgSize: TImgSizes): Promise<TProcessChunkResp> => {
+                             imgSize: TImgSizes): Promise<TProcessImgResp> => {
     const [sizes] = floorNumbers({...imgSize})
     const bodyQuery = {
         uid,

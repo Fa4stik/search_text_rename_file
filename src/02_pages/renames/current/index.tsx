@@ -121,20 +121,21 @@ const RenamesCurrentPage = () => {
         processImage(activeUid, ocr_type_model.toString(),
             currRotate, currCrop, imgRect)
             .then(resp => {
-                updateUid(activeUid, resp.chunk_id)
-                setActiveUid(resp.chunk_id)
-                getDataById(resp.chunk_id)
+                updateUid(activeUid, resp.uid)
+                setActiveUid(resp.uid)
+                getDataById(resp.uid)
                     .then(resp => {
                         setBboxes(resp.bboxes.map((bbox, id) =>
                             ({...bbox, word: resp.text[id]})))
-                        setCurrRotate(0)
+                        // setCurrRotate(0)
                     })
                     .catch(err => {
                         console.log(err);
                     })
-                getFile(resp.chunk_id)
+                getFile(resp.uid)
                     .then(resp => {
-                        setSrcImg(resp + `?${new Date().getTime()}`)
+                        // `?${new Date().getTime()}`
+                        setSrcImg(resp)
                     })
                     .catch(err => {
                         console.log(err);
