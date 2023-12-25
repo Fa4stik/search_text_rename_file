@@ -10,6 +10,7 @@ import {addFileName} from "../../../05_entities/FetchPipeline";
 import {setTag} from "../../../05_entities/FetchTags";
 import {delTagByName} from "../../../05_entities/FetchTags";
 import {validateDate} from "../lib/validateDate";
+import {useNotifyStore} from "../../../05_entities/Notifications";
 
 type RenameFileProps = {
     setRows: React.Dispatch<React.SetStateAction<TRow[]>>
@@ -24,6 +25,7 @@ export const RenameFile:
                                  nameFile, setNameFile,
                                  idTask, activeUid}) => {
     const {setFileName} = useRenameStore()
+    const {notifications, addNotification} = useNotifyStore()
 
     const [groupTags, setGroupTags] =
         useState<TGroupTag[]>([])
@@ -64,9 +66,9 @@ export const RenameFile:
             setFileName(idTask!, activeUid, nameFile)
             addFileName(activeUid, nameFile, false)
                 .then(resp => {
-                    console.log('Update file name', resp)
+                    addNotification(notifications.length+1, 'Файл успешно переименован')
                 })
-                .catch(err => console.log(err))
+                .catch(err => addNotification(notifications.length+1, 'Ошибка при переименовании файла', true))
             setNameFile('')
         } else {
             setIsNotCorrectName(true)

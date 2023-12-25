@@ -1,12 +1,20 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {animated, useSpring} from "react-spring";
-import {useDrag, useWheel} from "@use-gesture/react";
+import {animated} from "react-spring";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {LoadingDotRight} from "../../../06_shared/ui/loading";
-import {BottomPanelImgWrap, TCord} from "../../../05_entities/BottomPanelImgWrap";
 import {TBbox, TImgSizes} from "../../../05_entities/FetchPipeline";
+import {
+    BottomPanelImgWrap,
+    ImgRectBlock,
+    Masks,
+    TCord,
+    useCountBounds, useImgStore,
+    useMyDrag,
+    useMyWheel
+} from "../../../05_entities/ImageWrapper";
+import {TBounds} from "../../../05_entities/ImageWrapper/model/dragTypes";
 
-const maxSizeScaleImg = 15
+const maxSizeScaleImg = 200
 
 type ImageWrapperProps = {
     myBoxes: TBbox[];
@@ -46,14 +54,15 @@ export const ImageWrapper:
                                        imgRect, setImgRect
                                    }) => {
 
-    const [lastScale, setLastScale] = useState<number>(0)
     const [minSizeScaleImg, setMinSizeScaleImg] =
         useState<number>(0.1)
     const [bounds, setBounds] =
-        useState<{ left: number, right: number, top: number, bottom: number }>(
-            {left: 0, right: 0, top: 0, bottom: 0}
-        )
+        useState<TBounds>({left: 0, right: 0, top: 0, bottom: 0})
     const [isHiddenBottomPanel, setIsHiddenBottomPanel] =
+        useState<boolean>(false)
+    const [isRec, setIsRec] =
+        useState<boolean>(false)
+    const [isSquare, setIsSquare] =
         useState<boolean>(false)
 
     // Размеры оригинального изображения
@@ -67,7 +76,6 @@ export const ImageWrapper:
     const countNewBounds = () => {
         const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
         const sizeMyParent = parentRef.current!.getBoundingClientRect()
-
         const origWidthImg = sizeMyImg.width / scale.get();
         const origHeightImg = sizeMyImg.height / scale.get();
 
@@ -155,33 +163,12 @@ export const ImageWrapper:
         currRotate % 180 === 0 ? countNewBounds() : countNewBoundsRotate()
 
     // Хук для перемещения изображения
-    const [{x, y}, apiDrag] =
-        useSpring(() => (
-            {x: 0, y: 0}))
-
-    const bindDrag = useDrag(({
-                                  down,
-                                  offset: [ox, oy]
-                              }) => {
-        apiDrag.start({x: ox, y: oy, immediate: down})
-    }, {
-        bounds,
-        eventOptions: {capture: true},
-        rubberband: true
-    })
+    const {x, y, bindDrag, apiDrag} =
+        useMyDrag({bounds})
 
     // Хук для изменения размеров изображения
-    const [{scale}, apiWheel] =
-        useSpring(() => ({scale: 1}))
-
-    const bindWheel = useWheel(({event, offset: [dx, dy]}) => {
-        const scaleFactor = 0.003;
-        const newScale = scale.get() - (dy - lastScale) * scaleFactor;
-        setLastScale(dy);
-        const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
-        apiWheel.start({scale: clampedScale})
-        updateBounds()
-    }, {})
+    const {scale, apiWheel, bindWheel, lastScale, setLastScale} =
+        useMyWheel({maxSizeScaleImg, minSizeScaleImg, updateBounds})
 
     // При изменении размеров изображения пересчитываем границы для parentRef
     useEffect(() => {
@@ -202,23 +189,69 @@ export const ImageWrapper:
             setOrigSizes({x1: 0, y1: 0, width, height})
 
             if (width > height) {
+                const newScale = myParSizes.width / width
                 apiWheel.start({
-                    scale: myParSizes.width / width, onChange: () => {
-                        countNewBounds()
+                    scale: newScale, onChange: () => {
+                        updateBounds()
                     }
                 })
                 setMinSizeScaleImg(myParSizes.width / width)
             }
             else {
+                const newScale = myParSizes.height / height
                 apiWheel.start({
-                    scale: myParSizes.height / height, onChange: () => {
-                        countNewBounds()
+                    scale: newScale, onChange: () => {
+                        updateBounds()
                     }
                 })
                 setMinSizeScaleImg(myParSizes.height / height)
             }
         }
-        countNewBounds()
+    }
+
+    const handleActiveFigure = (isRec: boolean, isSquare: boolean) => {
+        setIsRec(isRec)
+        setIsSquare(isSquare)
+        const sizeMyParent = parentRef.current!.getBoundingClientRect()
+        const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
+        const origWidthImg = sizeMyImg.width / scale.get();
+        const origHeightImg = sizeMyImg.height / scale.get();
+        if (isRec) {
+            if (origWidthImg > origHeightImg) {
+                const width = (3/2)*origHeightImg
+                setImgRect({x1: 0, y1: 0, height: origHeightImg, width})
+                setIsEmptyImgRect(false)
+                apiWheel({scale: sizeMyParent.height/width, onChange: () => {
+                        updateBounds()
+                    }
+                })
+            } else {
+                setImgRect({x1: 0, y1: 0, height: (2/3)*origWidthImg, width: origWidthImg})
+                setIsEmptyImgRect(false)
+                apiWheel({scale: sizeMyParent.width/origWidthImg, onChange: () => {
+                        updateBounds()
+                    }
+                })
+            }
+        }
+
+        if (isSquare) {
+            if (origWidthImg > origHeightImg) {
+                setImgRect({x1: 0, y1: 0, height: origHeightImg, width: origHeightImg})
+                setIsEmptyImgRect(false)
+                apiWheel({scale: sizeMyParent.height/origHeightImg, onChange: () => {
+                        updateBounds()
+                    }
+                })
+            } else {
+                setImgRect({x1: 0, y1: 0, height: origWidthImg, width: origWidthImg})
+                setIsEmptyImgRect(false)
+                apiWheel({scale: sizeMyParent.width/origWidthImg, onChange: () => {
+                        updateBounds()
+                    }
+                })
+            }
+        }
     }
 
     // Crop img
@@ -445,9 +478,8 @@ export const ImageWrapper:
         }
     }, [isStartDrawRect]);
 
-
     useEffect(() => {
-        if (isEdit) {
+        if (isEdit || isRec || isSquare) {
             const sizeMyParent = parentRef.current!.getBoundingClientRect()
             const imgRectX = imgRect.x1*scale.get()
             const imgRectY = imgRect.y1*scale.get()
@@ -455,38 +487,17 @@ export const ImageWrapper:
             const imgRectH = imgRect.height*scale.get()
             const leftX = bounds.right-imgRectX
             const leftY = bounds.bottom-imgRectY
-            const deltaX = (sizeMyParent.width - imgRectW)/2+leftX
-            const deltaY = (sizeMyParent.height - imgRectH)/2+leftY
+            let deltaX = (sizeMyParent.width - imgRectW)/2+leftX
+            let deltaY = (sizeMyParent.height - imgRectH)/2+leftY
+            deltaX = Math.max(bounds.left, Math.min(bounds.right, deltaX))
+            deltaY = Math.max(bounds.top, Math.min(bounds.bottom, deltaY))
             apiDrag.start({x: deltaX, y: deltaY})
         }
-    }, [bounds]);
+    }, [bounds, isRec, isSquare]);
 
     return (
         <div className="flex-1 flex overflow-hidden cursor-grab">
-            {isDark && <svg xmlns="http://www.w3.org/2000/svg"
-                            xmlnsXlink="http://www.w3.org/1999/xlink"
-                            style={{position: 'absolute'}}>
-                <defs>
-                    <clipPath id="contentMask">
-                        {myBoxes.map((box, id) => (
-                            <rect key={id}
-                                  x={box.x}
-                                  y={box.y}
-                                  width={box.w}
-                                  height={box.h}
-                                  rx="5"
-                            />
-                        ))}
-                    </clipPath>
-                    <clipPath id="cropMask">
-                        <rect x={imgRect.x1}
-                              y={imgRect.y1}
-                              width={imgRect.width}
-                              height={imgRect.height}
-                        />
-                    </clipPath>
-                </defs>
-            </svg>}
+            {isDark && <Masks myBoxes={myBoxes} imgRect={imgRect}/>}
             <div className="flex-1 overflow-hidden relative"
                  ref={parentRef}
             >
@@ -495,7 +506,7 @@ export const ImageWrapper:
                 <div>
                     <animated.div className={`relative`}
                                   ref={imgBlockRef}
-                                  {...(!isEdit && bindDrag())}
+                                  {...(!isEdit && !isRec && !isSquare && bindDrag())}
                                   {...bindWheel()}
                                   style={{
                                       x, y,
@@ -513,7 +524,7 @@ export const ImageWrapper:
                                  transformOrigin: 'center'
                              }}
                              alt="MyImg"/>
-                        {!isEdit &&
+                        {!isEdit && !isRec && !isSquare &&
                             <div className="absolute z-30"
                                  style={{
                                      width: '100%',
@@ -537,7 +548,8 @@ export const ImageWrapper:
                             </div>}
                         {isDark && <>
                             <div
-                                className={`bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10 ${isEdit ? 'cursor-copy' : 'cursor-grab'}`}
+                                className={`bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10 
+                                ${isEdit || isRec || isSquare ? 'cursor-copy' : 'cursor-grab'}`}
                                 style={{
                                     transform: `rotate(${currRotate}deg)`,
                                     transformOrigin: 'center'
@@ -547,53 +559,11 @@ export const ImageWrapper:
                                 onMouseMove={handleMoveRect}
                                 onMouseLeave={handleLeaveMouse}
                             >
-                                {isEdit && !isEmptyImgRect && <svg xmlns="http://www.w3.org/2000/svg"
-                                                                   xmlnsXlink="http://www.w3.org/1999/xlink"
-                                                                   className="absolute z-50 w-full h-full top-0 left-0"
-                                >
-                                    <line x1={imgRect.x1} y1={imgRect.y1}
-                                          x2={imgRect.x1 + imgRect.width} y2={imgRect.y1}
-                                          stroke="black"
-                                          strokeWidth={5}
-                                          className="cursor-row-resize z-50"
-                                        // onMouseDown={() => {
-                                        //     setIsResizeUp(true)
-                                        // }}
-                                    />
-                                    <line x1={imgRect.x1 + imgRect.width} y1={imgRect.y1}
-                                          x2={imgRect.x1 + imgRect.width} y2={imgRect.y1 + imgRect.height}
-                                          stroke="black"
-                                          strokeWidth={5}
-                                          className="cursor-col-resize z-50"
-                                        // onMouseDown={() => {
-                                        //     setIsResizeRight(true)
-                                        // }}
-                                    />
-                                    <line x1={imgRect.x1} y1={imgRect.y1 + imgRect.height}
-                                          x2={imgRect.x1 + imgRect.width} y2={imgRect.y1 + imgRect.height}
-                                          strokeWidth={5}
-                                          stroke="black"
-                                          className="cursor-row-resize z-50"
-                                        // onMouseDown={() => {
-                                        //     setIsResizeDown(true)
-                                        // }}
-                                    />
-                                    <line x1={imgRect.x1} y1={imgRect.y1}
-                                          x2={imgRect.x1} y2={imgRect.y1 + imgRect.height}
-                                          stroke="black"
-                                          strokeWidth={5}
-                                          className="cursor-col-resize z-50"
-                                        // onMouseDown={() => {
-                                        //     setIsResizeLeft(true)
-                                        // }}
-                                    />
-                                </svg>}
+                                {(isEdit || isRec || isSquare) && !isEmptyImgRect && <ImgRectBlock imgRect={imgRect}/>}
                                 <img src={srcImg}
                                      className="h-full max-h-none max-w-none z-20"
                                      style={{
-                                         // transform: `rotate(${currRotate}deg)`,
-                                         // transformOrigin: 'center',
-                                         clipPath: `${isEdit ? 'url(#cropMask)' : 'url(#contentMask)'}`,
+                                         clipPath: `${isEdit || isRec || isSquare ? 'url(#cropMask)' : 'url(#contentMask)'}`,
                                      }}
                                      alt="MyImg"/>
                             </div>
@@ -603,14 +573,15 @@ export const ImageWrapper:
                 {!isHiddenBottomPanel &&
                     <BottomPanelImgWrap
                         isCut isRefresh isRotate isZoom
+                        handleActiveFigure={handleActiveFigure}
                         isEdit={isEdit}
+                        scale={scale}
                         setLastScale={setLastScale}
+                        apiWheel={apiWheel}
                         updateBounds={updateBounds}
                         setCurrRotate={setCurrRotate}
-                        apiWheel={apiWheel}
                         maxSizeScaleImg={maxSizeScaleImg}
                         minSizeScaleImg={minSizeScaleImg}
-                        scale={scale}
                         handleChoseOption={handleChoseOption}
                         models={models}
                         setCurrCrop={setCurrCrop}

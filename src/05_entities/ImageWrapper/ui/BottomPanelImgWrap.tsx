@@ -1,9 +1,11 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {imageWrapper} from "../../../06_shared/ui/icon";
 import {DropDownMenu} from "../../DropDownMenu";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {SpringRef, SpringValue} from "react-spring";
 import {TImgSizes} from "../../FetchPipeline";
+import {useMyWheel} from "../lib/useMyWheel";
+import {useImgStore} from "../lib/useImgStore";
 
 type BottomPanelImgWrapProps = {
     isRotate?: boolean
@@ -12,19 +14,20 @@ type BottomPanelImgWrapProps = {
     isCut?: boolean
     setCurrRotate: React.Dispatch<React.SetStateAction<number>>
     handleChoseOption?: (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => void
-    scale: SpringValue<number>
-    setLastScale: React.Dispatch<React.SetStateAction<number>>
-    apiWheel: SpringRef<{ scale: number }>
     minSizeScaleImg: number
     maxSizeScaleImg: number
     updateBounds: () => void
     models: TOption[]
+    apiWheel: SpringRef<{scale: number}>
+    setLastScale: React.Dispatch<React.SetStateAction<number>>
+    scale: SpringValue<number>
     setCurrCrop: React.Dispatch<React.SetStateAction<number>>
     isEdit: boolean
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
     setIsEmptyImgRect: React.Dispatch<React.SetStateAction<boolean>>
     setImgRect: React.Dispatch<React.SetStateAction<TImgSizes>>
     origImgSizes: TImgSizes
+    handleActiveFigure: (isRec: boolean, isSquare: boolean) => void
 }
 
 export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
@@ -37,30 +40,34 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
            updateBounds,
            maxSizeScaleImg,
            minSizeScaleImg,
+           apiWheel,
+           setCurrRotate,
+           models,
            scale,
            setLastScale,
-           setCurrRotate,
-           apiWheel,
-           models,
            setCurrCrop,
            setImgRect,
            setIsEmptyImgRect,
            setIsEdit,
-           isEdit, origImgSizes
+           isEdit, origImgSizes,
+           handleActiveFigure
        }) => {
 
     const [isActiveRefresh, setIsActiveRefresh] =
         useState<boolean>(false)
     const [isRecActive, setIsRecActive] =
         useState<boolean>(false)
-    const [isSquareActive, setIsSquareActive] = useState<boolean>();
+    const [isSquareActive, setIsSquareActive] =
+        useState<boolean>(false);
+
+    // const {setLastScale, scale, lastScale} = useImgStore()
 
     const handleRotateLeft = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
         e.stopPropagation()
         setCurrRotate(prevState => prevState-90 < 0
-            ? prevState = 270
-            : prevState -= 90
+            ? 270
+            : prevState - 90
         )
     };
 
@@ -68,8 +75,8 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         e.preventDefault()
         e.stopPropagation()
         setCurrRotate(prevState => prevState+90 === 360
-            ? prevState = 0
-            : prevState += 90
+            ? 0
+            : prevState + 90
         )
     };
 
@@ -77,7 +84,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         e.stopPropagation()
         const scaleFactor = 0.001;
         const newScale = scale.get() + 102 * scaleFactor;
-        setLastScale(prevState => prevState-102);
+        setLastScale(prevstate=>prevstate-102);
         const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
         apiWheel.start({scale: clampedScale, onChange: () => {
                 updateBounds()
@@ -88,7 +95,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         e.stopPropagation()
         const scaleFactor = 0.001;
         const newScale = scale.get() - 102 * scaleFactor;
-        setLastScale(prevState => prevState+102);
+        setLastScale(prevstate=>prevstate+102);
         const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
         apiWheel.start({scale: clampedScale, onChange: () => {
                 updateBounds()
@@ -133,6 +140,10 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         setIsEmptyImgRect(true)
     };
 
+    useEffect(() => {
+        handleActiveFigure(isRecActive, isSquareActive)
+    }, [isRecActive, isSquareActive]);
+
     return (
         <>
             <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-[320px]
@@ -163,7 +174,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
                 {isCut &&
                     <>
                         <img src={imageWrapper.rectangle} alt="Cut Rectungle"
-                             className={`h-full rounded-md transition-all ease-in-out duration-500 rotate-90
+                             className={`h-full rounded-md transition-all ease-in-out duration-500
                                  ${isRecActive && 'bg-mainGreen/[0.6]'}`}
                              onClick={handleCutRectangle}
                         />

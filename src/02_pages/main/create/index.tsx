@@ -8,6 +8,7 @@ import {convertTime} from "../../../03_widgetes/MainTable/lib/converTime";
 import {convertDateFull} from "../../../05_entities/MainPage";
 import {validateName} from "../../../04_features/CreateTask";
 import {getChunkId, processChunk, TProcessChunkResp, uploadFiles} from "../../../05_entities/FetchPipeline";
+import {useNotifyStore} from "../../../05_entities/Notifications";
 
 const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
@@ -20,6 +21,7 @@ const MainCreatePage = () => {
 
     const {addRow: addMainRow, rows, delRow: delMainRow, setStatus} = useMainStore();
     const {addRow: addRenameRow, rows: renameRows} = useRenameStore()
+    const {addNotification, notifications} = useNotifyStore()
 
     const ws = useRef<WebSocket | null>(null)
 
@@ -64,7 +66,9 @@ const MainCreatePage = () => {
                     ws.current!.onclose = (mess) => {
                         if (mess.code !== 1000) {
                             setStatus(id, 'Ошибка обработки')
+                            addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
                         }
+                        addNotification(notifications.length+1, 'Задача успешно обработана')
                         clearInterval(myInterval)
                     }
                 })
@@ -116,6 +120,7 @@ const MainCreatePage = () => {
             })
                 .catch(err => console.log(err))
             navigate('/main')
+            addNotification(notifications.length+1, 'Задача успешно создана')
         } else {
             setIsNotCorrect(true)
         }

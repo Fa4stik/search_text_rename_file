@@ -10,6 +10,7 @@ import {convertNameFile} from "../../../04_features/CreateTask";
 import {getDataById, processImage, TBbox, TImgSizes} from "../../../05_entities/FetchPipeline";
 import {getOcrModels} from "../../../05_entities/FetchOCR";
 import {getFile} from "../../../05_entities/FetchWorkWithData";
+import {useImgStore} from "../../../05_entities/ImageWrapper";
 
 type PageParams = {
     idTask: string
@@ -50,6 +51,8 @@ const RenamesCurrentPage = () => {
     const resizeColRef = useRef<HTMLDivElement>(null)
     const tableContentRef = useRef<HTMLDivElement>(null)
 
+    const {setLastScale, setScale, setBounds, setCord} = useImgStore()
+
     // get models
     useEffect(() => {
         getOcrModels().then(resp => {
@@ -68,6 +71,11 @@ const RenamesCurrentPage = () => {
 
     const handleClickRow = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
         e.preventDefault()
+        setLastScale(0)
+        setCord(0, 0)
+        setBounds({left: 0, bottom: 0, top: 0, right: 0})
+        setScale(1)
+
         const uid = parseInt(rows.find(row => row.id === id)!.uid)
         const name = rows.find(row => row.id === id)!.name
         setNameFile(name)

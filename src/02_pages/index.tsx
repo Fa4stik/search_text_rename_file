@@ -1,14 +1,22 @@
 import React, {lazy} from 'react';
 import {Route, Routes} from 'react-router-dom';
+import LendingPage from "./lending";
+import MainPage from "./main";
+import MainCreatePage from "./main/create";
+import RenamesPage from "./renames";
+import RenamesCurrentPage from "./renames/current";
+import ReadyPage from "./ready";
+import VersionPage from "./version";
+import NotFoundPage from "./notFound";
 
-const LendingPage = lazy(() => import('./lending'));
-const MainPage = lazy(() => import("./main"))
-const RenamesPage = lazy(() => import("./renames"))
-const ReadyPage = lazy(() => import("./ready"))
-const NotFoundPage = lazy(() => import("./notFound"))
-const MainCreatePage = lazy(() => import("./main/create"))
-const RenamesCurrentPage = lazy(() => import("./renames/current"))
-const VersionPage = lazy(() => import("./version"))
+// const LendingPage = lazy(() => import('./lending'));
+// const MainPage = lazy(() => import("./main"))
+// const RenamesPage = lazy(() => import("./renames"))
+// const ReadyPage = lazy(() => import("./ready"))
+// const NotFoundPage = lazy(() => import("./notFound"))
+// const MainCreatePage = lazy(() => import("./main/create"))
+// const RenamesCurrentPage = lazy(() => import("./renames/current"))
+// const VersionPage = lazy(() => import("./version"))
 
 export const Routing = () => {
     return (
