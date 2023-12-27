@@ -118,7 +118,7 @@ const RenamesCurrentPage = () => {
             const tableContentHeight = tableContentRef.current!.getBoundingClientRect().height
             const upLimit = (tableContentHeight) / 4
             const downLimit = (tableContentHeight * 2) / 3
-            const deltaY = e.clientY + 100 - resizeRowRef.current!.getBoundingClientRect().top;
+            const deltaY = e.clientY - resizeRowRef.current!.getBoundingClientRect().top;
             const newHeight = Math.min(Math.max(upLimit, deltaY), downLimit)
             resizeRowRef.current!.style.height = `${newHeight}px`;
         }
