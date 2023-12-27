@@ -14,7 +14,7 @@ const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
     const [nameTask, setNameTask] = useState<string>('')
     const [isLocalPath, setIsLocalPath] = useState<boolean>(true)
-    const [currModel, setCurrModel] = useState<string>('easyOCR')
+    const [currModel, setCurrModel] = useState<string>('None')
     const [error, setError] =
         useState<string>('')
 
@@ -112,6 +112,8 @@ const MainCreatePage = () => {
         }
 
         setError('')
+
+        console.log(currModel)
 
         const dateStart = new Date()
 

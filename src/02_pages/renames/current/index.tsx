@@ -171,7 +171,7 @@ const RenamesCurrentPage = () => {
                                         rowOnClick={handleClickRow}
                             />
                         </div>
-                        <div className="w-full h-[4px] bg-mainDark cursor-row-resize"
+                        <div className="w-full h-[2px] bg-mainDark cursor-row-resize"
                              onMouseDown={(e) => {
                                  e.preventDefault()
                                  setIsResizeRow(true)
@@ -186,11 +186,11 @@ const RenamesCurrentPage = () => {
                              setIsResizeCol(true)
                          }}
                     />
-                    {/*isDark*/}
                     <ImageWrapper handleClickBox={handleClickBox}
                                   myBoxes={bboxes}
                                   srcImg={srcImg}
-                                  isDark isRefresh isRotate isZoom isCut
+                                  isDark={bboxes.length > 0}
+                                  isRefresh isRotate isZoom isCut
                                   isLoading={isLoadingImgWrapper}
                                   handleChoseOption={handleRegenerateImg}
                                   models={models}

@@ -29,7 +29,7 @@ export const MainInfo:
         getOcrModels().then(resp => {
             setOptionsModels(resp.models.map((model, id) =>
                 ({key: model, value: id})))
-            setCurrModel(resp.models[1])
+            setCurrModel(resp.models.at(-1) ?? 'None')
         })
             .catch(err => console.log(err))
     }, []);
@@ -38,8 +38,8 @@ export const MainInfo:
         setIsLocalPath(e.target.value === '1' ? true : false)
     };
 
-    const handleChangeModel = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setCurrModel(e.target.options[e.target.selectedIndex].text)
+    const handleChangeModel = (e: React.ChangeEvent<HTMLSelectElement>, model?: string) => {
+        setCurrModel(model ?? 'None')
     };
 
     return (
@@ -59,7 +59,7 @@ export const MainInfo:
             <BorderSelect options={optionsModels}
                           onChange={handleChangeModel}
                           classStyle="flex-grow"
-                          defaultValue={1}
+                          defaultValue={3}
             />
         </div>
     );
