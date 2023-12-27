@@ -13,6 +13,7 @@ import {
     useMyWheel
 } from "../../../05_entities/ImageWrapper";
 import {TBounds} from "../../../05_entities/ImageWrapper/model/dragTypes";
+import {logDOM} from "@testing-library/react";
 
 const maxSizeScaleImg = 200
 
@@ -191,7 +192,7 @@ export const ImageWrapper:
             if (width > height) {
                 const newScale = myParSizes.width / width
                 apiWheel.start({
-                    scale: newScale, onChange: () => {
+                    scale: newScale, onResolve: () => {
                         updateBounds()
                     }
                 })
@@ -200,7 +201,7 @@ export const ImageWrapper:
             else {
                 const newScale = myParSizes.height / height
                 apiWheel.start({
-                    scale: newScale, onChange: () => {
+                    scale: newScale, onResolve: () => {
                         updateBounds()
                     }
                 })
