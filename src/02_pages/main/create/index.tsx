@@ -15,7 +15,8 @@ const MainCreatePage = () => {
     const [nameTask, setNameTask] = useState<string>('')
     const [isLocalPath, setIsLocalPath] = useState<boolean>(true)
     const [currModel, setCurrModel] = useState<string>('easyOCR')
-    const [isNotCorrect, setIsNotCorrect] = useState<boolean>(false)
+    const [error, setError] =
+        useState<string>('')
 
     const navigate = useNavigate()
 
@@ -100,30 +101,36 @@ const MainCreatePage = () => {
     const handleCreateTask = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
 
-        if (validateName(nameTask)) {
-            setIsNotCorrect(false)
-
-            const dateStart = new Date()
-
-            getChunkId().then(resp => {
-                const id = resp.toString();
-                addMainRow({
-                    id,
-                    name: nameTask,
-                    countFiles: images.length.toString(),
-                    sizeFiles: convertSize(images),
-                    status: 'В процессе',
-                    dataStart: convertDateFull(dateStart)
-                })
-
-                prcImg(id, dateStart)
-            })
-                .catch(err => console.log(err))
-            navigate('/main')
-            addNotification(notifications.length+1, 'Задача успешно создана')
-        } else {
-            setIsNotCorrect(true)
+        if (!validateName(nameTask)) {
+            setError('Некорректное название задачи, нельзя использовать символы \\ / : ? " < > |')
+            return;
         }
+
+        if (images.length === 0) {
+            setError('Загрузите файлы для обработки')
+            return;
+        }
+
+        setError('')
+
+        const dateStart = new Date()
+
+        getChunkId().then(resp => {
+            const id = resp.toString();
+            addMainRow({
+                id,
+                name: nameTask,
+                countFiles: images.length.toString(),
+                sizeFiles: convertSize(images),
+                status: 'В процессе',
+                dataStart: convertDateFull(dateStart)
+            })
+
+            prcImg(id, dateStart)
+        })
+            .then(() => addNotification(notifications.length+1, 'Задача успешно создана'))
+            .catch(() => addNotification(notifications.length+1, 'Ошибка создания задачи', true))
+        navigate('/main')
     };
 
     const handleCancelTask = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -141,7 +148,7 @@ const MainCreatePage = () => {
                                      setIsLocalPath={setIsLocalPath}
                                      isLocalPath={isLocalPath}
                                      setCurrModel={setCurrModel}
-                                     isNotCorrect={isNotCorrect}
+                                     error={error}
                 />
                 <CreateTaskForm images={images}
                                 handleCreateTask={handleCreateTask}

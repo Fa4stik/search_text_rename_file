@@ -9,7 +9,7 @@ type CreateTaskBlockInfoProps = {
     isLocalPath: boolean;
     setIsLocalPath: React.Dispatch<React.SetStateAction<boolean>>
     setCurrModel: React.Dispatch<React.SetStateAction<string>>
-    isNotCorrect?: boolean
+    error: string
 }
 
 export const CreateTaskBlockInfo:
@@ -19,7 +19,7 @@ export const CreateTaskBlockInfo:
                                           isLocalPath,
                                           setIsLocalPath,
                                           setCurrModel,
-                                          isNotCorrect}) => {
+                                              error}) => {
 
     const changeNameTask = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNameTask(e.target.value)
@@ -34,11 +34,11 @@ export const CreateTaskBlockInfo:
                     <MainInfo changeNameTask={changeNameTask}
                               setIsLocalPath={setIsLocalPath}
                               setCurrModel={setCurrModel}
-                              isNotCorrect={isNotCorrect}
+                              isNotCorrect={!!error}
                     />
-                    {isNotCorrect &&
+                    {error &&
                         <p className="text-[13px] -my-[5px] ml-[10px] text-red-400">
-                            *Некорректное название задачи, нельзя использовать символы \ / : ? " &lt; &gt; |
+                            *{error}
                         </p>}
                     {!isLocalPath && <OptionallyInfo setImages={setImages}/>}
 
