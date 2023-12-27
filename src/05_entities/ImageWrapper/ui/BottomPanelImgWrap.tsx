@@ -28,6 +28,7 @@ type BottomPanelImgWrapProps = {
     setImgRect: React.Dispatch<React.SetStateAction<TImgSizes>>
     origImgSizes: TImgSizes
     handleActiveFigure: (isRec: boolean, isSquare: boolean) => void
+    resetTools: boolean
 }
 
 export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
@@ -50,7 +51,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
            setIsEmptyImgRect,
            setIsEdit,
            isEdit, origImgSizes,
-           handleActiveFigure
+           handleActiveFigure, resetTools
        }) => {
 
     const [isActiveRefresh, setIsActiveRefresh] =
@@ -144,6 +145,12 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         handleActiveFigure(isRecActive, isSquareActive)
     }, [isRecActive, isSquareActive]);
 
+    useEffect(() => {
+        setIsRecActive(false)
+        setIsSquareActive(false)
+        setIsActiveRefresh(false)
+    }, [resetTools]);
+
     return (
         <>
             <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-[320px]
@@ -192,7 +199,7 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
                     <img src={imageWrapper.refresh} alt="Regenerate" className="h-full"
                          onClick={handleRefresh}
                     />}
-                {isActiveRefresh && <div className="absolute bottom-[55px] -right-[20%] z-50">
+                {isActiveRefresh && <div className="absolute bottom-[55px] -right-[10%] z-50">
                     <DropDownMenu options={models}
                                   setIsActiveRefresh={setIsActiveRefresh}
                                   handleChoseOption={handleChoseOption}

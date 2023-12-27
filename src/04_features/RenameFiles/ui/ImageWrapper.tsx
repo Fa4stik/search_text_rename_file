@@ -34,6 +34,7 @@ type ImageWrapperProps = {
     setCurrCrop: React.Dispatch<React.SetStateAction<number>>
     imgRect: TImgSizes
     setImgRect: React.Dispatch<React.SetStateAction<TImgSizes>>
+    resetTools: boolean
 }
 
 export const ImageWrapper:
@@ -52,7 +53,7 @@ export const ImageWrapper:
                                        currRotate,
                                        isCut,
                                        isLoading,
-                                       imgRect, setImgRect
+                                       imgRect, setImgRect, resetTools
                                    }) => {
 
     const [minSizeScaleImg, setMinSizeScaleImg] =
@@ -496,6 +497,13 @@ export const ImageWrapper:
         }
     }, [bounds, isRec, isSquare]);
 
+    // Сброс всех инструментов
+    useEffect(() => {
+        setIsEdit(false)
+        setImgRect({x1: 0, width: 0, height: 0, y1: 0})
+        setStartCord({x: 0, y: 0})
+    }, [resetTools])
+
     return (
         <div className="flex-1 flex overflow-hidden cursor-grab">
             {isDark && <Masks myBoxes={myBoxes} imgRect={imgRect}/>}
@@ -590,6 +598,7 @@ export const ImageWrapper:
                         setIsEmptyImgRect={setIsEmptyImgRect}
                         setIsEdit={setIsEdit}
                         origImgSizes={origImgSizes}
+                        resetTools={resetTools}
                     />
                 }
             </div>

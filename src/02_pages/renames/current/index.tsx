@@ -46,6 +46,8 @@ const RenamesCurrentPage = () => {
     const [currCrop, setCurrCrop] = useState<number>(0)
     const [imgRect, setImgRect] =
         useState<TImgSizes>({x1: 0, y1: 0, width: 0, height: 0})
+    const [resetTools, setResetTools] =
+        useState<boolean>(false)
 
     const resizeRowRef = useRef<HTMLDivElement>(null)
     const resizeColRef = useRef<HTMLDivElement>(null)
@@ -75,6 +77,7 @@ const RenamesCurrentPage = () => {
         setCord(0, 0)
         setBounds({left: 0, bottom: 0, top: 0, right: 0})
         setScale(1)
+        setResetTools(prevState => !prevState)
 
         const uid = parseInt(rows.find(row => row.id === id)!.uid)
         const name = rows.find(row => row.id === id)!.name
@@ -126,6 +129,7 @@ const RenamesCurrentPage = () => {
 
     const handleRegenerateImg = (e: React.MouseEvent<HTMLSpanElement>, ocr_type_model: string | number) => {
         setIsLoadingImgWrapper(prevState => !prevState)
+        setResetTools(prevState => !prevState)
         processImage(activeUid, ocr_type_model.toString(),
             currRotate, currCrop, imgRect)
             .then(resp => {
@@ -142,8 +146,7 @@ const RenamesCurrentPage = () => {
                     })
                 getFile(resp.uid)
                     .then(resp => {
-                        // `?${new Date().getTime()}`
-                        setSrcImg(resp)
+                        setSrcImg(resp + `?${new Date().getTime()}`)
                     })
                     .catch(err => {
                         console.log(err);
@@ -199,6 +202,7 @@ const RenamesCurrentPage = () => {
                                   setCurrCrop={setCurrCrop}
                                   setImgRect={setImgRect}
                                   imgRect={imgRect}
+                                  resetTools={resetTools}
                     />
                 </div>
             </div>
