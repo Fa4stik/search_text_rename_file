@@ -4,16 +4,17 @@ import {TOption} from "../../../06_shared/model/typeSelect";
 import {LoadingDotRight} from "../../../06_shared/ui/loading";
 import {TBbox, TImgSizes} from "../../../05_entities/FetchPipeline";
 import {
-    BottomPanelImgWrap,
+    BottomPanelImgWrap, CutBlock,
     ImgRectBlock,
-    Masks,
+    Masks, RefreshBlock, RotateBlock,
     TCord,
     useCountBounds, useImgStore,
     useMyDrag,
-    useMyWheel
+    useMyWheel, ZoomBlock
 } from "../../../05_entities/ImageWrapper";
 import {TBounds} from "../../../05_entities/ImageWrapper/model/dragTypes";
 import {logDOM} from "@testing-library/react";
+import {imageWrapper} from "../../../06_shared/ui/icon";
 
 const maxSizeScaleImg = 200
 
@@ -75,16 +76,19 @@ export const ImageWrapper:
     const parentRef = useRef<HTMLDivElement>(null)
 
     // Рассчёт границ для изображения (условно, если изображение не вписывается в parentRef, то мы центрируем его parentRef)
-    const countNewBounds = () => {
-        const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
+    const countNewBounds = (isRotate = false) => {
+        let {width: sizeMyImgW, height: sizeMyImgH} = imgBlockRef.current!.getBoundingClientRect()
         const sizeMyParent = parentRef.current!.getBoundingClientRect()
-        const origWidthImg = sizeMyImg.width / scale.get();
-        const origHeightImg = sizeMyImg.height / scale.get();
+        let origWidthImg = sizeMyImgW / scale.get();
+        let origHeightImg = sizeMyImgH / scale.get();
 
-        let newRight = -(origWidthImg - sizeMyImg.width) / 2;
-        let newBottom = -(origHeightImg - sizeMyImg.height) / 2
-        let newLeft = -(sizeMyImg.width - sizeMyParent.width) + newRight
-        let newTop = -(sizeMyImg.height - sizeMyParent.height) + newBottom
+        if (isRotate)
+            sizeMyImgW = [sizeMyImgH, sizeMyImgH = sizeMyImgW][0]
+
+        let newRight = -(origWidthImg - sizeMyImgW) / 2; // oW - sW || oW - sH
+        let newBottom = -(origHeightImg - sizeMyImgH) / 2 // oH - sH || oH - sW
+        let newLeft = -(sizeMyImgW - sizeMyParent.width) + newRight // sW - pW || sH - pW
+        let newTop = -(sizeMyImgH - sizeMyParent.height) + newBottom // sH - pH || sW - pH
 
         const centerX = (sizeMyParent.width - origWidthImg) / 2
         const centerY = (sizeMyParent.height - origHeightImg) / 2
@@ -118,51 +122,8 @@ export const ImageWrapper:
 
     }
 
-    // Тот же самыый расчёт, но только при повороте, заменяем высоту на ширину и наоборот
-    const countNewBoundsRotate = () => {
-        const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
-        const sizeMyParent = parentRef.current!.getBoundingClientRect()
-        const origWidthImg = sizeMyImg.height / scale.get();
-        const origHeightImg = sizeMyImg.width / scale.get();
-
-        let newRight = -(origHeightImg - sizeMyImg.height) / 2;
-        let newBottom = -(origWidthImg - sizeMyImg.width) / 2
-        let newLeft = -(sizeMyImg.height - sizeMyParent.width) + newRight
-        let newTop = -(sizeMyImg.width - sizeMyParent.height) + newBottom
-
-        const centerX = (sizeMyParent.width - origHeightImg) / 2
-        const centerY = (sizeMyParent.height - origWidthImg) / 2
-
-        const tempBottom = newBottom;
-        newBottom = newBottom < newTop ? centerY : newBottom
-        newTop = newTop > tempBottom ? centerY : newTop
-
-        const tempRight = newRight;
-        newRight = newRight < newLeft ? centerX : newRight
-        newLeft = newLeft > tempRight ? centerX : newLeft
-
-        setBounds({
-            bottom: newBottom,
-            right: newRight,
-            left: newLeft,
-            top: newTop
-        })
-
-        if (x.get() > newRight)
-            apiDrag.start({x: newRight})
-
-        if (x.get() < newLeft)
-            apiDrag.start({x: newLeft})
-
-        if (y.get() > newBottom)
-            apiDrag.start({y: newBottom})
-
-        if (y.get() < newTop)
-            apiDrag.start({y: newTop})
-    }
-
     const updateBounds = () =>
-        currRotate % 180 === 0 ? countNewBounds() : countNewBoundsRotate()
+        currRotate % 180 === 0 ? countNewBounds() : countNewBounds(true)
 
     // Хук для перемещения изображения
     const {x, y, bindDrag, apiDrag} =
@@ -580,6 +541,14 @@ export const ImageWrapper:
                     </animated.div>
                 </div>
                 {!isHiddenBottomPanel &&
+                //     <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-auto
+                // bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer
+                // after:relative after:-ml-[10px]">
+                //         <RotateBlock/>
+                //         <ZoomBlock/>
+                //         <CutBlock/>
+                //         <RefreshBlock/>
+                //     </div>
                     <BottomPanelImgWrap
                         isCut isRefresh isRotate isZoom
                         handleActiveFigure={handleActiveFigure}

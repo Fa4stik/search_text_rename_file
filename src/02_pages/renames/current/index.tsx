@@ -174,7 +174,7 @@ const RenamesCurrentPage = () => {
                                         rowOnClick={handleClickRow}
                             />
                         </div>
-                        <div className="w-full h-[2px] bg-mainDark cursor-row-resize"
+                        <div className="w-full h-[6px] cursor-row-resize border-2 border-solid border-mainDark"
                              onMouseDown={(e) => {
                                  e.preventDefault()
                                  setIsResizeRow(true)
@@ -183,7 +183,7 @@ const RenamesCurrentPage = () => {
                         <RenameFile setRows={setRows} idTask={idTask} activeUid={activeUid}
                                     nameFile={nameFile} setNameFile={setNameFile}/>
                     </div>
-                    <div className="w-[2px] h-full bg-mainDark cursor-col-resize"
+                    <div className="w-[6px] h-full cursor-col-resize border-2 border-solid border-mainDark"
                          onMouseDown={(e) => {
                              e.preventDefault()
                              setIsResizeCol(true)
