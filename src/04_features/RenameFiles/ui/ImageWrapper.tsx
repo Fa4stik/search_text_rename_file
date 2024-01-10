@@ -13,8 +13,6 @@ import {
     useMyWheel, ZoomBlock
 } from "../../../05_entities/ImageWrapper";
 import {TBounds} from "../../../05_entities/ImageWrapper/model/dragTypes";
-import {logDOM} from "@testing-library/react";
-import {imageWrapper} from "../../../06_shared/ui/icon";
 
 const maxSizeScaleImg = 200
 
@@ -541,14 +539,14 @@ export const ImageWrapper:
                     </animated.div>
                 </div>
                 {!isHiddenBottomPanel &&
-                //     <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-auto
-                // bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer
-                // after:relative after:-ml-[10px]">
-                //         <RotateBlock/>
-                //         <ZoomBlock/>
-                //         <CutBlock/>
-                //         <RefreshBlock/>
-                //     </div>
+                    // <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-auto
+                    // bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer
+                    // after:relative after:-ml-[10px]">
+                    //     <RotateBlock/>
+                    //     <ZoomBlock/>
+                    //     <CutBlock/>
+                    //     <RefreshBlock/>
+                    // </div>
                     <BottomPanelImgWrap
                         isCut isRefresh isRotate isZoom
                         handleActiveFigure={handleActiveFigure}

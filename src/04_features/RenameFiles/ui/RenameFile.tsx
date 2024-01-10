@@ -109,7 +109,7 @@ export const RenameFile:
                     />
                 ))}
                 <TagGroup name={'Дата'}
-                          count={1}
+                          // count={1}
                           tags={{} as TGroupTag}
                           validator={validateDate}
                           handleClickTag={handleClickTag}

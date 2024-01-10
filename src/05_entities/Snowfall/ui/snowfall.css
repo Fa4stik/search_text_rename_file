@@ -1,0 +1,17 @@
+.snowflake {
+    position: fixed;
+    width: 5px;
+    height: 5px;
+    background-color: lightblue;
+    border-radius: 50%;
+    animation: fallingSnow linear infinite;
+}
+
+@keyframes fallingSnow {
+    0% {
+        transform: translateY(-100vh);
+    }
+    100% {
+        transform: translateY(100vh);
+    }
+}
