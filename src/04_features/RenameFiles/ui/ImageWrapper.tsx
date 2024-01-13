@@ -1,10 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {animated} from "react-spring";
+import {animated, useSpring} from "react-spring";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {LoadingDotRight} from "../../../06_shared/ui/loading";
 import {TBbox, TImgSizes} from "../../../05_entities/FetchPipeline";
 import {
-    BottomPanelImgWrap, CutBlock,
+    BottomPanelImgWrap, CutBlock, FigureBlock,
     ImgRectBlock,
     Masks, RefreshBlock, RotateBlock,
     TCord,
@@ -15,6 +15,7 @@ import {
 import {TBounds} from "../../../05_entities/ImageWrapper/model/dragTypes";
 
 const maxSizeScaleImg = 200
+const speedZoom = 0.05
 
 type ImageWrapperProps = {
     myBoxes: TBbox[];
@@ -36,29 +37,32 @@ type ImageWrapperProps = {
     resetTools: boolean
 }
 
-export const ImageWrapper:
-    React.FC<ImageWrapperProps> = ({
-                                       isDark,
-                                       srcImg,
-                                       myBoxes,
-                                       handleClickBox,
-                                       isZoom,
-                                       isRefresh,
-                                       isRotate,
-                                       handleChoseOption,
-                                       models,
-                                       setCurrRotate,
-                                       setCurrCrop,
-                                       currRotate,
-                                       isCut,
-                                       isLoading,
-                                       imgRect, setImgRect, resetTools
-                                   }) => {
+export const ImageWrapper: React.FC<ImageWrapperProps> = ({
+    isDark,
+    srcImg,
+    myBoxes,
+    handleClickBox,
+    isZoom,
+    isRefresh,
+    isRotate,
+    handleChoseOption,
+    models,
+    setCurrRotate,
+    setCurrCrop,
+    currRotate,
+    isCut,
+    isLoading,
+    imgRect, setImgRect, resetTools
+}) => {
 
     const [minSizeScaleImg, setMinSizeScaleImg] =
         useState<number>(0.1)
     const [bounds, setBounds] =
         useState<TBounds>({left: 0, right: 0, top: 0, bottom: 0})
+    const [isImmediateDrag, setIsImmediateDrag] =
+        useState<boolean>(true)
+    const [scaleFactor, setScaleFactor] =
+        useState<number>(0.5)
     const [isHiddenBottomPanel, setIsHiddenBottomPanel] =
         useState<boolean>(false)
     const [isRec, setIsRec] =
@@ -69,59 +73,69 @@ export const ImageWrapper:
     // Размеры оригинального изображения
     const origImgRef = useRef<HTMLImageElement>(null)
     // Блок с изображение уже отформатированный с учётом зума
-    const imgBlockRef = useRef<HTMLImageElement>(null)
+    const imgBlockRef = useRef<HTMLDivElement>(null)
     // Размеры окна, в котором изменяется изображение
     const parentRef = useRef<HTMLDivElement>(null)
 
     // Рассчёт границ для изображения (условно, если изображение не вписывается в parentRef, то мы центрируем его parentRef)
-    const countNewBounds = (isRotate = false) => {
-        let {width: sizeMyImgW, height: sizeMyImgH} = imgBlockRef.current!.getBoundingClientRect()
-        const sizeMyParent = parentRef.current!.getBoundingClientRect()
-        let origWidthImg = sizeMyImgW / scale.get();
-        let origHeightImg = sizeMyImgH / scale.get();
+    const countNewBounds = (scale: number, isRotate = false) => {
+        const parSizes = parentRef.current!.getBoundingClientRect();
+        let origImgW = origImgRef.current!.naturalWidth
+        let origImgH = origImgRef.current!.naturalHeight
+        let imgSizesW = origImgW*scale
+        let imgSizesH = origImgH*scale
 
-        if (isRotate)
-            sizeMyImgW = [sizeMyImgH, sizeMyImgH = sizeMyImgW][0]
+        // Разница при повороте
+        let startX = 0
+        let startY = 0
 
-        let newRight = -(origWidthImg - sizeMyImgW) / 2; // oW - sW || oW - sH
-        let newBottom = -(origHeightImg - sizeMyImgH) / 2 // oH - sH || oH - sW
-        let newLeft = -(sizeMyImgW - sizeMyParent.width) + newRight // sW - pW || sH - pW
-        let newTop = -(sizeMyImgH - sizeMyParent.height) + newBottom // sH - pH || sW - pH
+        if (isRotate) {
+            startX -= (imgSizesW - imgSizesH)/2
+            startY += (imgSizesW - imgSizesH)/2
+            imgSizesW = [imgSizesH, imgSizesH = imgSizesW][0]
+        }
 
-        const centerX = (sizeMyParent.width - origWidthImg) / 2
-        const centerY = (sizeMyParent.height - origHeightImg) / 2
+        if (parSizes.width >= imgSizesW) {
+            const newRight = (parSizes.width-imgSizesW)/2 + startX
+            setBounds(prevState => ({
+                ...prevState,
+                left: newRight,
+                right: newRight
+            }))
+        }
 
-        const tempBottom = newBottom;
-        newBottom = newBottom < newTop ? centerY : newBottom
-        newTop = newTop > tempBottom ? centerY : newTop
+        if (parSizes.height >= imgSizesH) {
+            const newBottom = (parSizes.height - imgSizesH)/2 + startY
+            setBounds(prevState => ({
+                ...prevState,
+                bottom: newBottom,
+                top: newBottom
+            }))
+        }
 
-        const tempRight = newRight;
-        newRight = newRight < newLeft ? centerX : newRight
-        newLeft = newLeft > tempRight ? centerX : newLeft
+        if (parSizes.height < imgSizesH) {
+            const newBottom = startY
+            const newTop = startY - (imgSizesH - parSizes.height)
+            setBounds(prevState => ({
+                ...prevState,
+                bottom: newBottom,
+                top: newTop
+            }))
+        }
 
-        setBounds({
-            bottom: newBottom,
-            right: newRight,
-            left: newLeft,
-            top: newTop
-        })
-
-        if (x.get() > newRight)
-            apiDrag.start({x: newRight})
-
-        if (x.get() < newLeft)
-            apiDrag.start({x: newLeft})
-
-        if (y.get() > newBottom)
-            apiDrag.start({y: newBottom})
-
-        if (y.get() < newTop)
-            apiDrag.start({y: newTop})
-
+        if (parSizes.width < imgSizesW) {
+            const newRight = startX
+            const newLeft = startX - (imgSizesW - parSizes.width)
+            setBounds(prevState => ({
+                ...prevState,
+                right: newRight,
+                left: newLeft
+            }))
+        }
     }
 
-    const updateBounds = () =>
-        currRotate % 180 === 0 ? countNewBounds() : countNewBounds(true)
+    const updateBounds = (scale: number) =>
+        currRotate % 180 === 0 ? countNewBounds(scale) : countNewBounds(scale, true)
 
     // Хук для перемещения изображения
     const {x, y, bindDrag, apiDrag} =
@@ -129,12 +143,14 @@ export const ImageWrapper:
 
     // Хук для изменения размеров изображения
     const {scale, apiWheel, bindWheel, lastScale, setLastScale} =
-        useMyWheel({maxSizeScaleImg, minSizeScaleImg, updateBounds})
-
-    // При изменении размеров изображения пересчитываем границы для parentRef
-    useEffect(() => {
-        updateBounds()
-    }, [currRotate]);
+        useMyWheel({
+            maxSizeScaleImg,
+            minSizeScaleImg,
+            scaleFactor,
+            setIsImmediateDrag,
+            imgBlockRef,
+            apiDrag,
+            updateBounds})
 
     // При загрузке изображения вписываем его либо по ширине, либо по высооте
     const handleImageLoad = () => {
@@ -149,12 +165,18 @@ export const ImageWrapper:
             setImgRect({x1: 0, y1: 0, width, height})
             setOrigSizes({x1: 0, y1: 0, width, height})
 
+            // Вычисление scale для конкретного изображения
+            const baseSize = Math.max(myParSizes.width, myParSizes.height);
+            const normalizedScaleFactor = Math.sqrt((width * height) / baseSize);
+            setScaleFactor(speedZoom / normalizedScaleFactor);
+
             if (width > height) {
                 const newScale = myParSizes.width / width
                 apiWheel.start({
                     scale: newScale, onResolve: () => {
-                        updateBounds()
-                    }
+                        updateBounds(newScale)
+                    },
+                    immediate: true
                 })
                 setMinSizeScaleImg(myParSizes.width / width)
             }
@@ -162,55 +184,11 @@ export const ImageWrapper:
                 const newScale = myParSizes.height / height
                 apiWheel.start({
                     scale: newScale, onResolve: () => {
-                        updateBounds()
-                    }
+                        updateBounds(newScale)
+                    },
+                    immediate: true
                 })
                 setMinSizeScaleImg(myParSizes.height / height)
-            }
-        }
-    }
-
-    const handleActiveFigure = (isRec: boolean, isSquare: boolean) => {
-        setIsRec(isRec)
-        setIsSquare(isSquare)
-        const sizeMyParent = parentRef.current!.getBoundingClientRect()
-        const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
-        const origWidthImg = sizeMyImg.width / scale.get();
-        const origHeightImg = sizeMyImg.height / scale.get();
-        if (isRec) {
-            if (origWidthImg > origHeightImg) {
-                const width = (3/2)*origHeightImg
-                setImgRect({x1: 0, y1: 0, height: origHeightImg, width})
-                setIsEmptyImgRect(false)
-                apiWheel({scale: sizeMyParent.height/width, onChange: () => {
-                        updateBounds()
-                    }
-                })
-            } else {
-                setImgRect({x1: 0, y1: 0, height: (2/3)*origWidthImg, width: origWidthImg})
-                setIsEmptyImgRect(false)
-                apiWheel({scale: sizeMyParent.width/origWidthImg, onChange: () => {
-                        updateBounds()
-                    }
-                })
-            }
-        }
-
-        if (isSquare) {
-            if (origWidthImg > origHeightImg) {
-                setImgRect({x1: 0, y1: 0, height: origHeightImg, width: origHeightImg})
-                setIsEmptyImgRect(false)
-                apiWheel({scale: sizeMyParent.height/origHeightImg, onChange: () => {
-                        updateBounds()
-                    }
-                })
-            } else {
-                setImgRect({x1: 0, y1: 0, height: origWidthImg, width: origWidthImg})
-                setIsEmptyImgRect(false)
-                apiWheel({scale: sizeMyParent.width/origWidthImg, onChange: () => {
-                        updateBounds()
-                    }
-                })
             }
         }
     }
@@ -428,12 +406,12 @@ export const ImageWrapper:
         if (isEdit && !isStartDrawRect) {
             const sizeMyParent = parentRef.current!.getBoundingClientRect()
             if (imgRect.width > imgRect.height) {
-                apiWheel({scale: sizeMyParent.width/imgRect.width, onChange: () => {
-                        updateBounds()
+                apiWheel({scale: sizeMyParent.width/imgRect.width, onChange: (result) => {
+                        updateBounds(result.value.scale)
                     }})
             } else {
-                apiWheel({scale: sizeMyParent.height/imgRect.height, onChange: () => {
-                        updateBounds()
+                apiWheel({scale: sizeMyParent.height/imgRect.height, onChange: (result) => {
+                        updateBounds(result.value.scale)
                     }})
             }
         }
@@ -455,6 +433,22 @@ export const ImageWrapper:
             apiDrag.start({x: deltaX, y: deltaY})
         }
     }, [bounds, isRec, isSquare]);
+
+    // При повороте изображения пересчитываем границы для блока с движением изображения
+    useEffect(() => {
+        updateBounds(scale.get())
+    }, [currRotate]);
+
+    // Движение изображения к границам, когда оно от него сильно отходит
+    useEffect(() => {
+        const {left, top, bottom, right} = bounds
+
+        x.get() > right && apiDrag.start({x: right, immediate: isImmediateDrag})
+        x.get() < left && apiDrag.start({x: left, immediate: isImmediateDrag})
+
+        y.get() > bottom && apiDrag.start({y: bottom, immediate: isImmediateDrag})
+        y.get() < top && apiDrag.start({y: top, immediate: isImmediateDrag})
+    }, [bounds]);
 
     // Сброс всех инструментов
     useEffect(() => {
@@ -479,7 +473,8 @@ export const ImageWrapper:
                                   style={{
                                       x, y,
                                       transform: scale.to(s => `scale(${s})`),
-                                      // transformOrigin: `central`
+                                      transformOrigin: 'top left',
+                                      touchAction: 'none'
                                   }}
                                   onDragStart={(e) => e.preventDefault()}
                     >
@@ -539,34 +534,38 @@ export const ImageWrapper:
                     </animated.div>
                 </div>
                 {!isHiddenBottomPanel &&
-                    // <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-auto
-                    // bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer
-                    // after:relative after:-ml-[10px]">
-                    //     <RotateBlock/>
-                    //     <ZoomBlock/>
-                    //     <CutBlock/>
-                    //     <RefreshBlock/>
-                    // </div>
-                    <BottomPanelImgWrap
-                        isCut isRefresh isRotate isZoom
-                        handleActiveFigure={handleActiveFigure}
-                        isEdit={isEdit}
-                        scale={scale}
-                        setLastScale={setLastScale}
-                        apiWheel={apiWheel}
-                        updateBounds={updateBounds}
-                        setCurrRotate={setCurrRotate}
-                        maxSizeScaleImg={maxSizeScaleImg}
-                        minSizeScaleImg={minSizeScaleImg}
-                        handleChoseOption={handleChoseOption}
-                        models={models}
-                        setCurrCrop={setCurrCrop}
-                        setImgRect={setImgRect}
-                        setIsEmptyImgRect={setIsEmptyImgRect}
-                        setIsEdit={setIsEdit}
-                        origImgSizes={origImgSizes}
-                        resetTools={resetTools}
-                    />
+                    <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-auto
+                    bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer
+                    after:relative after:-ml-[10px]">
+                        <RotateBlock setCurrRotate={setCurrRotate}
+                        />
+                        <ZoomBlock apiWheel={apiWheel}
+                                   maxSizeScaleImg={maxSizeScaleImg}
+                                   minSizeScaleImg={minSizeScaleImg}
+                                   scaleFactor={scaleFactor}
+                                   updateBounds={updateBounds}
+                        />
+                        <FigureBlock setCurrCrop={setCurrCrop}
+                                     setImgRect={setImgRect}
+                                     origImgSizes={origImgSizes}
+                                     setIsEmptyImgRect={setIsEmptyImgRect}
+                                     setIsSquare={setIsSquare}
+                                     setIsRec={setIsRec}
+                                     apiWheel={apiWheel}
+                                     updateBounds={updateBounds}
+                                     imgBlockRef={imgBlockRef}
+                                     parentRef={parentRef}
+                        />
+                        <CutBlock setImgRect={setImgRect}
+                                  setIsEmptyImgRect={setIsEmptyImgRect}
+                                  isEdit={isEdit}
+                                  setIsEdit={setIsEdit}
+                        />
+                        <RefreshBlock models={models}
+                                      handleChoseOption={handleChoseOption}
+                                      setIsEdit={setIsEdit}
+                        />
+                    </div>
                 }
             </div>
         </div>

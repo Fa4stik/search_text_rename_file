@@ -13,8 +13,7 @@ export const baseApi = <T>(url: string, init?: RequestInit): Promise<T> =>
     fetchData<T>(baseUrl+url, {
         // credentials: 'include',
         headers: {
-            'Content-Type': "application/json",
-            "Access-Control-Allow-Origin": '*'
+            'Content-Type': "application/json"
         },
         ...init,
     })

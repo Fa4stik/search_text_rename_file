@@ -16,7 +16,7 @@ type BottomPanelImgWrapProps = {
     handleChoseOption?: (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => void
     minSizeScaleImg: number
     maxSizeScaleImg: number
-    updateBounds: () => void
+    updateBounds: (scale: number) => void
     models: TOption[]
     apiWheel: SpringRef<{scale: number}>
     setLastScale: React.Dispatch<React.SetStateAction<number>>
@@ -61,8 +61,6 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
     const [isSquareActive, setIsSquareActive] =
         useState<boolean>(false);
 
-    // const {setLastScale, scale, lastScale} = useImgStore()
-
     const handleRotateLeft = (e: React.MouseEvent<HTMLImageElement>) => {
         e.preventDefault()
         e.stopPropagation()
@@ -87,8 +85,8 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         const newScale = scale.get() + 102 * scaleFactor;
         setLastScale(prevstate=>prevstate-102);
         const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
-        apiWheel.start({scale: clampedScale, onChange: () => {
-                updateBounds()
+        apiWheel.start({scale: clampedScale, onChange: (result) => {
+                updateBounds(result.value.scale)
             }})
     };
 
@@ -98,8 +96,8 @@ export const BottomPanelImgWrap: React.FC<BottomPanelImgWrapProps>
         const newScale = scale.get() - 102 * scaleFactor;
         setLastScale(prevstate=>prevstate+102);
         const clampedScale = Math.max(minSizeScaleImg, Math.min(newScale, maxSizeScaleImg));
-        apiWheel.start({scale: clampedScale, onChange: () => {
-                updateBounds()
+        apiWheel.start({scale: clampedScale, onChange: (result) => {
+                updateBounds(result.value.scale)
             }})
     };
 

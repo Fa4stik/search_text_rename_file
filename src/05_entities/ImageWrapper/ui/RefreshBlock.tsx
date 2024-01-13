@@ -1,22 +1,40 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {imageWrapper} from "../../../06_shared/ui/icon";
 import {DropDownMenu} from "../../DropDownMenu";
+import {TOption} from "../../../06_shared/model/typeSelect";
 
-type RefreshBlockProps = {}
+type RefreshBlockProps = {
+    models: TOption[],
+    handleChoseOption?: (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => void,
+    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
+}
 
-export const RefreshBlock: React.FC<RefreshBlockProps> = ({}) => {
+export const RefreshBlock: React.FC<RefreshBlockProps> = ({
+    models,
+    handleChoseOption,
+    setIsEdit
+}) => {
+    const [isActiveRefresh, setIsActiveRefresh] =
+        useState<boolean>(false)
+
+    const handleRefresh = (e: React.MouseEvent<HTMLImageElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsActiveRefresh(prevState => !prevState)
+    };
+
     return (
         <div className="relative flex justify-center">
             <img src={imageWrapper.refresh} alt="Regenerate" className="h-full"
-                 // onClick={handleRefresh}
+                 onClick={handleRefresh}
             />
-            {/*{isActiveRefresh && <div className="absolute bottom-[55px] -right-[10%] z-50">*/}
-            {/*    <DropDownMenu options={models}*/}
-            {/*                  setIsActiveRefresh={setIsActiveRefresh}*/}
-            {/*                  handleChoseOption={handleChoseOption}*/}
-            {/*                  setIsEdit={setIsEdit}*/}
-            {/*    />*/}
-            {/*</div>}*/}
+            {isActiveRefresh && <div className="absolute bottom-[55px] right-0 translate-x-1/3 z-50">
+                <DropDownMenu options={models}
+                              setIsActiveRefresh={setIsActiveRefresh}
+                              handleChoseOption={handleChoseOption}
+                              setIsEdit={setIsEdit}
+                />
+            </div>}
         </div>
     );
 };

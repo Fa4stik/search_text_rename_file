@@ -19,6 +19,12 @@ const fetchProcessChunk = {
 
 export type TProcessChunkResp = typeof fetchProcessChunk
 
+const fetchProcessDataMessage = {
+    "iter": 0, "length": 1, "message": "\u041e\u0431\u0440\u0430\u0431\u043e\u0442\u043a\u0430 \u043c\u043e\u0434\u0435\u043b\u044c\u044e."
+}
+
+export type TProcessDataMessage = typeof fetchProcessDataMessage
+
 const fetchProcessImg = {
     "uid": 0,
     "ocr_model_type": "string",

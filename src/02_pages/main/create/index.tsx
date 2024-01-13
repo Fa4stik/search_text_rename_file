@@ -7,7 +7,13 @@ import {useNavigate} from "react-router-dom";
 import {convertTime} from "../../../03_widgetes/MainTable/lib/converTime";
 import {convertDateFull} from "../../../05_entities/MainPage";
 import {validateName} from "../../../04_features/CreateTask";
-import {getChunkId, processChunk, TProcessChunkResp, uploadFiles} from "../../../05_entities/FetchPipeline";
+import {
+    getChunkId,
+    processChunk,
+    TProcessChunkResp,
+    TProcessDataMessage,
+    uploadFiles
+} from "../../../05_entities/FetchPipeline";
 import {useNotifyStore} from "../../../05_entities/Notifications";
 
 const MainCreatePage = () => {
@@ -37,31 +43,38 @@ const MainCreatePage = () => {
                         new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
 
                     ws.current!.onopen = () => {
-                        console.log('Ws open')
                         myInterval = setInterval(() => {
                             ws.current!.send('update')
-                            console.log('update ws')
                         }, 5000)
                     }
 
                     ws.current!.onmessage = (mess) => {
-                        const resp: TProcessChunkResp = JSON.parse(mess.data)
-                        delMainRow(id)
-                        addRenameRow({
-                                        id,
-                                        name: nameTask,
-                                        countFiles: images.length.toString(),
-                                        sizeFiles: convertSize(images),
-                                        timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
-                                        renameFiles: resp.results.map(process =>
-                                            ({
-                                                is_duplicate: false,
-                                                uid: process.uid,
-                                                dateEdit: convertDateFull(new Date()),
-                                                name: process.old_filename
-                                            })
-                                        )
+                        const resp = JSON.parse(mess.data)
+
+                        if ('chunk_id' in resp) {
+                            const chunkResp = resp as TProcessChunkResp
+                            delMainRow(id)
+                            addRenameRow({
+                                id,
+                                name: nameTask,
+                                countFiles: images.length.toString(),
+                                sizeFiles: convertSize(images),
+                                timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
+                                renameFiles: chunkResp.results.map(process =>
+                                    ({
+                                        is_duplicate: false,
+                                        uid: process.uid,
+                                        dateEdit: convertDateFull(new Date()),
+                                        name: process.old_filename
                                     })
+                                )
+                            })
+                        }
+
+                        if ('iter' in resp) {
+                            const iterResp = resp as TProcessDataMessage
+                            console.log(iterResp)
+                        }
                     }
 
                     ws.current!.onclose = (mess) => {

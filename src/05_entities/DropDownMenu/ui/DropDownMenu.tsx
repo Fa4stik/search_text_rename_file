@@ -22,7 +22,7 @@ export const DropDownMenu: React.FC<DropDownMenuProps> = ({options,
     return (
         <div className="w-full h-full flex flex-col items-center text-white">
             <div className="w-auto h-auto
-            flex flex-col">
+            flex flex-col text-white">
                 {options.map(option => (<span key={option.key}
                                               className="w-full h-[35px] px-[20px] flex items-center justify-center
                                               bg-gray-900/[0.9] first:rounded-t-xl last:rounded-b-xl

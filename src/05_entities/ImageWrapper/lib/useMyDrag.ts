@@ -23,9 +23,8 @@ export const useMyDrag =
                                   }) => {
             apiDrag.start({x: ox, y: oy, immediate: down})
         }, {
-            bounds,
-            eventOptions: {capture: true},
-            rubberband: true
+            bounds, eventOptions: {capture: true},
+            rubberband: true, from: () => [x.get(), y.get()]
         })
 
         return {x, y, bindDrag, apiDrag}
