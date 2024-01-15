@@ -14,43 +14,13 @@ type Actions = {
 export const useNotifyStore = create<State & Actions>()(
     devtools(
         persist(
-            (set) => ({
+            set => ({
                 notifications: [],
-                addNotification: (id, text, isError = false) => {
-                    set(state => ({
-                        notifications: [...state.notifications, { id, text, isError, isActive: false }]
-                    }));
-
-                    setTimeout(() => {
-                        set(state => ({
-                            notifications: state.notifications.map(notify =>
-                                notify.id === id ? {...notify, isActive: true} : notify)
-                        }));
-                    }, 1);
-
-                    const timeOut = new Promise((resolve) => {
-                        setTimeout(() => {
-                            set(state => ({
-                                notifications: [...state.notifications.map(notify => notify.id === id
-                                    ? {...notify, isActive: false}
-                                    : notify
-                                )]
-                            }));
-                            resolve(true)
-                        }, 7000)
-                    });
-
-                    timeOut
-                        .then(() => {
-                            setTimeout(() => {
-                                set((state) => ({
-                                    notifications: state.notifications.filter(notify => notify.id !== id)
-                                }))
-                            }, 7000)
-                        })
-                },
+                addNotification: (id, text, isError) => set(state => ({
+                    notifications: [...state.notifications, {id, text, isError, isActive: true}]
+                })),
                 delNotification: (id) => set(state => ({
-                    notifications: [...state.notifications.filter(notify => notify.id !== id)]
+                    notifications: state.notifications.filter(notify => notify.id !== id)
                 }))
             }), {name: 'useNotifyStore'}
         )

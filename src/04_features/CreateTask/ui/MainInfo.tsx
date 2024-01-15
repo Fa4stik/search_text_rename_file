@@ -3,6 +3,7 @@ import {BorderInput} from "../../../06_shared/ui/input";
 import {BorderSelect} from "../../../06_shared/ui/select";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {getOcrModels} from "../../../05_entities/FetchOCR";
+import {useUserSettings} from "../../../05_entities/UserSettings";
 
 type MainInfoProps = {
     changeNameTask: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -22,6 +23,8 @@ export const MainInfo:
                                setCurrModel,
                                isNotCorrect}) => {
 
+    const {settings, setDefaultModel} = useUserSettings()
+
     const [optionsModels, setOptionsModels] =
         useState<TOption[]>([{key: 'загрузка моделей...', value: 1}])
 
@@ -40,6 +43,7 @@ export const MainInfo:
 
     const handleChangeModel = (e: React.ChangeEvent<HTMLSelectElement>, model?: string) => {
         setCurrModel(model ?? 'None')
+        setDefaultModel(parseInt(e.target.value))
     };
 
     return (
@@ -59,7 +63,7 @@ export const MainInfo:
             <BorderSelect options={optionsModels}
                           onChange={handleChangeModel}
                           classStyle="flex-grow"
-                          defaultValue={3}
+                          defaultValue={settings.defaultModel}
             />
         </div>
     );

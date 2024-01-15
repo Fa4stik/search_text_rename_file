@@ -87,7 +87,7 @@ const RenamesCurrentPage = () => {
             .then(resp => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
-                setCurrRotate(0)
+                setCurrRotate(resp.angle)
             })
             .catch(err => {
                 console.log(err);
@@ -139,7 +139,7 @@ const RenamesCurrentPage = () => {
                     .then(resp => {
                         setBboxes(resp.bboxes.map((bbox, id) =>
                             ({...bbox, word: resp.text[id]})))
-                        // setCurrRotate(0)
+                        setCurrRotate(resp.angle)
                     })
                     .catch(err => {
                         console.log(err);

@@ -11,7 +11,7 @@ import {
     getChunkId,
     processChunk,
     TProcessChunkResp,
-    TProcessDataMessage,
+    TProcessDataMessage, TRespSocket,
     uploadFiles
 } from "../../../05_entities/FetchPipeline";
 import {useNotifyStore} from "../../../05_entities/Notifications";
@@ -26,7 +26,7 @@ const MainCreatePage = () => {
 
     const navigate = useNavigate()
 
-    const {addRow: addMainRow, rows, delRow: delMainRow, setStatus} = useMainStore();
+    const {addRow: addMainRow, rows, delRow: delMainRow, setStatus, setLoading} = useMainStore();
     const {addRow: addRenameRow, rows: renameRows} = useRenameStore()
     const {addNotification, notifications} = useNotifyStore()
 
@@ -49,31 +49,33 @@ const MainCreatePage = () => {
                     }
 
                     ws.current!.onmessage = (mess) => {
-                        const resp = JSON.parse(mess.data)
+                        const resp: TRespSocket = JSON.parse(mess.data)
 
-                        if ('chunk_id' in resp) {
-                            const chunkResp = resp as TProcessChunkResp
-                            delMainRow(id)
-                            addRenameRow({
-                                id,
-                                name: nameTask,
-                                countFiles: images.length.toString(),
-                                sizeFiles: convertSize(images),
-                                timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
-                                renameFiles: chunkResp.results.map(process =>
-                                    ({
-                                        is_duplicate: false,
-                                        uid: process.uid,
-                                        dateEdit: convertDateFull(new Date()),
-                                        name: process.old_filename
-                                    })
-                                )
-                            })
+                        if (resp.action === 'chunk') {
+                            const chunkResp = resp as (TProcessChunkResp & TRespSocket)
+                            setTimeout(() => {
+                                delMainRow(id)
+                                addRenameRow({
+                                    id,
+                                    name: nameTask,
+                                    countFiles: images.length.toString(),
+                                    sizeFiles: convertSize(images),
+                                    timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
+                                    renameFiles: chunkResp.results.map(process =>
+                                        ({
+                                            is_duplicate: false,
+                                            uid: process.uid,
+                                            dateEdit: convertDateFull(new Date()),
+                                            name: process.old_filename
+                                        })
+                                    ),
+                                })
+                            }, 1500)
                         }
 
-                        if ('iter' in resp) {
-                            const iterResp = resp as TProcessDataMessage
-                            console.log(iterResp)
+                        if (resp.action === 'progress_bar') {
+                            const iterResp = resp as (TProcessDataMessage & TRespSocket)
+                            setLoading(id, Math.floor(((iterResp.iter+1) / iterResp.length)*100))
                         }
                     }
 
@@ -125,8 +127,6 @@ const MainCreatePage = () => {
         }
 
         setError('')
-
-        console.log(currModel)
 
         const dateStart = new Date()
 

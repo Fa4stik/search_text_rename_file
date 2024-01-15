@@ -44,7 +44,7 @@ const RenamesPage = () => {
     }
 
     return (
-        <div className="flex-grow px-[40px] pt-[25px] flex flex-col">
+        <div className="flex-grow px-[40px] pt-[25px] flex flex-col overflow-hidden">
             <h1 className="text-3xl mb-[30px]">Переименование файлов и сохранение результатов</h1>
             <MainTableGrid columns={columnsRename} rows={rows}
                            setNameHandler={setNameHandler}

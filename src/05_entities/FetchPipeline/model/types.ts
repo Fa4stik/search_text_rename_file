@@ -79,3 +79,7 @@ export type TBbox = {
     h: number
     word: string
 }
+
+export type TRespSocket = {
+    action: string
+}

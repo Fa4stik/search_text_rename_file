@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {columnsMain, MainTableGrid, useMainStore} from "../../03_widgetes/MainTable";
 import {useNavigate} from "react-router-dom";
-import {TContextMenuTypeParams, TRow} from "../../05_entities/DataGrid";
+import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
 
 const MainPage = () => {
     const {rows: mainRows, delRow: delMainRow} = useMainStore()

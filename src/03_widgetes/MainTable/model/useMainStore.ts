@@ -10,6 +10,7 @@ type Actions = {
     addRow: (row: TRowMain) => void;
     setNameHandler: (idHandler: string, newName: string) => void
     setStatus: (idHandler: string, newStatus: string, newTextColor?: string) => void
+    setLoading: (idHandler: string, progress: number) => void
     delRow: (id: string) => void;
 }
 
@@ -19,7 +20,7 @@ export const useMainStore = create<State & Actions>()(
             (set) => ({
                 rows: [],
                 addRow: (row) => set(state => ({
-                    rows: [...state.rows, {...row}]
+                    rows: [...state.rows, {...row, loading: 0}]
                 })),
                 setNameHandler: (idHandler, newName) => set(state => ({
                     rows: state.rows.map(row =>
@@ -37,6 +38,13 @@ export const useMainStore = create<State & Actions>()(
                             return {...row, status: newStatus, textColor: newTextColor}
                         return row
                     })
+                })),
+                setLoading: (id, progress) => set(state => ({
+                    rows: state.rows.map(row => (
+                        row.id === id
+                            ? {...row, loading: progress}
+                            : row
+                    ))
                 }))
             }),
             {name: 'mainStore'}

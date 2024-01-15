@@ -93,37 +93,48 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                 </thead>
                 <tbody className="text-center">
                 {rows.map(row => (
-                    <tr key={row.id} className={`hover:bg-mainGreen/[0.5] focus:bg-mainGreen transition-all ease-out
+                    <>
+                        <tr key={row.id} className={`hover:bg-mainGreen/[0.5] focus:bg-mainGreen transition-all ease-out relative
                         ${row.id === activeRow ? 'bg-mainGreen' : ''}`}
-                        onDoubleClick={(e) => {
-                            if (rowOnDoubleClick)
-                                rowOnDoubleClick(e, row.id)
-                        }}
-                        onClickCapture={(e) => handleChangeColor(e, row.id)}
-                        onContextMenu={(e) => handleContextMenu(e, row.id)}
-                    >
-                        {columns.map(column => (
-                            column.width === '0'
-                                ?
+                            onDoubleClick={(e) => {
+                                if (rowOnDoubleClick)
+                                    rowOnDoubleClick(e, row.id)
+                            }}
+                            onClickCapture={(e) => handleChangeColor(e, row.id)}
+                            onContextMenu={(e) => handleContextMenu(e, row.id)}
+                        >
+                            {columns.map(column => (
+                                column.width === '0'
+                                    ?
                                     null
-                                :
+                                    :
                                     <td key={row.id + column.field}
-                                        className={`pt-[5px] ${row[column.field as keyof typeof row] === 'В процессе' 
-                                            && 'animate-pulse'}
+                                        className={`pt-[5px] ${row[column.field as keyof typeof row] === 'В процессе'
+                                        && 'animate-pulse'}
                                             ${row[column.field as keyof typeof row] === 'Ошибка обработки'
-                                            && 'text-red-500'} `}
+                                        && 'text-red-500'} `}
                                     >
                                         {row[column.field as keyof typeof row]}
                                     </td>
-                        ))}
-                    </tr>
+                            ))}
+                        </tr>
+                        {'loading' in row &&
+                            <tr className="relative">
+                                <div
+                                    className="h-[3px] w-1/2 bg-mainGreen absolute transition-all ease-in-out duration-1000"
+                                    style={{
+                                        width: `${row.loading}%`
+                                    }}
+                                />
+                            </tr>}
+                    </>
                 ))}
                 </tbody>
             </table>
             {rows.length === 0
                 ? <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                     {textEmptyTable ?? 'Список пуст'}
-                    </div>
+                </div>
                 : null}
             {contextMenu.visible && contextMenuOptionals && (
                 <ContextMenu contextMenu={contextMenu}
@@ -132,7 +143,7 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                              contextMenuOptionals={isRowContextMenu
                                  ? contextMenuOptionals.contextMenuRow
                                  : contextMenuOptionals.contextMenuTable
-                            }
+                             }
                              handleCloseContextMenu={handleCloseContextMenu}
                              rows={rows as TRowReady[]} activeRow={activeRow}
                 />
