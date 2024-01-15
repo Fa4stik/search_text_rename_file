@@ -34,6 +34,7 @@ const MainCreatePage = () => {
 
     const prcImg = (id: string, dateStart: Date) => {
         if (isLocalPath) {
+            // for of + await
             const imagesPromise = images.map(file => uploadFiles(file.image as File, id))
             Promise.all(imagesPromise)
                 .then(() => {
@@ -80,15 +81,30 @@ const MainCreatePage = () => {
                     }
 
                     ws.current!.onclose = (mess) => {
+                        if (mess.code === 1006) {
+                            ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
+                                new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
+                            return;
+                        }
+
                         if (mess.code !== 1000) {
                             setStatus(id, 'Ошибка обработки')
                             addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
                         }
-                        addNotification(notifications.length+1, 'Задача успешно обработана')
-                        clearInterval(myInterval)
+
+                        if (mess.code === 1000) {
+                            addNotification(notifications.length+1, 'Задача успешно обработана')
+                            addNotification(notifications.length+1, 'Задача успешно обработана')
+                            clearInterval(myInterval)
+                        }
                     }
+
+                    navigate('/main')
+
                 })
-                .catch(err => console.log(err))
+                .catch(() => {
+                    addNotification(notifications.length+1, 'Ошибка загрузки файлов, попробуйте ещё раз', true)
+                })
         } else {
             processChunk(parseInt(id), currModel)
                 .then(respProcess => {
@@ -143,9 +159,10 @@ const MainCreatePage = () => {
 
             prcImg(id, dateStart)
         })
-            .then(() => addNotification(notifications.length+1, 'Задача успешно создана'))
+            .then(() => {
+                addNotification(notifications.length + 1, 'Задача успешно создана')
+            })
             .catch(() => addNotification(notifications.length+1, 'Ошибка создания задачи', true))
-        navigate('/main')
     };
 
     const handleCancelTask = (e: React.MouseEvent<HTMLButtonElement>) => {
