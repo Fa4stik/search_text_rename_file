@@ -34,10 +34,9 @@ const MainCreatePage = () => {
 
     const prcImg = (id: string, dateStart: Date) => {
         if (isLocalPath) {
-            // for of + await
-            const imagesPromise = images.map(file => uploadFiles(file.image as File, id))
-            Promise.all(imagesPromise)
-                .then(() => {
+
+            uploadFiles(images.map(file => file.image as File), id)
+                .then((resp) => {
                     let myInterval: NodeJS.Timer
 
                     ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
@@ -45,7 +44,7 @@ const MainCreatePage = () => {
 
                     ws.current!.onopen = () => {
                         myInterval = setInterval(() => {
-                            ws.current!.send('update')
+                            ws.current!.send(JSON.stringify({action: 'ping'}))
                         }, 5000)
                     }
 
@@ -81,11 +80,11 @@ const MainCreatePage = () => {
                     }
 
                     ws.current!.onclose = (mess) => {
-                        if (mess.code === 1006) {
-                            ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
-                                new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
-                            return;
-                        }
+                        // if (mess.code === 1006) {
+                        //     ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
+                        //         new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
+                        //     return;
+                        // }
 
                         if (mess.code !== 1000) {
                             setStatus(id, 'Ошибка обработки')
@@ -94,17 +93,78 @@ const MainCreatePage = () => {
 
                         if (mess.code === 1000) {
                             addNotification(notifications.length+1, 'Задача успешно обработана')
-                            addNotification(notifications.length+1, 'Задача успешно обработана')
                             clearInterval(myInterval)
                         }
                     }
+            })
 
-                    navigate('/main')
-
-                })
-                .catch(() => {
-                    addNotification(notifications.length+1, 'Ошибка загрузки файлов, попробуйте ещё раз', true)
-                })
+            // const imagesPromise = images.map(file => uploadFiles(file.image as File, id))
+            // Promise.all(imagesPromise)
+            //     .then(() => {
+            //         let myInterval: NodeJS.Timer
+            //
+            //         ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
+            //             new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
+            //
+            //         ws.current!.onopen = () => {
+            //             myInterval = setInterval(() => {
+            //                 ws.current!.send(JSON.stringify({action: 'ping'}))
+            //             }, 5000)
+            //         }
+            //
+            //         ws.current!.onmessage = (mess) => {
+            //             const resp: TRespSocket = JSON.parse(mess.data)
+            //
+            //             if (resp.action === 'chunk') {
+            //                 const chunkResp = resp as (TProcessChunkResp & TRespSocket)
+            //                 setTimeout(() => {
+            //                     delMainRow(id)
+            //                     addRenameRow({
+            //                         id,
+            //                         name: nameTask,
+            //                         countFiles: images.length.toString(),
+            //                         sizeFiles: convertSize(images),
+            //                         timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
+            //                         renameFiles: chunkResp.results.map(process =>
+            //                             ({
+            //                                 is_duplicate: false,
+            //                                 uid: process.uid,
+            //                                 dateEdit: convertDateFull(new Date()),
+            //                                 name: process.old_filename
+            //                             })
+            //                         ),
+            //                     })
+            //                 }, 1500)
+            //             }
+            //
+            //             if (resp.action === 'progress_bar') {
+            //                 const iterResp = resp as (TProcessDataMessage & TRespSocket)
+            //                 setLoading(id, Math.floor(((iterResp.iter+1) / iterResp.length)*100))
+            //             }
+            //         }
+            //
+            //         ws.current!.onclose = (mess) => {
+            //             if (mess.code === 1006) {
+            //                 ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
+            //                     new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
+            //                 return;
+            //             }
+            //
+            //             if (mess.code !== 1000) {
+            //                 setStatus(id, 'Ошибка обработки')
+            //                 addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
+            //             }
+            //
+            //             if (mess.code === 1000) {
+            //                 addNotification(notifications.length+1, 'Задача успешно обработана')
+            //                 clearInterval(myInterval)
+            //             }
+            //         }
+            //
+            //     })
+            //     .catch(() => {
+            //         addNotification(notifications.length+1, 'Ошибка загрузки файлов, попробуйте ещё раз', true)
+            //     })
         } else {
             processChunk(parseInt(id), currModel)
                 .then(respProcess => {
@@ -161,6 +221,7 @@ const MainCreatePage = () => {
         })
             .then(() => {
                 addNotification(notifications.length + 1, 'Задача успешно создана')
+                navigate('/main')
             })
             .catch(() => addNotification(notifications.length+1, 'Ошибка создания задачи', true))
     };
