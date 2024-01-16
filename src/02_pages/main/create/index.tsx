@@ -35,7 +35,6 @@ const MainCreatePage = () => {
 
     const prcImg = (id: string, dateStart: Date) => {
         if (isLocalPath) {
-
             uploadFiles(images.map(file => file.image as File), id)
                 .then((resp) => {
                     let myInterval: NodeJS.Timer

@@ -1,32 +1,45 @@
 import {baseApiMultipart} from "../../../06_shared/api/baseApi";
 import {TUploadFilesResp} from "./types";
+import {reject} from "lodash";
 
-export const uploadFile = (file: File, chunk_id: string): Promise<TUploadFilesResp> => {
+export const uploadFile = (file: File, chunk_id: string): Promise<TUploadFilesResp | File> => {
     const formData = new FormData()
     formData.append('files', file)
-    return baseApiMultipart<TUploadFilesResp>('/upload-files?'+new URLSearchParams({chunk_id}), {
-        method: 'POST',
-        body: formData,
+    return new Promise((resolve, reject) => {
+        baseApiMultipart<TUploadFilesResp>('/upload-files?'+new URLSearchParams({chunk_id}), {
+            method: 'POST',
+            body: formData,
+        })
+            .then(resp => {
+                return resolve(resp)
+            })
+            .catch(() => reject(file))
     })
 }
 
-export const uploadFiles = (files: File[], chunk_id: string): Promise<TUploadFilesResp[]> => {
-    return new Promise((resolve) => {
-        const failed = new Set<File>(files)
-        const success = new Set<TUploadFilesResp>()
-        const myInterval = setInterval(() => {
-            if (failed.size === 0) {
-                clearInterval(myInterval)
-                resolve(Array.from(success))
-            }
-            Array.from(failed).forEach(file => {
-                uploadFile(file, chunk_id)
-                    .then((resp) => {
-                        success.add(resp)
-                        failed.delete(file)
+export const uploadFiles = (files: FileList | File[], id: string, success: TUploadFilesResp[] = []): Promise<TUploadFilesResp[]> =>
+    new Promise((resolve) => {
+        if (files.length === 0)
+            return resolve(success)
+        const promisesFiles = Array.from(files).map(file => uploadFile(file, id))
+        return Promise
+            .allSettled(promisesFiles)
+            .then((results) =>
+                new Promise<File[]>((resolve) => {
+                    const rejectedes = new Set<File>()
+                    results.forEach((result, index) => {
+                        if (result.status === 'fulfilled') {
+                            success.push(result.value as TUploadFilesResp)
+                        }
+
+                        if (result.status === 'rejected') {
+                            rejectedes.add(result.reason)
+                        }
+
+                        if (results.length === index + 1) {
+                            resolve(Array.from(rejectedes))
+                        }
                     })
-                    .catch(() => {})
-            })
-        }, 500)
+                }).then(rejects => resolve(uploadFiles(rejects, id, success)))
+            )
     })
-}
