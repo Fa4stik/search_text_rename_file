@@ -12,31 +12,21 @@ export const uploadFile = (file: File, chunk_id: string): Promise<TUploadFilesRe
 
 export const uploadFiles = (files: File[], chunk_id: string): Promise<TUploadFilesResp[]> => {
     return new Promise((resolve) => {
-        const failedUploads: Set<File> = new Set<File>([])
-        const successUploads: Set<TUploadFilesResp> = new Set<TUploadFilesResp>([])
-
-        Promise
-            .all(files.map(file => uploadFile(file, chunk_id)))
-            .then((resps) => {
-                resps.forEach(resp => {
-                    resp.paths.length > 0 && successUploads.add(resp)
-                })
-                if (successUploads.size === files.length)
-                    resolve(Array.from(successUploads))
-            })
-
-        while (failedUploads.size !== 0) {
-            failedUploads.forEach(file => {
+        const failed = new Set<File>(files)
+        const success = new Set<TUploadFilesResp>()
+        const myInterval = setInterval(() => {
+            if (failed.size === 0) {
+                clearInterval(myInterval)
+                resolve(Array.from(success))
+            }
+            Array.from(failed).forEach(file => {
                 uploadFile(file, chunk_id)
                     .then((resp) => {
-                        successUploads.add(resp)
-                        failedUploads.delete(file)
+                        success.add(resp)
+                        failed.delete(file)
                     })
-                    .catch()
+                    .catch(() => {})
             })
-
-            if (failedUploads.size === 0)
-                resolve(Array.from(successUploads))
-        }
+        }, 500)
     })
 }

@@ -8,19 +8,17 @@ type CreateTaskBlockInfoProps = {
     setNameTask: React.Dispatch<React.SetStateAction<string>>
     isLocalPath: boolean;
     setIsLocalPath: React.Dispatch<React.SetStateAction<boolean>>
-    setCurrModel: React.Dispatch<React.SetStateAction<string>>
     error: string
 }
 
-export const CreateTaskBlockInfo:
-    React.FC<CreateTaskBlockInfoProps> = ({images,
-                                              setImages,
-                                              setNameTask,
-                                          isLocalPath,
-                                          setIsLocalPath,
-                                          setCurrModel,
-                                              error}) => {
-
+export const CreateTaskBlockInfo: React.FC<CreateTaskBlockInfoProps> = ({
+    images,
+    setImages,
+    setNameTask,
+    isLocalPath,
+    setIsLocalPath,
+    error
+}) => {
     const changeNameTask = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNameTask(e.target.value)
     };
@@ -33,7 +31,6 @@ export const CreateTaskBlockInfo:
                 <div className="flex flex-col gap-y-[10px] mb-[15px]">
                     <MainInfo changeNameTask={changeNameTask}
                               setIsLocalPath={setIsLocalPath}
-                              setCurrModel={setCurrModel}
                               isNotCorrect={!!error}
                     />
                     {error &&

@@ -8,7 +8,6 @@ import {useUserSettings} from "../../../05_entities/UserSettings";
 type MainInfoProps = {
     changeNameTask: (e: React.ChangeEvent<HTMLInputElement>) => void;
     setIsLocalPath: React.Dispatch<React.SetStateAction<boolean>>
-    setCurrModel: React.Dispatch<React.SetStateAction<string>>
     isNotCorrect?: boolean;
 }
 
@@ -19,9 +18,7 @@ const optionsFiles: TOption[] = [
 
 export const MainInfo:
     React.FC<MainInfoProps> = ({changeNameTask,
-         setIsLocalPath,
-                               setCurrModel,
-                               isNotCorrect}) => {
+         setIsLocalPath, isNotCorrect}) => {
 
     const {settings, setDefaultModel} = useUserSettings()
 
@@ -32,7 +29,6 @@ export const MainInfo:
         getOcrModels().then(resp => {
             setOptionsModels(resp.models.map((model, id) =>
                 ({key: model, value: id})))
-            setCurrModel(resp.models.at(-1) ?? 'None')
         })
             .catch(err => console.log(err))
     }, []);
@@ -42,8 +38,7 @@ export const MainInfo:
     };
 
     const handleChangeModel = (e: React.ChangeEvent<HTMLSelectElement>, model?: string) => {
-        setCurrModel(model ?? 'None')
-        setDefaultModel(parseInt(e.target.value))
+        setDefaultModel({defaultModel: parseInt(e.target.value), defaultModelName: model ?? 'None'})
     };
 
     return (

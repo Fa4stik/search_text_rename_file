@@ -15,12 +15,12 @@ import {
     uploadFiles
 } from "../../../05_entities/FetchPipeline";
 import {useNotifyStore} from "../../../05_entities/Notifications";
+import {useUserSettings} from "../../../05_entities/UserSettings";
 
 const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
     const [nameTask, setNameTask] = useState<string>('')
     const [isLocalPath, setIsLocalPath] = useState<boolean>(true)
-    const [currModel, setCurrModel] = useState<string>('None')
     const [error, setError] =
         useState<string>('')
 
@@ -29,6 +29,7 @@ const MainCreatePage = () => {
     const {addRow: addMainRow, rows, delRow: delMainRow, setStatus, setLoading} = useMainStore();
     const {addRow: addRenameRow, rows: renameRows} = useRenameStore()
     const {addNotification, notifications} = useNotifyStore()
+    const {settings} = useUserSettings()
 
     const ws = useRef<WebSocket | null>(null)
 
@@ -40,7 +41,7 @@ const MainCreatePage = () => {
                     let myInterval: NodeJS.Timer
 
                     ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
-                        new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
+                        new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName}))
 
                     ws.current!.onopen = () => {
                         myInterval = setInterval(() => {
@@ -80,12 +81,6 @@ const MainCreatePage = () => {
                     }
 
                     ws.current!.onclose = (mess) => {
-                        // if (mess.code === 1006) {
-                        //     ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
-                        //         new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
-                        //     return;
-                        // }
-
                         if (mess.code !== 1000) {
                             setStatus(id, 'Ошибка обработки')
                             addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
@@ -97,76 +92,8 @@ const MainCreatePage = () => {
                         }
                     }
             })
-
-            // const imagesPromise = images.map(file => uploadFiles(file.image as File, id))
-            // Promise.all(imagesPromise)
-            //     .then(() => {
-            //         let myInterval: NodeJS.Timer
-            //
-            //         ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
-            //             new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
-            //
-            //         ws.current!.onopen = () => {
-            //             myInterval = setInterval(() => {
-            //                 ws.current!.send(JSON.stringify({action: 'ping'}))
-            //             }, 5000)
-            //         }
-            //
-            //         ws.current!.onmessage = (mess) => {
-            //             const resp: TRespSocket = JSON.parse(mess.data)
-            //
-            //             if (resp.action === 'chunk') {
-            //                 const chunkResp = resp as (TProcessChunkResp & TRespSocket)
-            //                 setTimeout(() => {
-            //                     delMainRow(id)
-            //                     addRenameRow({
-            //                         id,
-            //                         name: nameTask,
-            //                         countFiles: images.length.toString(),
-            //                         sizeFiles: convertSize(images),
-            //                         timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
-            //                         renameFiles: chunkResp.results.map(process =>
-            //                             ({
-            //                                 is_duplicate: false,
-            //                                 uid: process.uid,
-            //                                 dateEdit: convertDateFull(new Date()),
-            //                                 name: process.old_filename
-            //                             })
-            //                         ),
-            //                     })
-            //                 }, 1500)
-            //             }
-            //
-            //             if (resp.action === 'progress_bar') {
-            //                 const iterResp = resp as (TProcessDataMessage & TRespSocket)
-            //                 setLoading(id, Math.floor(((iterResp.iter+1) / iterResp.length)*100))
-            //             }
-            //         }
-            //
-            //         ws.current!.onclose = (mess) => {
-            //             if (mess.code === 1006) {
-            //                 ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
-            //                     new URLSearchParams({chunk_id: id, ocr_model_type: currModel}))
-            //                 return;
-            //             }
-            //
-            //             if (mess.code !== 1000) {
-            //                 setStatus(id, 'Ошибка обработки')
-            //                 addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
-            //             }
-            //
-            //             if (mess.code === 1000) {
-            //                 addNotification(notifications.length+1, 'Задача успешно обработана')
-            //                 clearInterval(myInterval)
-            //             }
-            //         }
-            //
-            //     })
-            //     .catch(() => {
-            //         addNotification(notifications.length+1, 'Ошибка загрузки файлов, попробуйте ещё раз', true)
-            //     })
         } else {
-            processChunk(parseInt(id), currModel)
+            processChunk(parseInt(id), settings.defaultModelName)
                 .then(respProcess => {
                     delMainRow(id)
                     addRenameRow({
@@ -240,7 +167,6 @@ const MainCreatePage = () => {
                                      setNameTask={setNameTask}
                                      setIsLocalPath={setIsLocalPath}
                                      isLocalPath={isLocalPath}
-                                     setCurrModel={setCurrModel}
                                      error={error}
                 />
                 <CreateTaskForm images={images}
