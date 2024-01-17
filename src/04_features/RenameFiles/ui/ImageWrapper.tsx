@@ -31,7 +31,6 @@ type ImageWrapperProps = {
     models: TOption[],
     currRotate: number,
     setCurrRotate: React.Dispatch<React.SetStateAction<number>>
-    setCurrCrop: React.Dispatch<React.SetStateAction<number>>
     imgRect: TImgSizes
     setImgRect: React.Dispatch<React.SetStateAction<TImgSizes>>
     resetTools: boolean
@@ -48,7 +47,6 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
     handleChoseOption,
     models,
     setCurrRotate,
-    setCurrCrop,
     currRotate,
     isCut,
     isLoading,
@@ -67,8 +65,12 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
         useState<boolean>(false)
     const [isRec, setIsRec] =
         useState<boolean>(false)
+    const [isRecRotate, setIsRecRotate] =
+        useState<boolean>(false)
     const [isSquare, setIsSquare] =
         useState<boolean>(false)
+    const [heightTool, setHeightTool] =
+        useState<number>(0)
 
     // Размеры оригинального изображения
     const origImgRef = useRef<HTMLImageElement>(null)
@@ -349,33 +351,14 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
 
             let x1: number, y1: number, width: number, height: number;
 
-            if (currRotate === 0) {
-                x1 = Math.min(startCord.x, relativeX);
-                y1 = Math.min(startCord.y, relativeY);
-                width = Math.abs(relativeX - startCord.x);
-                height = Math.abs(relativeY - startCord.y);
-            }
+            const rad = currRotate * Math.PI / 180;
+            const rotatedX = Math.cos(rad) * relativeX + Math.sin(rad) * relativeY;
+            const rotatedY = -Math.sin(rad) * relativeX + Math.cos(rad) * relativeY;
 
-            if (currRotate === 270) {
-                y1 = Math.min(startCord.y, relativeX);
-                x1 = Math.min((blockRect.height/scale.get() - relativeY), startCord.x);
-                height = Math.abs(relativeX - startCord.y) - 5
-                width = Math.abs((blockRect.height/scale.get() - relativeY) - startCord.x) - 5
-            }
-
-            if (currRotate === 180) {
-                x1 = Math.min(blockRect.width/scale.get()-relativeX, startCord.x);
-                y1 = Math.min(blockRect.height/scale.get()-relativeY, startCord.y);
-                width = Math.abs(blockRect.width/scale.get()-relativeX - startCord.x);
-                height = Math.abs(blockRect.height/scale.get()-relativeY - startCord.y);
-            }
-
-            if (currRotate === 90) {
-                y1 = Math.min((blockRect.width/scale.get() - relativeX), startCord.y);
-                x1 = Math.min(startCord.x, relativeY);
-                height = Math.abs((blockRect.width/scale.get() - relativeX) - startCord.y)
-                width = Math.abs(relativeY - startCord.x)
-            }
+            x1 = Math.min(startCord.x, rotatedX);
+            y1 = Math.min(startCord.y, rotatedY);
+            width = Math.abs(rotatedX - startCord.x);
+            height = Math.abs(rotatedY - startCord.y);
 
             setImgRect(prevState => ({ x1, y1, width, height }));
             setIsStartDrawRect(false)
@@ -406,11 +389,25 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
         if (isEdit && !isStartDrawRect) {
             const sizeMyParent = parentRef.current!.getBoundingClientRect()
             if (imgRect.width > imgRect.height) {
-                apiWheel({scale: sizeMyParent.width/imgRect.width, onChange: (result) => {
+                let promiseScale = (sizeMyParent.width - 20)/imgRect.width
+                const imgRectHeightOrig = (sizeMyParent.height - (imgRect.height*promiseScale))/2
+                promiseScale = imgRectHeightOrig > heightTool
+                    ? promiseScale
+                    : (sizeMyParent.width - heightTool*2)/imgRect.width
+
+                apiWheel({scale: promiseScale,
+                    onChange: (result) => {
                         updateBounds(result.value.scale)
                     }})
             } else {
-                apiWheel({scale: sizeMyParent.height/imgRect.height, onChange: (result) => {
+                let promiseScale = (sizeMyParent.height - 20)/imgRect.height
+                const imgRectHeightOrig = (sizeMyParent.height - (imgRect.height*promiseScale))/2
+                promiseScale = imgRectHeightOrig > heightTool
+                    ? promiseScale
+                    : (sizeMyParent.height - heightTool*2)/imgRect.height
+
+                apiWheel({scale: promiseScale,
+                    onChange: (result) => {
                         updateBounds(result.value.scale)
                     }})
             }
@@ -418,7 +415,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
     }, [isStartDrawRect]);
 
     useEffect(() => {
-        if (isEdit || isRec || isSquare) {
+        if (isEdit || isRec || isRecRotate || isSquare) {
             const sizeMyParent = parentRef.current!.getBoundingClientRect()
             const imgRectX = imgRect.x1*scale.get()
             const imgRectY = imgRect.y1*scale.get()
@@ -432,7 +429,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
             deltaY = Math.max(bounds.top, Math.min(bounds.bottom, deltaY))
             apiDrag.start({x: deltaX, y: deltaY})
         }
-    }, [bounds, isRec, isSquare]);
+    }, [bounds, isRec, isRecRotate, isSquare]);
 
     // При повороте изображения пересчитываем границы для блока с движением изображения
     useEffect(() => {
@@ -468,7 +465,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                 <div>
                     <animated.div className={`relative`}
                                   ref={imgBlockRef}
-                                  {...(!isEdit && !isRec && !isSquare && bindDrag())}
+                                  {...(!isEdit && !isRec && !isRecRotate && !isSquare && bindDrag())}
                                   {...bindWheel()}
                                   style={{
                                       x, y,
@@ -487,7 +484,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                                  transformOrigin: 'center'
                              }}
                              alt="MyImg"/>
-                        {!isEdit && !isRec && !isSquare &&
+                        {!isEdit && !isRec && !isRecRotate && !isSquare &&
                             <div className="absolute z-30"
                                  style={{
                                      width: '100%',
@@ -512,7 +509,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                         {isDark && <>
                             <div
                                 className={`bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10 
-                                ${isEdit || isRec || isSquare ? 'cursor-copy' : 'cursor-grab'}`}
+                                ${isEdit || isRec || isRecRotate || isSquare ? 'cursor-copy' : 'cursor-grab'}`}
                                 style={{
                                     transform: `rotate(${currRotate}deg)`,
                                     transformOrigin: 'center'
@@ -522,11 +519,11 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                                 onMouseMove={handleMoveRect}
                                 onMouseLeave={handleLeaveMouse}
                             >
-                                {(isEdit || isRec || isSquare) && !isEmptyImgRect && <ImgRectBlock imgRect={imgRect}/>}
+                                {(isEdit || isRec || isRecRotate || isSquare) && !isEmptyImgRect && <ImgRectBlock imgRect={imgRect}/>}
                                 <img src={srcImg}
                                      className="h-full max-h-none max-w-none z-20"
                                      style={{
-                                         clipPath: `${isEdit || isRec || isSquare ? 'url(#cropMask)' : 'url(#contentMask)'}`,
+                                         clipPath: `${isEdit || isRec || isRecRotate || isSquare ? 'url(#cropMask)' : 'url(#contentMask)'}`,
                                      }}
                                      alt="MyImg"/>
                             </div>
@@ -536,7 +533,11 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                 {!isHiddenBottomPanel &&
                     <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-auto
                     bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer
-                    after:relative after:-ml-[10px]">
+                    after:relative after:-ml-[10px]"
+                         onLoad={(e) => {
+                             setHeightTool(e.currentTarget.getBoundingClientRect().height+10)
+                         }}
+                    >
                         <RotateBlock setCurrRotate={setCurrRotate}
                         />
                         <ZoomBlock apiWheel={apiWheel}
@@ -545,16 +546,16 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                                    scaleFactor={scaleFactor}
                                    updateBounds={updateBounds}
                         />
-                        <FigureBlock setCurrCrop={setCurrCrop}
-                                     setImgRect={setImgRect}
-                                     origImgSizes={origImgSizes}
+                        <FigureBlock setImgRect={setImgRect}
                                      setIsEmptyImgRect={setIsEmptyImgRect}
                                      setIsSquare={setIsSquare}
                                      setIsRec={setIsRec}
+                                     setIsRecRotate={setIsRecRotate}
                                      apiWheel={apiWheel}
                                      updateBounds={updateBounds}
                                      imgBlockRef={imgBlockRef}
                                      parentRef={parentRef}
+                                     resetTools={resetTools}
                         />
                         <CutBlock setImgRect={setImgRect}
                                   setIsEmptyImgRect={setIsEmptyImgRect}

@@ -1,6 +1,5 @@
 import {baseApiMultipart} from "../../../06_shared/api/baseApi";
 import {TUploadFilesResp} from "./types";
-import {reject} from "lodash";
 
 export const uploadFile = (file: File, chunk_id: string): Promise<TUploadFilesResp | File> => {
     const formData = new FormData()

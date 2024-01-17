@@ -94,8 +94,7 @@ const RenamesCurrentPage = () => {
             })
         getFile(uid)
             .then(resp => {
-                setSrcImg(resp+`?timestamp=${new Date()}`)
-
+                setSrcImg(resp+`?timestamp=${Date.now()}`)
             })
             .catch(err => {
                 console.log(err);
@@ -146,7 +145,7 @@ const RenamesCurrentPage = () => {
                     })
                 getFile(resp.uid)
                     .then(resp => {
-                        setSrcImg(resp + `?${new Date().getTime()}`)
+                        // setSrcImg(resp + `?${Date.now()}`)
                     })
                     .catch(err => {
                         console.log(err);
@@ -199,7 +198,6 @@ const RenamesCurrentPage = () => {
                                   models={models}
                                   setCurrRotate={setCurrRotate}
                                   currRotate={currRotate}
-                                  setCurrCrop={setCurrCrop}
                                   setImgRect={setImgRect}
                                   imgRect={imgRect}
                                   resetTools={resetTools}
