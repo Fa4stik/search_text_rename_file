@@ -73,6 +73,7 @@ const RenamesCurrentPage = () => {
 
     const handleClickRow = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
         e.preventDefault()
+        setIsLoadingImgWrapper(false)
         setLastScale(0)
         setCord(0, 0)
         setBounds({left: 0, bottom: 0, top: 0, right: 0})
@@ -87,7 +88,7 @@ const RenamesCurrentPage = () => {
             .then(resp => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
-                setCurrRotate(resp.angle)
+                setCurrRotate(0)
             })
             .catch(err => {
                 console.log(err);
@@ -127,7 +128,7 @@ const RenamesCurrentPage = () => {
     };
 
     const handleRegenerateImg = (e: React.MouseEvent<HTMLSpanElement>, ocr_type_model: string | number) => {
-        setIsLoadingImgWrapper(prevState => !prevState)
+        setIsLoadingImgWrapper(true)
         setResetTools(prevState => !prevState)
         processImage(activeUid, ocr_type_model.toString(),
             currRotate, currCrop, imgRect)
@@ -145,12 +146,12 @@ const RenamesCurrentPage = () => {
                     })
                 getFile(resp.uid)
                     .then(resp => {
-                        // setSrcImg(resp + `?${Date.now()}`)
+                        // setSrcImg(resp + `?timestamp=${Date.now()}`)
                     })
                     .catch(err => {
                         console.log(err);
                     })
-                setIsLoadingImgWrapper(prevState => !prevState)
+                setIsLoadingImgWrapper(false)
             })
             .catch(err => console.log(err))
     }
@@ -191,7 +192,6 @@ const RenamesCurrentPage = () => {
                     <ImageWrapper handleClickBox={handleClickBox}
                                   myBoxes={bboxes}
                                   srcImg={srcImg}
-                                  isDark={bboxes.length > 0}
                                   isRefresh isRotate isZoom isCut
                                   isLoading={isLoadingImgWrapper}
                                   handleChoseOption={handleRegenerateImg}

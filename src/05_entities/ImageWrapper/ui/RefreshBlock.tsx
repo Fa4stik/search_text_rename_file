@@ -24,8 +24,8 @@ export const RefreshBlock: React.FC<RefreshBlockProps> = ({
     };
 
     return (
-        <div className="relative flex justify-center">
-            <img src={imageWrapper.refresh} alt="Regenerate" className="h-full"
+        <div className="relative flex justify-center min-w-[30px]">
+            <img src={imageWrapper.refresh} alt="Regenerate" className="h-full w-[30px]"
                  onClick={handleRefresh}
             />
             {isActiveRefresh && <div className="absolute bottom-[55px] right-0 translate-x-1/3 z-50">

@@ -89,7 +89,7 @@ export const FigureBlock: React.FC<FigureBlockProps> = ({
 
         if (isRecRotate) {
             if (origWidthImg > origHeightImg) {
-                setImgRect({x1: 0, y1: 0, height: (2/3)*origWidthImg, width: origWidthImg})
+                setImgRect({x1: 0, y1: 0, height: origHeightImg, width: (2/3) * origHeightImg})
                 setIsEmptyImgRect(false)
                 apiWheel({scale: (sizeMyParent.width - deltaDistance)/origWidthImg,
                     onChange: (result) => {

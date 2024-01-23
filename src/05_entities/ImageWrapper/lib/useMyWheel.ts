@@ -37,7 +37,7 @@ export const useMyWheel =
                 event.preventDefault()
                 if (dy !== 0) {
                     setIsImmediateDrag(false)
-                    const {top, left} = imgBlockRef.current!.getBoundingClientRect()
+                    const {top, left, width, height} = imgBlockRef.current!.getBoundingClientRect()
 
                     const newScale = scale.get() - dy * scaleFactor;
 
@@ -46,14 +46,17 @@ export const useMyWheel =
                     let lastDeltaX = 0
                     let lastDeltaY = 0
 
-                    const ormOriginX = (event.clientX - left) / scale.get()
-                    const ormOriginY = (event.clientY - top) / scale.get()
+                    const startOriginX = width/2
+                    const startOriginY = height/2
+
+                    const ormOriginX = (event.clientX - left - startOriginX) / scale.get()
+                    const ormOriginY = (event.clientY - top - startOriginY) / scale.get()
 
                     apiWheel.start({
                         scale: clampedScale,
                         onChange: (result) => {
                             if (ormOriginX !== 0) {
-                                const modifyOriginX = (event.clientX - left) / result.value.scale
+                                const modifyOriginX = (event.clientX - left - startOriginX) / result.value.scale
                                 const deltaX = (ormOriginX - modifyOriginX)*result.value.scale
 
                                 const offsetX = deltaX - lastDeltaX
@@ -64,7 +67,7 @@ export const useMyWheel =
                             }
 
                             if (ormOriginY !== 0) {
-                                const modifyOriginY = (event.clientY - top) / result.value.scale
+                                const modifyOriginY = (event.clientY - top - startOriginY) / result.value.scale
                                 const deltaY = (ormOriginY - modifyOriginY)*result.value.scale
 
                                 const offsetY = deltaY - lastDeltaY
