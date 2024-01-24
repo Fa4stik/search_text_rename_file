@@ -4,7 +4,7 @@ import {useNavigate} from "react-router-dom";
 import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
 
 const MainPage = () => {
-    const {rows: mainRows, delRow: delMainRow} = useMainStore()
+    const {rows: mainRows, delRow: delMainRow, sorted} = useMainStore()
 
     const navigate = useNavigate()
 
@@ -38,6 +38,7 @@ const MainPage = () => {
         <div className="w-full h-full px-[40px] pt-[25px] flex flex-col">
             <h1 className="text-3xl mb-[30px]">Загрузка файлов на распознавание</h1>
             <MainTableGrid columns={columnsMain} rows={mainRows}
+                           sorted={sorted}
                            rowOnClick={onRowClick}
                            contextMenuOptionals={contextMenuParams}
                            textEmptyTable={'Нажмите правую кнопку, чтобы создать задачу'}

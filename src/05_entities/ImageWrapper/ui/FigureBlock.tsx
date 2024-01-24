@@ -14,6 +14,7 @@ type FigureBlockProps = {
     setIsEmptyImgRect: (value: React.SetStateAction<boolean>) => void
     updateBounds: (scale: number) => void
     resetTools: boolean
+    rotate: number
 }
 
 export const FigureBlock: React.FC<FigureBlockProps> = ({
@@ -26,7 +27,8 @@ export const FigureBlock: React.FC<FigureBlockProps> = ({
     setIsEmptyImgRect,
     updateBounds,
     resetTools,
-    setIsRecRotate
+    setIsRecRotate,
+    rotate
 }) => {
 
     const [isRecActive, setIsRecActive] =
@@ -57,27 +59,56 @@ export const FigureBlock: React.FC<FigureBlockProps> = ({
         setIsRecRotateActive(false)
     };
 
+    const rotateRect = (x1: number, y1: number, height: number, width: number,
+                        origHeightImg: number, origWidthImg: number) => {
+
+        if (rotate === 270)
+            width = [height, height = width][0]
+
+        if (rotate === 180)
+            y1 = origHeightImg - height
+
+        if (rotate === 90) {
+            y1 = origWidthImg - width
+            width = [height, height = width][0]
+        }
+
+        return {x1, y1, width, height}
+    }
+
     const handleActiveFigure = (isRec: boolean, isRecRotate: boolean, isSquare: boolean) => {
         setIsRec(isRec)
         setIsSquare(isSquare)
         setIsRecRotate(isRecRotate)
         const sizeMyParent = parentRef.current!.getBoundingClientRect()
-        const sizeMyImg = imgBlockRef.current!.getBoundingClientRect()
-        const origWidthImg = sizeMyImg.width / apiWheel.current[0].get().scale;
-        const origHeightImg = sizeMyImg.height / apiWheel.current[0].get().scale;
+        const {width: sizeMyImgW, height: sizeMyImgH} = imgBlockRef.current!.getBoundingClientRect()
+        const origWidthImg = sizeMyImgW / apiWheel.current[0].get().scale;
+        const origHeightImg = sizeMyImgH / apiWheel.current[0].get().scale;
         const deltaDistance = 60;
+
         if (isRec) {
             if (origWidthImg > origHeightImg) {
-                const width = (3/2)*origHeightImg
-                setImgRect({x1: 0, y1: 0, height: origHeightImg, width})
+                let x1 = 0, y1 = 0, height = origHeightImg, width = (3/2)*origHeightImg
+
+                const updateCords =
+                    rotateRect(x1, y1, height, width, origHeightImg, origWidthImg)
+
+                setImgRect({...updateCords})
                 setIsEmptyImgRect(false)
                 apiWheel({scale: (sizeMyParent.height)/width,
                     onChange: (result) => {
                         updateBounds(result.value.scale)
                     }
                 })
-            } else {
-                setImgRect({x1: 0, y1: 0, height: (2/3)*origWidthImg, width: origWidthImg})
+            }
+
+            if (origWidthImg <= origHeightImg) {
+                let x1 = 0, y1 = 0, height = (2/3)*origWidthImg, width = origWidthImg
+
+                const updateCords =
+                    rotateRect(x1, y1, height, width, origHeightImg, origWidthImg)
+
+                setImgRect({...updateCords})
                 setIsEmptyImgRect(false)
                 apiWheel({scale: (sizeMyParent.width)/origWidthImg,
                     onChange: (result) => {
@@ -89,16 +120,27 @@ export const FigureBlock: React.FC<FigureBlockProps> = ({
 
         if (isRecRotate) {
             if (origWidthImg > origHeightImg) {
-                setImgRect({x1: 0, y1: 0, height: origHeightImg, width: (2/3) * origHeightImg})
+                let x1 = 0, y1 = 0, height = origHeightImg, width = (2/3) * origHeightImg
+
+                const updateCords =
+                    rotateRect(x1, y1, height, width, origHeightImg, origWidthImg)
+
+                setImgRect({...updateCords})
                 setIsEmptyImgRect(false)
                 apiWheel({scale: (sizeMyParent.width - deltaDistance)/origWidthImg,
                     onChange: (result) => {
                         updateBounds(result.value.scale)
                     }
                 })
-            } else {
-                const width = (3/2)*origWidthImg
-                setImgRect({x1: 0, y1: 0, height: width, width: origWidthImg})
+            }
+
+            if (origWidthImg <= origHeightImg) {
+                let x1 = 0, y1 = 0, height = (3/2)*origWidthImg, width = origWidthImg
+
+                const updateCords =
+                    rotateRect(x1, y1, height, width, origHeightImg, origWidthImg)
+
+                setImgRect({...updateCords})
                 setIsEmptyImgRect(false)
                 apiWheel({scale: (sizeMyParent.height - deltaDistance*2)/width,
                     onChange: (result) => {
@@ -110,15 +152,27 @@ export const FigureBlock: React.FC<FigureBlockProps> = ({
 
         if (isSquare) {
             if (origWidthImg > origHeightImg) {
-                setImgRect({x1: 0, y1: 0, height: origHeightImg, width: origHeightImg})
+                let x1 = 0, y1 = 0, height = origHeightImg, width = origHeightImg
+
+                const updateCords =
+                    rotateRect(x1, y1, height, width, origHeightImg, origWidthImg)
+
+                setImgRect({...updateCords})
                 setIsEmptyImgRect(false)
                 apiWheel({scale: (sizeMyParent.height - deltaDistance)/origHeightImg,
                     onChange: (result) => {
                         updateBounds(result.value.scale)
                     }
                 })
-            } else {
-                setImgRect({x1: 0, y1: 0, height: origWidthImg, width: origWidthImg})
+            }
+
+            if (origWidthImg <= origHeightImg) {
+                let x1 = 0, y1 = 0, height = origWidthImg, width = origWidthImg
+
+                const updateCords =
+                    rotateRect(x1, y1, height, width, origHeightImg, origWidthImg)
+
+                setImgRect({...updateCords})
                 setIsEmptyImgRect(false)
                 apiWheel({scale: (sizeMyParent.height - deltaDistance*2)/origWidthImg,
                     onChange: (result) => {

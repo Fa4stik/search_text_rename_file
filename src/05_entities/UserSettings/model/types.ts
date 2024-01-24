@@ -4,5 +4,6 @@ export type TModel = {
 }
 
 export type TUserSettings = TModel & {
-
+    widthRename: string,
+    heightRename: string
 }

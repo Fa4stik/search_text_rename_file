@@ -5,7 +5,5 @@ const specName = ["NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7",
 export const validateName = (name: string): boolean => {
     if (name.length === 0 || Array.from(name).some(char => specSym.includes(char)))
         return false
-    return specName.includes(name)
-        ? false
-        : true
+    return !specName.includes(name)
 }

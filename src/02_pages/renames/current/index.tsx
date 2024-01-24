@@ -4,13 +4,14 @@ import {GridHeader} from "../../../04_features/GridHeader";
 import {FilesBlock, ImageWrapper, RenameFile} from "../../../04_features/RenameFiles";
 import {columnsReadyFiles} from "../../../04_features/RenameFiles/model/gridStyles";
 import {TRow} from "../../../05_entities/DataGrid";
-import {useRenameStore} from "../../../03_widgetes/MainTable";
+import {TRenameFile, useRenameStore} from "../../../03_widgetes/MainTable";
 import {TOption} from "../../../06_shared/model/typeSelect";
 import {convertNameFile} from "../../../04_features/CreateTask";
 import {getDataById, processImage, TBbox, TImgSizes} from "../../../05_entities/FetchPipeline";
 import {getOcrModels} from "../../../05_entities/FetchOCR";
 import {getFile} from "../../../05_entities/FetchWorkWithData";
 import {useImgStore} from "../../../05_entities/ImageWrapper";
+import {useUserSettings} from "../../../05_entities/UserSettings";
 
 type PageParams = {
     idTask: string
@@ -19,7 +20,9 @@ type PageParams = {
 const RenamesCurrentPage = () => {
     const {idTask} = useParams<PageParams>()
 
-    const {rows: renamesRows, updateUid} = useRenameStore()
+    const {rows: renamesRows, updateUid, sortedFiles} = useRenameStore()
+    const {settings: {widthRename, heightRename}, setHeightRename, setWidthRename} = useUserSettings()
+    const {setLastScale, setScale, setBounds, setCord} = useImgStore()
 
     const [rows, setRows] = useState<TRow[]>(renamesRows.find(rR =>
         rR.id === idTask)!.renameFiles
@@ -53,7 +56,20 @@ const RenamesCurrentPage = () => {
     const resizeColRef = useRef<HTMLDivElement>(null)
     const tableContentRef = useRef<HTMLDivElement>(null)
 
-    const {setLastScale, setScale, setBounds, setCord} = useImgStore()
+    const sorted = (compareFn: (a: TRenameFile, b: TRenameFile) => number) => {
+        sortedFiles(idTask as string, compareFn)
+        setRows(renamesRows.find(rR =>
+            rR.id === idTask)!.renameFiles
+            .filter(file => file.uid)
+            .map((file, id) => ({
+                    ...file,
+                    is_duplicate: file.is_duplicate ? '1' : '',
+                    uid: file.uid.toString(),
+                    id: (id + 1).toString(),
+                })
+            )
+        )
+    }
 
     // get models
     useEffect(() => {
@@ -114,7 +130,7 @@ const RenamesCurrentPage = () => {
             const leftLimit = (tableContentWidth) / 4
             const deltaX = e.clientX - resizeColRef.current!.getBoundingClientRect().left;
             const newWidth = Math.min(Math.max(leftLimit, deltaX), rightLimit)
-            resizeColRef.current!.style.width = `${newWidth}px`;
+            setWidthRename(`${newWidth}px`)
         }
 
         if (isResizeRow) {
@@ -123,7 +139,7 @@ const RenamesCurrentPage = () => {
             const downLimit = (tableContentHeight * 2) / 3
             const deltaY = e.clientY - resizeRowRef.current!.getBoundingClientRect().top;
             const newHeight = Math.min(Math.max(upLimit, deltaY), downLimit)
-            resizeRowRef.current!.style.height = `${newHeight}px`;
+            setHeightRename(`${newHeight}px`)
         }
     };
 
@@ -162,12 +178,20 @@ const RenamesCurrentPage = () => {
             <div className="flex-1 flex flex-col overflow-hidden select-none"
                  onMouseUp={stopResized} onMouseLeave={stopResized} onMouseMove={handleResizeBlocks}
             >
-                <GridHeader sorted filters/>
+                <GridHeader sorted sortedFn={sorted} rows={renamesRows}/>
                 <div className="flex-1 flex bg-mainGray overflow-hidden" ref={tableContentRef}>
-                    <div className="w-1/3 h-full flex flex-col"
+                    <div className={`w-1/3 h-full flex flex-col`}
                          ref={resizeColRef}
+                         style={{
+                             width: widthRename
+                         }}
                     >
-                        <div className="w-full h-1/2 flex flex-col select-none" ref={resizeRowRef}>
+                        <div className={`w-full h-1/2 flex flex-col select-none`}
+                             ref={resizeRowRef}
+                             style={{
+                                 height: heightRename
+                             }}
+                        >
                             <FilesBlock rows={rows.map(row =>
                                 ({...row, name: convertNameFile(row.name, 35, true)}))}
                                         columns={columnsReadyFiles}
@@ -181,7 +205,9 @@ const RenamesCurrentPage = () => {
                              }}
                         />
                         <RenameFile setRows={setRows} idTask={idTask} activeUid={activeUid}
-                                    nameFile={nameFile} setNameFile={setNameFile}/>
+                                    nameFile={nameFile} setNameFile={setNameFile}
+                                    rows={rows}
+                        />
                     </div>
                     <div className="w-[6px] h-full cursor-col-resize border-2 border-solid border-mainDark"
                          onMouseDown={(e) => {

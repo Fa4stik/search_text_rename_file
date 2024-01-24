@@ -6,7 +6,7 @@ import {archiveChunk} from "../../05_entities/FetchPipeline";
 
 const RenamesPage = () => {
     const navigate = useNavigate()
-    const {rows, delRow, setNameHandler} = useRenameStore()
+    const {rows, delRow, setNameHandler, sortedTasks} = useRenameStore()
 
     const handleOpenTask = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
@@ -47,6 +47,7 @@ const RenamesPage = () => {
         <div className="flex-grow px-[40px] pt-[25px] flex flex-col overflow-hidden">
             <h1 className="text-3xl mb-[30px]">Переименование файлов и сохранение результатов</h1>
             <MainTableGrid columns={columnsRename} rows={rows}
+                           sorted={sortedTasks}
                            setNameHandler={setNameHandler}
                            contextMenuOptionals={contextMenuParams}
                            rowOnDoubleClick={handleOpenDoubleClickTask}

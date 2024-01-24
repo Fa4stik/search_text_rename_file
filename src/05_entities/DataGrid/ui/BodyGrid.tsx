@@ -3,6 +3,7 @@ import {TColumn, TRow} from "../model/gridTypes";
 import {TContextMenuTypeParams} from "../model/contextMenuType";
 import {ContextMenu} from "../../ContextMenu";
 import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable/model/types";
+import {ReactComponent} from "*.svg";
 
 type BodyGridProps = {
     width?: string
@@ -93,7 +94,7 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                 </thead>
                 <tbody className="text-center">
                 {rows.map(row => (
-                    <>
+                    <React.Fragment key={row.id}>
                         <tr key={row.id} className={`hover:bg-mainGreen/[0.5] focus:bg-mainGreen transition-all ease-out relative
                         ${row.id === activeRow ? 'bg-mainGreen' : ''}`}
                             onDoubleClick={(e) => {
@@ -127,7 +128,7 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
                                     }}
                                 />
                             </tr>}
-                    </>
+                    </React.Fragment>
                 ))}
                 </tbody>
             </table>

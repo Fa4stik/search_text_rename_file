@@ -266,9 +266,10 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                     },
                     immediate: true
                 })
-                setMinSizeScaleImg(myParSizes.width / width)
+                setMinSizeScaleImg(myParSizes.width/2 / width)
             }
-            else {
+
+            if (width <= height) {
                 const newScale = myParSizes.height / height
                 apiWheel.start({
                     scale: newScale, onResolve: () => {
@@ -276,7 +277,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                     },
                     immediate: true
                 })
-                setMinSizeScaleImg(myParSizes.height / height)
+                setMinSizeScaleImg(myParSizes.height/2 / height)
             }
         }
     }
@@ -515,6 +516,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                                      imgBlockRef={imgBlockRef}
                                      parentRef={parentRef}
                                      resetTools={resetTools}
+                                     rotate={currRotate}
                         />
                         <CutBlock setImgRect={setImgRect}
                                   setIsEmptyImgRect={setIsEmptyImgRect}

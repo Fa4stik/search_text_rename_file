@@ -1,4 +1,4 @@
-import React, {TableHTMLAttributes} from 'react';
+import React from 'react';
 import {TColumnReadyFiles} from "../model/gridStyles";
 import {BodyGrid, TRow} from "../../../05_entities/DataGrid";
 

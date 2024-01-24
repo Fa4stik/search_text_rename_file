@@ -11,20 +11,21 @@ type TagGroupProps = {
     handleDelTag?: (tag: number) => void
     isShowTags?: boolean
     validator?: (value: string) => string
-    count?: number
+    count?: number,
+    lengthName?: number
 }
 
-export const TagGroup: React.FC<TagGroupProps>
-    = ({
-           name,
-           isDeleteTag,
-           isAddTag,
-           tags,
-           handleSetTag,
-           handleDelTag,
-           handleClickTag,
-           isShowTags, validator, count
-       }) => {
+export const TagGroup: React.FC<TagGroupProps> = ({
+    name,
+    isDeleteTag,
+    isAddTag,
+    tags,
+    handleSetTag,
+    handleDelTag,
+    handleClickTag,
+    isShowTags, validator, count,
+    lengthName
+}) => {
 
     const [isShowInput, setIsShowInput] = useState<boolean>(false)
 
@@ -64,15 +65,16 @@ export const TagGroup: React.FC<TagGroupProps>
             </div>
             <div className="flex flex-wrap flex-grow border-[2px] items-center transition-all ease-in-out duration-500
                             border-solid border-mainDark rounded-b-3xl p-[10px] gap-[5px] relative
-                            overflow-hidden"
+                            overflow-y-auto"
                  ref={contTagRef}
             >
-                    <>{localTags.map((tag, id) => count
-                        ? id < count && (
-                            <div key={id} className="bg-mainTags/[0.3] py-[2px] px-[7px]
-                                    rounded-2xl cursor-pointer relative"
-                                 onClick={(e) => handleClickTag(tag.tag)}
-                            >
+                    <>
+                        {localTags.map((tag, id) => count
+                            ? id < count && (
+                                <div key={id} className="bg-mainTags/[0.3] py-[2px] px-[7px]
+                                        rounded-2xl cursor-pointer relative"
+                                     onClick={(e) => handleClickTag(tag.tag)}
+                                >
                                 {tag.tag}
                                 {isDeleteTag &&
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
@@ -91,14 +93,14 @@ export const TagGroup: React.FC<TagGroupProps>
                                     93Zm0-320Z"/>
                                     </svg>}
                             </div>)
-                        : <div key={id} className="bg-mainTags/[0.3] py-[2px] px-[7px]
-                                    rounded-2xl cursor-pointer relative"
-                               onClick={(e) => handleClickTag(tag.tag)}
-                        >
+                            : <div key={id} className="bg-mainTags/[0.3] py-[2px] px-[10px]
+                                        rounded-2xl cursor-pointer relative"
+                                   onClick={(e) => handleClickTag(tag.tag)}
+                            >
                             {tag.tag}
                             {isDeleteTag &&
                                 <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"
-                                     className="absolute right-0 top-0 h-[10px] w-[10px] fill-mainDark"
+                                     className="absolute left-0 top-0 h-[10px] w-[10px] fill-mainDark"
                                      onClick={e => {
                                          e.stopPropagation()
                                          handleDelTag && handleDelTag(tag.uid)
@@ -112,7 +114,7 @@ export const TagGroup: React.FC<TagGroupProps>
                                     93Zm0-320Z"/>
                                 </svg>}
                         </div>
-                    )}
+                        )}
                         {isAddTag &&
                             <>
                                 {isShowInput &&
@@ -121,6 +123,11 @@ export const TagGroup: React.FC<TagGroupProps>
                                         <input type="text" className="outline-none border-none bg-transparent w-1"
                                                ref={inpRef}
                                                onChange={(e) => {
+                                                   if (lengthName && e.target.value.length >= lengthName+1) {
+                                                       e.target.value = e.target.value.slice(0, -1)
+                                                       return
+                                                   }
+
                                                    if (validator)
                                                        e.target.value = validator(e.target.value);
                                                }}
@@ -134,6 +141,11 @@ export const TagGroup: React.FC<TagGroupProps>
                                                        }, 0)
                                                }}
                                                onBlur={(e) => {
+                                                   if (!e.target.value) {
+                                                       setIsShowInput(false)
+                                                       return
+                                                   }
+
                                                    setLocalTags(prevState => [...prevState, {
                                                        tag: e.target.value,
                                                        group_id: tags.uid,

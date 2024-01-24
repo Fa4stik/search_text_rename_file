@@ -5,7 +5,7 @@ import {TRowReady} from "../../03_widgetes/MainTable/model/types";
 
 const ReadyPage = () => {
     const [activePath, setActivePath] = useState<string>('...')
-    const {rows, delRow} = useReadyStore()
+    const {rows, delRow, sorted} = useReadyStore()
 
     const handleFullPath = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
         e.preventDefault()
@@ -29,7 +29,10 @@ const ReadyPage = () => {
     return (
         <div className="flex-grow px-[40px] pt-[25px] flex flex-col">
             <h1 className="text-3xl mb-[30px]">Выгрузка результатов</h1>
-            <MainTableGrid columns={columnsReady} rows={rows} contextMenuOptionals={contextMenuParams}/>
+            <MainTableGrid columns={columnsReady}
+                           rows={rows}
+                           sorted={sorted}
+                           contextMenuOptionals={contextMenuParams}/>
         </div>
     );
 };

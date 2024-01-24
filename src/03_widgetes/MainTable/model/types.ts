@@ -1,3 +1,4 @@
+
 type TRowPage = {
     id: string;
     name: string
@@ -12,7 +13,7 @@ export type TRowMain = TRowPage & {
     status: string;
 }
 
-type TRenameFile = {
+export type TRenameFile = {
     uid: number;
     name: string;
     dateEdit: string;
