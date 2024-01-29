@@ -121,7 +121,7 @@ export const RenameFile: React.FC<RenameFileProps> = ({
                               handleSetTag={(tag) => handleSetTag(tag, gTag.uid)}
                               key={id}
                               lengthName={40}
-                              isAddTag isDeleteTag
+                              isAddTag isDeleteTag isSorted
                     />
                 ))}
                 <TagGroup name={'Дата'}

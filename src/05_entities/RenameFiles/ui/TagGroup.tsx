@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {TGroupTag, TTag} from "../../FetchTags";
+import {dataGrid} from "../../../06_shared/ui/icon";
 
 type TagGroupProps = {
     name: string
@@ -13,6 +14,7 @@ type TagGroupProps = {
     validator?: (value: string) => string
     count?: number,
     lengthName?: number
+    isSorted?: boolean
 }
 
 export const TagGroup: React.FC<TagGroupProps> = ({
@@ -24,13 +26,16 @@ export const TagGroup: React.FC<TagGroupProps> = ({
     handleDelTag,
     handleClickTag,
     isShowTags, validator, count,
-    lengthName
+    lengthName,
+    isSorted
 }) => {
 
-    const [isShowInput, setIsShowInput] = useState<boolean>(false)
-
+    const [isShowInput, setIsShowInput] =
+        useState<boolean>(false)
     const [localTags, setLocalTags] =
         useState<TTag[]>(tags.content ?? [])
+    const [reverseSorted, setReverseSorted] =
+        useState(false)
 
     const inpRef = useRef<HTMLInputElement>(null)
     const svgArrowRef = useRef<SVGSVGElement>(null)
@@ -40,10 +45,23 @@ export const TagGroup: React.FC<TagGroupProps> = ({
         inpRef.current && inpRef.current.focus()
     }, [isShowInput]);
 
+    const handleClickSorted = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        localTags.sort((a, b) => reverseSorted
+            ? a.tag.localeCompare(b.tag)
+            : b.tag.localeCompare(a.tag)
+        )
+        setReverseSorted(prevState => !prevState)
+    };
+
     return (
         <div className="mb-3">
             <div className="bg-mainDark rounded-t-2xl text-white px-4 py-1 flex">
                 <h3>{name}</h3>
+                {isSorted &&
+                    <button className="mx-2 w-5" onClick={handleClickSorted}>
+                        <img src={dataGrid.sorted} alt="Sorted"/>
+                    </button>}
                 <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
                      width="24" className="fill-mainGray ml-auto transition-all origin-center ease-in-out duration-500"
                      ref={svgArrowRef}

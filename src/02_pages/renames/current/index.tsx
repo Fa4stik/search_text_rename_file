@@ -51,6 +51,8 @@ const RenamesCurrentPage = () => {
         useState<TImgSizes>({x1: 0, y1: 0, width: 0, height: 0})
     const [resetTools, setResetTools] =
         useState<boolean>(false)
+    const [isLoadingImg, setIsLoadingImg] =
+        useState<boolean>(true)
 
     const resizeRowRef = useRef<HTMLDivElement>(null)
     const resizeColRef = useRef<HTMLDivElement>(null)
@@ -71,13 +73,6 @@ const RenamesCurrentPage = () => {
         )
     }
 
-    // get models
-    useEffect(() => {
-        getOcrModels().then(resp => {
-            setModels(resp.models.map((model, id) => ({key: id, value: model})))
-        }).catch(err => console.log(err))
-    }, []);
-
     const handleClickBox = (e: React.MouseEvent<HTMLDivElement>, word: string) => {
         e.stopPropagation()
         setNameFile(prevState =>
@@ -90,6 +85,7 @@ const RenamesCurrentPage = () => {
     const handleClickRow = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
         e.preventDefault()
         setIsLoadingImgWrapper(false)
+        setIsLoadingImg(true)
         setLastScale(0)
         setCord(0, 0)
         setBounds({left: 0, bottom: 0, top: 0, right: 0})
@@ -104,7 +100,7 @@ const RenamesCurrentPage = () => {
             .then(resp => {
                 setBboxes(resp.bboxes.map((bbox, id) =>
                     ({...bbox, word: resp.text[id]})))
-                setCurrRotate(0)
+                setCurrRotate(resp.angle)
             })
             .catch(err => {
                 console.log(err);
@@ -172,6 +168,13 @@ const RenamesCurrentPage = () => {
             .catch(err => console.log(err))
     }
 
+    // get models
+    useEffect(() => {
+        getOcrModels().then(resp => {
+            setModels(resp.models.map((model, id) => ({key: id, value: model})))
+        }).catch(err => console.log(err))
+    }, []);
+
     return (
         <div className="flex-1 px-[40px] pt-[25px] flex flex-col overflow-hidden">
             <h1 className="text-3xl mb-[30px]">Переименование файлов</h1>
@@ -227,6 +230,8 @@ const RenamesCurrentPage = () => {
                                   setImgRect={setImgRect}
                                   imgRect={imgRect}
                                   resetTools={resetTools}
+                                  isLoadingImg={isLoadingImg}
+                                  setIsLoadingImg={setIsLoadingImg}
                     />
                 </div>
             </div>

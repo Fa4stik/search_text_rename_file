@@ -31,11 +31,11 @@ export const Navigation: React.FC<NavigationProps> = ({routing}) => {
 
     return (
         <>
-            <div className="px-[40px] border-b-[2px] sticky top-0 py-[10px]
+            <div className="px-[40px] border-b-[2px] py-[10px]
             border-solid w-full border-mainDark flex items-center">
                 <a href="#" className="text-mainDark text-xl">Распознавание текста и переименование файла</a>
             </div>
-            <div className="flex-grow flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden relative">
                 <div className="flex flex-col items-center border-r-[2px] border-solid border-mainDark
                 w-[80px] h-full py-[20px] sticky top-0">
                     <div className="relative p-[10px]">
@@ -55,14 +55,6 @@ export const Navigation: React.FC<NavigationProps> = ({routing}) => {
                                  className="h-[35px] w-auto mb-[20px]"
                             />
                         </a>
-                        {/*<a href="#"*/}
-                        {/*   onClick={handleChooseReady}*/}
-                        {/*>*/}
-                        {/*    <img src={header.ready}*/}
-                        {/*         alt="Edit icon"*/}
-                        {/*         className="h-[35px] w-auto"*/}
-                        {/*    />*/}
-                        {/*</a>*/}
                         <div className="absolute top-[3px] left-[4.5px] transition-all ease-in-out
                         bg-mainDark/[0.2] h-[50px] w-[50px] z-[-1] rounded-md"
                              ref={activeLinkRef}

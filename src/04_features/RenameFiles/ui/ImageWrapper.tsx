@@ -22,8 +22,8 @@ const maxSizeScaleImg = 200
 const speedZoom = 0.05
 
 type ImageWrapperProps = {
-    myBoxes: TBbox[];
-    handleClickBox: (e: React.MouseEvent<HTMLDivElement>, word: string) => void;
+    myBoxes: TBbox[]
+    handleClickBox: (e: React.MouseEvent<HTMLDivElement>, word: string) => void
     srcImg: string
     isRotate?: boolean
     isZoom?: boolean
@@ -37,6 +37,8 @@ type ImageWrapperProps = {
     imgRect: TImgSizes
     setImgRect: React.Dispatch<React.SetStateAction<TImgSizes>>
     resetTools: boolean
+    isLoadingImg: boolean
+    setIsLoadingImg: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const ImageWrapper: React.FC<ImageWrapperProps> = ({
@@ -52,7 +54,11 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
     currRotate,
     isCut,
     isLoading,
-    imgRect, setImgRect, resetTools
+    imgRect,
+    setImgRect,
+    resetTools,
+    isLoadingImg,
+    setIsLoadingImg
 }) => {
 
     const [minSizeScaleImg, setMinSizeScaleImg] =
@@ -75,6 +81,8 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
         useState<number>(0)
     const [isDark, setIsDark] =
         useState<boolean>(myBoxes.length > 0)
+    const [localBboxes, setLocalBboxes] =
+        useState<TBbox[]>(myBoxes)
 
     // Размеры оригинального изображения
     const origImgRef = useRef<HTMLImageElement>(null)
@@ -241,7 +249,8 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
             updateBounds})
 
     // При загрузке изображения вписываем его либо по ширине, либо по высооте
-    const handleImageLoad = () => {
+    const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        setIsLoadingImg(false)
         if (origImgRef.current) {
             const width = origImgRef.current.naturalWidth;
             const height = origImgRef.current.naturalHeight;
@@ -326,7 +335,48 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
 
         myBoxes.length === 0 &&
             setIsDark(false)
-    }, [myBoxes]);
+
+        let {width, height} = origImgRef.current!.getBoundingClientRect()
+        width/=scale.get()
+        height/=scale.get()
+
+        if (!isLoadingImg && currRotate === 0) {
+            console.log('rotate on 0 deg')
+            setLocalBboxes(myBoxes)
+        }
+
+        if (!isLoadingImg && currRotate === 270) {
+            console.log('rotate on 270 deg')
+            setLocalBboxes(myBoxes.map(bbox => ({
+                ...bbox,
+                x: height - (bbox.y + bbox.h),
+                y: bbox.x,
+                h: bbox.w,
+                w: bbox.h,
+            })))
+        }
+
+        if (!isLoadingImg && currRotate === 180) {
+            console.log('rotate on 180 deg')
+            setLocalBboxes(myBoxes.map(bbox => ({
+                ...bbox,
+                x: width - (bbox.x + bbox.w),
+                y: height - (bbox.y + bbox.h),
+            })))
+        }
+
+        if (!isLoadingImg && currRotate === 90) {
+            console.log('rotate on 90 deg')
+            setLocalBboxes(myBoxes.map(bbox => ({
+                ...bbox,
+                x: bbox.y,
+                y: width - (bbox.x + bbox.w),
+                h: bbox.w,
+                w: bbox.h,
+            })))
+        }
+
+    }, [myBoxes, isLoadingImg]);
 
     // Обработка для выделения области изображения
     useEffect(() => {
@@ -411,7 +461,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
 
     return (
         <div className="flex-1 flex overflow-hidden cursor-grab">
-            {isDark && <Masks myBoxes={myBoxes} imgRect={imgRect}/>}
+            {isDark && <Masks myBoxes={localBboxes} imgRect={imgRect}/>}
             <div className="flex-1 overflow-hidden relative"
                  ref={parentRef}
             >
@@ -445,19 +495,11 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                              ref={origImgRef}
                              onLoad={handleImageLoad}
                              className="h-full max-h-none max-w-none absolute z-0"
-                             style={{
-                                 transformOrigin: 'center'
-                             }}
                              alt="MyImg"/>
                         {!isEdit && !isRec && !isRecRotate && !isSquare &&
-                            <div className="absolute z-30"
-                                 style={{
-                                     width: '100%',
-                                     height: '100%',
-                                     transformOrigin: 'center'
-                                 }}
+                            <div className="absolute z-30 w-full h-full"
                             >
-                                {myBoxes.map((box, id) => (
+                                {localBboxes.map((box, id) => (
                                     <div className={`absolute ring-1 ring-mainGreen rounded-[5px] cursor-pointer`}
                                          onMouseDown={(e) => handleClickBox(e, box.word)}
                                          key={id}
@@ -474,9 +516,6 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                             <div
                                 className={`bg-black/[0.5] absolute w-full h-full left-0 top-0 z-10 
                                 ${isEdit || isRec || isRecRotate || isSquare ? 'cursor-copy' : 'cursor-grab'}`}
-                                style={{
-                                    transformOrigin: 'center'
-                                }}
                             >
                                 {(isEdit || isRec || isRecRotate || isSquare) && !isEmptyImgRect &&
                                     <ImgRectBlock imgRect={imgRect}/>}
@@ -491,11 +530,11 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                     </animated.div>
                 </div>
                 {!isHiddenBottomPanel &&
-                    <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 w-auto
+                    <div className="py-[10px] px-[20px] bottom-[20px] left-1/2 -translate-x-1/2 min-w-max
                     bg-gray-900/[0.7] rounded-xl z-50 absolute h-[50px] flex justify-center gap-x-[10px] cursor-pointer
                     after:relative after:-ml-[10px]"
                          onLoad={(e) => {
-                             setHeightTool(e.currentTarget.getBoundingClientRect().height+10)
+                             setHeightTool(e.currentTarget.getBoundingClientRect().height + 10)
                          }}
                     >
                         <RotateBlock setCurrRotate={setCurrRotate}

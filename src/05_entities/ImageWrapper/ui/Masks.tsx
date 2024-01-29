@@ -10,7 +10,7 @@ export const Masks: React.FC<MasksProps> = ({myBoxes, imgRect}) => {
     return (
         <svg xmlns="http://www.w3.org/2000/svg"
              xmlnsXlink="http://www.w3.org/1999/xlink"
-             style={{position: 'absolute'}}>
+             style={{position: 'absolute',}}>
             <defs>
                 <clipPath id="contentMask">
                     {myBoxes.map((box, id) => (
