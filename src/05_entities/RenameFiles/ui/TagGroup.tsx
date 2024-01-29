@@ -45,6 +45,14 @@ export const TagGroup: React.FC<TagGroupProps> = ({
         inpRef.current && inpRef.current.focus()
     }, [isShowInput]);
 
+    useEffect(() => {
+        const {scrollHeight, clientHeight} = contTagRef.current!
+        console.log(scrollHeight, clientHeight)
+        if (scrollHeight > clientHeight) {
+            contTagRef.current!.style.borderBottomRightRadius = "0px"
+        }
+    }, []);
+
     const handleClickSorted = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
         localTags.sort((a, b) => reverseSorted
@@ -83,7 +91,7 @@ export const TagGroup: React.FC<TagGroupProps> = ({
             </div>
             <div className="flex flex-wrap flex-grow border-[2px] items-center transition-all ease-in-out duration-500
                             border-solid border-mainDark rounded-b-3xl p-[10px] gap-[5px] relative
-                            overflow-y-auto"
+                            overflow-y-auto max-h-36"
                  ref={contTagRef}
             >
                     <>

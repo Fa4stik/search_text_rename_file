@@ -9,7 +9,7 @@ import {Notifications} from "../05_entities/Notifications";
 
 const App = () => {
     return (
-        <div className="app h-screen max-w-screen font-rubikRg
+        <div className="app scrollbar h-screen max-w-screen font-rubikRg
         flex flex-col text-mainDark overflow-hidden relative">
             <Navigation routing={<Routing/>}/>
             <Notifications/>

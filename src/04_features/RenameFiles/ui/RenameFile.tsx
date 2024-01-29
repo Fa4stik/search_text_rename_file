@@ -111,7 +111,7 @@ export const RenameFile: React.FC<RenameFileProps> = ({
     }
 
     return (
-        <div className="flex-1 flex flex-col py-[10px] px-[30px] overflow-y-scroll">
+        <div className="flex-1 flex flex-col py-[10px] px-[30px] overflow-y-scroll" data-simplebar>
             <div className="flex flex-col mb-[10px]">
                 <h3 className="text-xl mb-[5px]">Тэги</h3>
                 {groupTags.map((gTag, id) => (
