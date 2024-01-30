@@ -81,8 +81,6 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
         useState<number>(0)
     const [isDark, setIsDark] =
         useState<boolean>(myBoxes.length > 0)
-    const [localBboxes, setLocalBboxes] =
-        useState<TBbox[]>(myBoxes)
 
     // Размеры оригинального изображения
     const origImgRef = useRef<HTMLImageElement>(null)
@@ -335,49 +333,6 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
 
         myBoxes.length === 0 &&
             setIsDark(false)
-
-        setLocalBboxes(myBoxes)
-
-        // let {width, height} = origImgRef.current!.getBoundingClientRect()
-        // width/=scale.get()
-        // height/=scale.get()
-        //
-        // if (!isLoadingImg && currRotate === 0) {
-        //     console.log('rotate on 0 deg')
-        //     setLocalBboxes(myBoxes)
-        // }
-        //
-        // if (!isLoadingImg && currRotate === 270) {
-        //     console.log('rotate on 270 deg')
-        //     setLocalBboxes(myBoxes.map(bbox => ({
-        //         ...bbox,
-        //         x: height - (bbox.y + bbox.h),
-        //         y: bbox.x,
-        //         h: bbox.w,
-        //         w: bbox.h,
-        //     })))
-        // }
-        //
-        // if (!isLoadingImg && currRotate === 180) {
-        //     console.log('rotate on 180 deg')
-        //     setLocalBboxes(myBoxes.map(bbox => ({
-        //         ...bbox,
-        //         x: width - (bbox.x + bbox.w),
-        //         y: height - (bbox.y + bbox.h),
-        //     })))
-        // }
-        //
-        // if (!isLoadingImg && currRotate === 90) {
-        //     console.log('rotate on 90 deg')
-        //     setLocalBboxes(myBoxes.map(bbox => ({
-        //         ...bbox,
-        //         x: bbox.y,
-        //         y: width - (bbox.x + bbox.w),
-        //         h: bbox.w,
-        //         w: bbox.h,
-        //     })))
-        // }
-
     }, [myBoxes, isLoadingImg]);
 
     // Обработка для выделения области изображения
@@ -463,7 +418,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
 
     return (
         <div className="flex-1 flex overflow-hidden cursor-grab">
-            {isDark && <Masks myBoxes={localBboxes} imgRect={imgRect}/>}
+            {isDark && <Masks myBoxes={myBoxes} imgRect={imgRect}/>}
             <div className="flex-1 overflow-hidden relative"
                  ref={parentRef}
             >
@@ -501,7 +456,7 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
                         {!isEdit && !isRec && !isRecRotate && !isSquare &&
                             <div className="absolute z-30 w-full h-full"
                             >
-                                {localBboxes.map((box, id) => (
+                                {myBoxes.map((box, id) => (
                                     <div className={`absolute ring-1 ring-mainGreen rounded-[5px] cursor-pointer`}
                                          onMouseDown={(e) => handleClickBox(e, box.word)}
                                          key={id}
