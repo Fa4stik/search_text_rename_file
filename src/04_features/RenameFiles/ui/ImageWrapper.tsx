@@ -336,45 +336,47 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
         myBoxes.length === 0 &&
             setIsDark(false)
 
-        let {width, height} = origImgRef.current!.getBoundingClientRect()
-        width/=scale.get()
-        height/=scale.get()
+        setLocalBboxes(myBoxes)
 
-        if (!isLoadingImg && currRotate === 0) {
-            console.log('rotate on 0 deg')
-            setLocalBboxes(myBoxes)
-        }
-
-        if (!isLoadingImg && currRotate === 270) {
-            console.log('rotate on 270 deg')
-            setLocalBboxes(myBoxes.map(bbox => ({
-                ...bbox,
-                x: height - (bbox.y + bbox.h),
-                y: bbox.x,
-                h: bbox.w,
-                w: bbox.h,
-            })))
-        }
-
-        if (!isLoadingImg && currRotate === 180) {
-            console.log('rotate on 180 deg')
-            setLocalBboxes(myBoxes.map(bbox => ({
-                ...bbox,
-                x: width - (bbox.x + bbox.w),
-                y: height - (bbox.y + bbox.h),
-            })))
-        }
-
-        if (!isLoadingImg && currRotate === 90) {
-            console.log('rotate on 90 deg')
-            setLocalBboxes(myBoxes.map(bbox => ({
-                ...bbox,
-                x: bbox.y,
-                y: width - (bbox.x + bbox.w),
-                h: bbox.w,
-                w: bbox.h,
-            })))
-        }
+        // let {width, height} = origImgRef.current!.getBoundingClientRect()
+        // width/=scale.get()
+        // height/=scale.get()
+        //
+        // if (!isLoadingImg && currRotate === 0) {
+        //     console.log('rotate on 0 deg')
+        //     setLocalBboxes(myBoxes)
+        // }
+        //
+        // if (!isLoadingImg && currRotate === 270) {
+        //     console.log('rotate on 270 deg')
+        //     setLocalBboxes(myBoxes.map(bbox => ({
+        //         ...bbox,
+        //         x: height - (bbox.y + bbox.h),
+        //         y: bbox.x,
+        //         h: bbox.w,
+        //         w: bbox.h,
+        //     })))
+        // }
+        //
+        // if (!isLoadingImg && currRotate === 180) {
+        //     console.log('rotate on 180 deg')
+        //     setLocalBboxes(myBoxes.map(bbox => ({
+        //         ...bbox,
+        //         x: width - (bbox.x + bbox.w),
+        //         y: height - (bbox.y + bbox.h),
+        //     })))
+        // }
+        //
+        // if (!isLoadingImg && currRotate === 90) {
+        //     console.log('rotate on 90 deg')
+        //     setLocalBboxes(myBoxes.map(bbox => ({
+        //         ...bbox,
+        //         x: bbox.y,
+        //         y: width - (bbox.x + bbox.w),
+        //         h: bbox.w,
+        //         w: bbox.h,
+        //     })))
+        // }
 
     }, [myBoxes, isLoadingImg]);
 

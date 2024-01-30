@@ -150,7 +150,7 @@ const RenamesCurrentPage = () => {
                 getDataById(resp.uid)
                     .then(resp => {
                         setBboxes(resp.bboxes.map((bbox, id) =>
-                            ({...bbox, word: resp.text[id]})))
+                            ({  ...bbox, word: resp.text[id]})))
                         setCurrRotate(resp.angle)
                     })
                     .catch(err => {
