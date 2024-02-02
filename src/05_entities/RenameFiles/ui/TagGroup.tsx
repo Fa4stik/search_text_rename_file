@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {TGroupTag, TTag} from "../../FetchTags";
-import {dataGrid} from "../../../06_shared/ui/icon";
+import {dataGrid, tagsIcons} from "../../../06_shared/ui/icon";
+import {useSpring} from "react-spring";
 
 type TagGroupProps = {
     name: string
@@ -15,6 +16,7 @@ type TagGroupProps = {
     count?: number,
     lengthName?: number
     isSorted?: boolean
+    isResize?: boolean
 }
 
 export const TagGroup: React.FC<TagGroupProps> = ({
@@ -27,7 +29,8 @@ export const TagGroup: React.FC<TagGroupProps> = ({
     handleClickTag,
     isShowTags, validator, count,
     lengthName,
-    isSorted
+    isSorted,
+    isResize
 }) => {
 
     const [isShowInput, setIsShowInput] =
@@ -36,6 +39,8 @@ export const TagGroup: React.FC<TagGroupProps> = ({
         useState<TTag[]>(tags.content ?? [])
     const [reverseSorted, setReverseSorted] =
         useState(false)
+    const [maxHeightTagsContent, setMaxHeightTagsContent] =
+        useState<string>('256px')
 
     const inpRef = useRef<HTMLInputElement>(null)
     const svgArrowRef = useRef<SVGSVGElement>(null)
@@ -47,7 +52,6 @@ export const TagGroup: React.FC<TagGroupProps> = ({
 
     useEffect(() => {
         const {scrollHeight, clientHeight} = contTagRef.current!
-        console.log(scrollHeight, clientHeight)
         if (scrollHeight > clientHeight) {
             contTagRef.current!.style.borderBottomRightRadius = "0px"
         }
@@ -62,14 +66,27 @@ export const TagGroup: React.FC<TagGroupProps> = ({
         setReverseSorted(prevState => !prevState)
     };
 
+    const handleTurnHeight = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        setMaxHeightTagsContent(prevState => prevState === '256px'
+            ? '100%'
+            : '256px'
+        )
+    }
+
     return (
-        <div className="mb-3">
+        <div>
             <div className="bg-mainDark rounded-t-2xl text-white px-4 py-1 flex">
                 <h3>{name}</h3>
                 {isSorted &&
                     <button className="mx-2 w-5" onClick={handleClickSorted}>
                         <img src={dataGrid.sorted} alt="Sorted"/>
                     </button>}
+                {isResize &&
+                    <button className="w-5" onClick={handleTurnHeight}>
+                        <img src={tagsIcons.height} alt="Resize height"/>
+                    </button>
+                }
                 <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
                      width="24" className="fill-mainGray ml-auto transition-all origin-center ease-in-out duration-500"
                      ref={svgArrowRef}
@@ -91,7 +108,10 @@ export const TagGroup: React.FC<TagGroupProps> = ({
             </div>
             <div className="flex flex-wrap flex-grow border-[2px] items-center transition-all ease-in-out duration-500
                             border-solid border-mainDark rounded-b-3xl p-[10px] gap-[5px] relative
-                            overflow-y-auto max-h-36"
+                            overflow-y-auto"
+                 style={{
+                     maxHeight: maxHeightTagsContent
+                 }}
                  ref={contTagRef}
             >
                     <>

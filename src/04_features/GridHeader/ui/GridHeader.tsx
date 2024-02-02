@@ -4,8 +4,9 @@ import {IconButton} from "../../../06_shared/ui/button";
 import {IconInput} from "../../../06_shared/ui/input";
 import {ESizes} from "../model/sizes";
 import {TRenameFile, TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable";
+import {TImage} from "../../../05_entities/CreateTaskForm";
 
-type TRow = TRowMain | TRowRename | TRowReady | TRenameFile;
+type TRow = TRowMain | TRowRename | TRowReady | TRenameFile | TImage;
 
 
 type GridHeaderProps = {

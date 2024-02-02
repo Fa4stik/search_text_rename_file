@@ -114,23 +114,25 @@ export const RenameFile: React.FC<RenameFileProps> = ({
         <div className="flex-1 flex flex-col py-[10px] px-[30px] overflow-y-scroll">
             <div className="flex flex-col mb-[10px]">
                 <h3 className="text-xl mb-[5px]">Тэги</h3>
-                {groupTags.map((gTag, id) => (
-                    <TagGroup name={gTag.name} tags={gTag}
+                <div className="flex flex-col gap-y-3">
+                    {groupTags.map((gTag, id) => (
+                        <TagGroup name={gTag.name} tags={gTag}
+                                  handleClickTag={handleClickTag}
+                                  handleDelTag={(tag) => handleDelTag(tag, gTag.uid)}
+                                  handleSetTag={(tag) => handleSetTag(tag, gTag.uid)}
+                                  key={id}
+                                  lengthName={40}
+                                  isAddTag isDeleteTag isSorted isResize
+                        />
+                    ))}
+                    <TagGroup name={'Дата'}
+                        // count={1}
+                              tags={{} as TGroupTag}
+                              validator={validateDate}
                               handleClickTag={handleClickTag}
-                              handleDelTag={(tag) => handleDelTag(tag, gTag.uid)}
-                              handleSetTag={(tag) => handleSetTag(tag, gTag.uid)}
-                              key={id}
-                              lengthName={40}
-                              isAddTag isDeleteTag isSorted
+                              isDeleteTag isAddTag
                     />
-                ))}
-                <TagGroup name={'Дата'}
-                          // count={1}
-                          tags={{} as TGroupTag}
-                          validator={validateDate}
-                          handleClickTag={handleClickTag}
-                          isDeleteTag isAddTag
-                />
+                </div>
             </div>
             <div className="flex flex-col flex-grow items-start">
                 <h3 className="text-xl mb-[5px]">Новое название файла</h3>

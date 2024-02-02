@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {columnsRename, MainTableGrid, useReadyStore, useRenameStore} from "../../03_widgetes/MainTable";
 import {useNavigate} from "react-router-dom";
 import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
@@ -33,7 +33,7 @@ const RenamesPage = () => {
         delRow(id)
     }
 
-    const contextMenuParams: TContextMenuTypeParams = {
+    const contextMenuParams = useMemo<TContextMenuTypeParams>(() => ({
         cordY: 180,
         cordX: 90,
         contextMenuRow: [
@@ -41,7 +41,7 @@ const RenamesPage = () => {
             {id: '2', name: 'Выгрузить результат', onClick: handleUploadTask},
             {id: '3', name: 'Удалить', onClick: handleDelTask}
         ]
-    }
+    }), []);
 
     return (
         <div className="flex-grow px-[40px] pt-[25px] flex flex-col overflow-hidden">

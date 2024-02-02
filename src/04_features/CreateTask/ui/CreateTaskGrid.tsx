@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {GridHeader} from "../../GridHeader";
 import {columnsCreateTask} from "../../../03_widgetes/CreateTaskBlockInfo/model/gridStyles";
 import {BodyGrid, TContextMenuTypeParams, TRow} from "../../../05_entities/DataGrid";
@@ -14,6 +14,8 @@ export const CreateTaskGrid:
     React.FC<CreateTaskGridProps> = ({images,
                                          setImages,
                                          isLocalPath}) => {
+    const [sorted, setSorted] =
+        useState<boolean>()
 
     const handleDeleteContext = (e: React.MouseEvent<HTMLDivElement>, idCell: string) => {
         e.preventDefault()
@@ -22,18 +24,25 @@ export const CreateTaskGrid:
         )
     }
 
-    const contextMenu: TContextMenuTypeParams = {
+    const sortedFn = (compareFn: (a: TImage, b: TImage) => number) => {
+        setImages(prevState => prevState.sort(compareFn))
+        setSorted(prevState => !prevState)
+    }
+
+    const contextMenu = useMemo<TContextMenuTypeParams>(() => ({
         cordY: isLocalPath ? 300 : 350,
         cordX: 120,
         contextMenuRow: [
             {id: 1, name: 'Удалить', onClick: handleDeleteContext}
         ]
-    }
+    }), []);
 
     return (
         <div className="flex-grow flex flex-col overflow-hidden">
-            {/*release load more function*/}
-            <GridHeader sorted/>
+            <GridHeader sorted
+                        rows={images}
+                        sortedFn={sortedFn}
+            />
             <BodyGrid width={'100%'}
                       columns={columnsCreateTask}
                       rows={images.map((image, id) =>

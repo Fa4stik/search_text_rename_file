@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {columnsMain, MainTableGrid, useMainStore} from "../../03_widgetes/MainTable";
 import {useNavigate} from "react-router-dom";
 import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
@@ -22,7 +22,7 @@ const MainPage = () => {
         delMainRow(id)
     };
 
-    const contextMenuParams: TContextMenuTypeParams = {
+    const contextMenuParams = useMemo<TContextMenuTypeParams>(() => ({
         cordY: 180,
         cordX: 90,
         contextMenuRow: [
@@ -32,7 +32,7 @@ const MainPage = () => {
         contextMenuTable: [
             {id: '1', name: 'Создать задачу', onClick: onClickAddTask},
         ]
-    }
+    }), []);
 
     return (
         <div className="w-full h-full px-[40px] pt-[25px] flex flex-col">

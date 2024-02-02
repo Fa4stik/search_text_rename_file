@@ -60,33 +60,40 @@ export const FigureBlock: React.FC<FigureBlockProps> = ({
     };
 
     const rotateRect = (x1: number, y1: number, height: number, width: number,
-                        origHeightImg: number, origWidthImg: number) => {
+                        currOrigHeightImg: number, currOrigWidthImg: number) => {
+        console.log(rotate)
 
-        if (rotate === 270)
+        if ([90, 270].includes(rotate)) {
             width = [height, height = width][0]
+        }
 
-        if (rotate === 180)
-            y1 = origHeightImg - height
+        if (rotate === 270) {
+            x1 = currOrigHeightImg - width
+        }
+
+        if (rotate === 180) {
+            y1 = currOrigHeightImg - height
+            x1 = currOrigWidthImg - width
+        }
 
         if (rotate === 90) {
-            y1 = origWidthImg - width
-            width = [height, height = width][0]
+            y1 = currOrigWidthImg - height
         }
 
         return {x1, y1, width, height}
     }
 
-    const handleActiveFigure = (isRec: boolean, isRecRotate: boolean, isSquare: boolean) => {
-        setIsRec(isRec)
+    const handleActiveFigure = (isRecHor: boolean, isRecVer: boolean, isSquare: boolean) => {
+        setIsRec(isRecHor)
         setIsSquare(isSquare)
-        setIsRecRotate(isRecRotate)
+        setIsRecRotate(isRecVer)
         const sizeMyParent = parentRef.current!.getBoundingClientRect()
         const {width: sizeMyImgW, height: sizeMyImgH} = imgBlockRef.current!.getBoundingClientRect()
         const origWidthImg = sizeMyImgW / apiWheel.current[0].get().scale;
         const origHeightImg = sizeMyImgH / apiWheel.current[0].get().scale;
         const deltaDistance = 60;
 
-        if (isRec) {
+        if (isRecHor) {
             if (origWidthImg > origHeightImg) {
                 let x1 = 0, y1 = 0, height = origHeightImg, width = (3/2)*origHeightImg
 
@@ -118,7 +125,7 @@ export const FigureBlock: React.FC<FigureBlockProps> = ({
             }
         }
 
-        if (isRecRotate) {
+        if (isRecVer) {
             if (origWidthImg > origHeightImg) {
                 let x1 = 0, y1 = 0, height = origHeightImg, width = (2/3) * origHeightImg
 
@@ -127,7 +134,7 @@ export const FigureBlock: React.FC<FigureBlockProps> = ({
 
                 setImgRect({...updateCords})
                 setIsEmptyImgRect(false)
-                apiWheel({scale: (sizeMyParent.width - deltaDistance)/origWidthImg,
+                apiWheel({scale: (sizeMyParent.height - deltaDistance)/origHeightImg,
                     onChange: (result) => {
                         updateBounds(result.value.scale)
                     }

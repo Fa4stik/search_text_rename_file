@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {columnsReady, MainTableGrid, useReadyStore} from "../../03_widgetes/MainTable";
 import {TContextMenuTypeParams, TRow} from "../../05_entities/DataGrid";
 import {TRowReady} from "../../03_widgetes/MainTable/model/types";
@@ -17,14 +17,14 @@ const ReadyPage = () => {
         delRow(id)
     }
 
-    const contextMenuParams: TContextMenuTypeParams = {
+    const contextMenuParams = useMemo<TContextMenuTypeParams>(() => ({
         cordY: 180,
         cordX: 90,
         contextMenuRow: [
             {id: '1', name: 'Выгрузить результат', onClick: handleFullPath},
             {id: '2', name: 'Удалить', onClick: handleDelTask}
         ]
-    }
+    }), []);
 
     return (
         <div className="flex-grow px-[40px] pt-[25px] flex flex-col">
