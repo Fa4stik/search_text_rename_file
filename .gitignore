@@ -4,6 +4,7 @@
 /.idea
 
 /src/06_shared/ui/photos/assets/handlers
+./web
 
 # dependencies
 /node_modules

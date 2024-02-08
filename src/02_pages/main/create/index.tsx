@@ -39,7 +39,7 @@ const MainCreatePage = () => {
                 .then((resp) => {
                     let myInterval: NodeJS.Timer
 
-                    ws.current = new WebSocket(`ws://${process.env.REACT_APP_SERVER_PATH}/api/ws?` +
+                    ws.current = new WebSocket(`${process.env.REACT_APP_WS_PROTOCOL}://${process.env.REACT_APP_SERVER_PATH}:${process.env.REACT_APP_SERVER_PORT}/api/ws?` +
                         new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName}))
 
                     ws.current!.onopen = () => {

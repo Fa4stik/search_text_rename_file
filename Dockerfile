@@ -1,14 +1,21 @@
-FROM ubuntu:latest
+FROM alpine as builder
+WORKDIR /app
+COPY ./build ./build
+COPY ./web .
 
-WORKDIR /front
-COPY . /front
+FROM nginx:latest
+WORKDIR /usr/share/nginx/html
 
-RUN apt-get update && apt-get install -y ca-certificates curl gnupg
-RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-ARG NODE_MAJOR=20
-RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" > /etc/apt/sources.list.d/nodesource.list
-RUN apt-get update && apt-get install nodejs -y
+RUN rm -rf ./* && rm /etc/nginx/conf.d/default.conf
+RUN mkdir /etc/nginx/ssl && chmod 700 /etc/nginx/ssl
 
-RUN bash -c "npm i"
+COPY --from=builder /app/build/ .
+COPY --from=builder /app/nginx.conf.template /etc/nginx
+COPY --from=builder /app/carrotocr.crt /etc/nginx/ssl
+COPY --from=builder /app/carrotocr.key /etc/nginx/ssl
+COPY --from=builder /app/carrotocr.pem /etc/nginx/ssl
 
-EXPOSE 3000
+COPY --from=builder /app/load_config.sh /app/load_config.sh
+
+ENTRYPOINT ["/bin/sh", "-c", "/app/load_config.sh"]
+
