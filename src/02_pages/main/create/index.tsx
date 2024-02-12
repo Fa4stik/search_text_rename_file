@@ -16,6 +16,7 @@ import {
 } from "../../../05_entities/FetchPipeline";
 import {useNotifyStore} from "../../../05_entities/Notifications";
 import {useUserSettings} from "../../../05_entities/UserSettings";
+import {getEnv} from "../../../05_entities/FetchEnv";
 
 const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
@@ -35,61 +36,64 @@ const MainCreatePage = () => {
 
     const prcImg = (id: string, dateStart: Date) => {
         if (isLocalPath) {
-            uploadFiles(images.map(file => file.image as File), id)
-                .then((resp) => {
-                    let myInterval: NodeJS.Timer
+            getEnv().then(process => {
+                uploadFiles(images.map(file => file.image as File), id)
+                    .then((resp) => {
+                        let myInterval: NodeJS.Timer
 
-                    ws.current = new WebSocket(`${process.env.REACT_APP_WS_PROTOCOL}://${process.env.REACT_APP_SERVER_PATH}:${process.env.REACT_APP_SERVER_PORT}/api/ws?` +
-                        new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName}))
+                        ws.current = new WebSocket(`${process.env.REACT_APP_WS_PROTOCOL}://` +
+                            `${process.env.REACT_APP_SERVER_PATH}:${process.env.REACT_APP_SERVER_PORT}/api/ws?` +
+                                new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName}))
 
-                    ws.current!.onopen = () => {
-                        myInterval = setInterval(() => {
-                            ws.current!.send(JSON.stringify({action: 'ping'}))
-                        }, 5000)
-                    }
-
-                    ws.current!.onmessage = (mess) => {
-                        const resp: TRespSocket = JSON.parse(mess.data)
-
-                        if (resp.action === 'chunk') {
-                            const chunkResp = resp as (TProcessChunkResp & TRespSocket)
-                            setTimeout(() => {
-                                delMainRow(id)
-                                addRenameRow({
-                                    id,
-                                    name: nameTask,
-                                    countFiles: images.length.toString(),
-                                    sizeFiles: convertSize(images),
-                                    timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
-                                    renameFiles: chunkResp.results.map(process =>
-                                        ({
-                                            is_duplicate: false,
-                                            uid: process.uid,
-                                            dateEdit: convertDateFull(new Date()),
-                                            name: process.old_filename
-                                        })
-                                    ),
-                                })
-                            }, 1500)
+                        ws.current!.onopen = () => {
+                            myInterval = setInterval(() => {
+                                ws.current!.send(JSON.stringify({action: 'ping'}))
+                            }, 5000)
                         }
 
-                        if (resp.action === 'progress_bar') {
-                            const iterResp = resp as (TProcessDataMessage & TRespSocket)
-                            setLoading(id, Math.floor(((iterResp.iter+1) / iterResp.length)*100))
-                        }
-                    }
+                        ws.current!.onmessage = (mess) => {
+                            const resp: TRespSocket = JSON.parse(mess.data)
 
-                    ws.current!.onclose = (mess) => {
-                        if (mess.code !== 1000) {
-                            setStatus(id, 'Ошибка обработки')
-                            addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
+                            if (resp.action === 'chunk') {
+                                const chunkResp = resp as (TProcessChunkResp & TRespSocket)
+                                setTimeout(() => {
+                                    delMainRow(id)
+                                    addRenameRow({
+                                        id,
+                                        name: nameTask,
+                                        countFiles: images.length.toString(),
+                                        sizeFiles: convertSize(images),
+                                        timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
+                                        renameFiles: chunkResp.results.map(process =>
+                                            ({
+                                                is_duplicate: false,
+                                                uid: process.uid,
+                                                dateEdit: convertDateFull(new Date()),
+                                                name: process.old_filename
+                                            })
+                                        ),
+                                    })
+                                }, 1500)
+                            }
+
+                            if (resp.action === 'progress_bar') {
+                                const iterResp = resp as (TProcessDataMessage & TRespSocket)
+                                setLoading(id, Math.floor(((iterResp.iter+1) / iterResp.length)*100))
+                            }
                         }
 
-                        if (mess.code === 1000) {
-                            addNotification(notifications.length+1, 'Задача успешно обработана')
-                            clearInterval(myInterval)
+                        ws.current!.onclose = (mess) => {
+                            if (mess.code !== 1000) {
+                                setStatus(id, 'Ошибка обработки')
+                                addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
+                            }
+
+                            if (mess.code === 1000) {
+                                addNotification(notifications.length+1, 'Задача успешно обработана')
+                                clearInterval(myInterval)
+                            }
                         }
-                    }
+                    })
             })
         } else {
             processChunk(parseInt(id), settings.defaultModelName)
