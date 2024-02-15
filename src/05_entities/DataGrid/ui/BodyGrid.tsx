@@ -1,28 +1,33 @@
 import React, {useRef, useState} from 'react';
-import {TColumn, TRow} from "../model/gridTypes";
+import {TColumn, TRow, TRows} from "../model/gridTypes";
 import {TContextMenuTypeParams} from "../model/contextMenuType";
 import {ContextMenu} from "../../ContextMenu";
-import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable/model/types";
-import {ReactComponent} from "*.svg";
+import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable";
+import {TableRow} from "./TableRow";
 
 type BodyGridProps = {
     width?: string
     columns: TColumn[]
-    rows: TRowMain[] | TRowRename[] | TRowReady[] | TRow[]
-    rowOnClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
+    rows: TRows
+    setRows?: React.Dispatch<React.SetStateAction<TRows>>
+    rowOnClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string, pdf_id?: string) => void
     classStyles?: string;
     contextMenuOptionals?: TContextMenuTypeParams
     rowOnDoubleClick?: (e: React.MouseEvent<HTMLTableRowElement>, id: string) => void
     textEmptyTable?: string
 }
 
-export const BodyGrid: React.FC<BodyGridProps> = ({rows,
-         columns,
-         width,
-         rowOnClick, classStyles,
-                                                      contextMenuOptionals,
-                                                  rowOnDoubleClick,
-                                                  textEmptyTable}) => {
+export const BodyGrid: React.FC<BodyGridProps> = ({
+    rows,
+    setRows,
+    columns,
+    width,
+    rowOnClick,
+    classStyles,
+    contextMenuOptionals,
+    rowOnDoubleClick,
+    textEmptyTable
+}) => {
 
     const [activeRow, setActiveRow] = useState<string>('')
     const [contextMenu, setContextMenu] =
@@ -31,13 +36,13 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
 
     const tableScrollRef = useRef<HTMLDivElement>(null)
 
-    const handleChangeColor = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
+    const handleChangeColor = (e: React.MouseEvent<HTMLTableRowElement>, id: string, pdf_id?: string) => {
         e.preventDefault()
         e.stopPropagation();
         setActiveRow(id)
         setContextMenu(prevState => ({...prevState, visible: false}))
-        if (rowOnClick)
-            rowOnClick(e, id)
+        rowOnClick &&
+            rowOnClick(e, id, pdf_id)
     };
 
     const handleContextMenu = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
@@ -73,70 +78,39 @@ export const BodyGrid: React.FC<BodyGridProps> = ({rows,
              onContextMenu={handleContextMenuTable}
              onClick={handleCloseContextMenu}
         >
-            <table className={`bg-transparent border-separate border-spacing-0`}
+            <table className={`bg-transparent border-spacing-0 border-collapse`}
                    style={{
                 width,
             }}>
                 <thead className="sticky top-0 z-10">
                 <tr className="bg-mainGray/[0.3] backdrop-blur-md">
                     {columns.map(column => (
-                        column.width === '0'
-                            ?
-                                null
-                            :
-                                <th key={column.field} className={`py-[5px] border-b-[2px] border-solid border-mainDark`}
-                                    style={{width: column.width}}
-                                >
-                                    {column.nameHeader}
-                                </th>
+                        column.width !== '0' && (
+                            <th key={column.field} className={`py-[5px] border-b-[3px] border-solid border-mainDark`}
+                                style={{width: column.width}}
+                            >
+                                {column.nameHeader}
+                            </th>
+                        )
                     ))}
                 </tr>
                 </thead>
                 <tbody className="text-center">
                 {rows.map(row => (
-                    <React.Fragment key={row.id}>
-                        <tr key={row.id} className={`hover:bg-mainGreen/[0.5] focus:bg-mainGreen transition-all ease-out relative
-                        ${row.id === activeRow ? 'bg-mainGreen' : ''}`}
-                            onDoubleClick={(e) => {
-                                if (rowOnDoubleClick)
-                                    rowOnDoubleClick(e, row.id)
-                            }}
-                            onClickCapture={(e) => handleChangeColor(e, row.id)}
-                            onContextMenu={(e) => handleContextMenu(e, row.id)}
-                        >
-                            {columns.map(column => (
-                                column.width === '0'
-                                    ?
-                                    null
-                                    :
-                                    <td key={row.id + column.field}
-                                        className={`pt-[5px] ${row[column.field as keyof typeof row] === 'В процессе'
-                                        && 'animate-pulse'}
-                                            ${row[column.field as keyof typeof row] === 'Ошибка обработки'
-                                        && 'text-red-500'} `}
-                                    >
-                                        {row[column.field as keyof typeof row]}
-                                    </td>
-                            ))}
-                        </tr>
-                        {'loading' in row &&
-                            <tr className="relative">
-                                <div
-                                    className="h-[3px] w-1/2 bg-mainGreen absolute transition-all ease-in-out duration-1000"
-                                    style={{
-                                        width: `${row.loading}%`
-                                    }}
-                                />
-                            </tr>}
-                    </React.Fragment>
+                    <TableRow key={row.id} row={row} setRows={setRows}
+                              activeRow={activeRow}
+                              handleContextMenu={handleContextMenu}
+                              handleChangeColor={handleChangeColor}
+                              rowOnDoubleClick={rowOnDoubleClick}
+                              columns={columns}
+                    />
                 ))}
                 </tbody>
             </table>
-            {rows.length === 0
-                ? <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            {rows.length === 0 &&
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                     {textEmptyTable ?? 'Список пуст'}
-                </div>
-                : null}
+                </div>}
             {contextMenu.visible && contextMenuOptionals && (
                 <ContextMenu contextMenu={contextMenu}
                              cordY={contextMenuOptionals.cordY}

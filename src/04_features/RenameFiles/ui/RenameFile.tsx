@@ -5,10 +5,9 @@ import {useRenameStore} from "../../../03_widgetes/MainTable";
 import {convertDateFull} from "../../../05_entities/MainPage";
 import {validateName} from "../../CreateTask";
 import {TagGroup} from "../../../05_entities/RenameFiles";
-import {delTagById, getGroupTags, getTagsByGroup, TGroupTag, TTag} from "../../../05_entities/FetchTags";
+import {delTagById, getGroupTags, getTagsByGroup, TGroupTag} from "../../../05_entities/FetchTags";
 import {addFileName} from "../../../05_entities/FetchPipeline";
 import {setTag} from "../../../05_entities/FetchTags";
-import {delTagByName} from "../../../05_entities/FetchTags";
 import {validateDate} from "../lib/validateDate";
 import {useNotifyStore} from "../../../05_entities/Notifications";
 import {validateDuplicate} from "../lib/validateDuplicate";
@@ -76,13 +75,17 @@ export const RenameFile: React.FC<RenameFileProps> = ({
 
         setErrorNameFile('')
 
+        const typeFile = rows.find(row => row.uid === activeUid.toString())?.heirs
+            ? 'file'
+            : 'image'
+
         setRows(prevState => prevState.map(row =>
             row.uid === activeUid.toString()
                 ? {...row, name: nameFile, dateEdit: convertDateFull(new Date())}
                 : row
         ))
         setFileName(idTask!, activeUid, nameFile)
-        addFileName(activeUid, nameFile, false)
+        addFileName(activeUid, nameFile, false, typeFile)
             .then(resp => {
                 addNotification(notifications.length+1, 'Файл успешно переименован')
             })

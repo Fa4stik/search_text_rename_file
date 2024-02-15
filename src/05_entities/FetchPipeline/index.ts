@@ -5,4 +5,5 @@ export {getDataById} from './model/getDataById'
 export {processChunk} from './model/processChunk'
 export {processImage} from './model/processImage'
 export {uploadFile, uploadFiles} from './model/uploadFiles'
-export type {TImgSizes, TBbox, TProcessChunkResp, TProcessImgResp, TProcessDataMessage, TRespSocket} from './model/types'
+export type {TImgSizes, TBbox, TProcessChunkResp, TProcessImgResp, TProcessDataMessage, TRespSocket,
+TContentChunk, TContentChunkHeir} from './model/types'

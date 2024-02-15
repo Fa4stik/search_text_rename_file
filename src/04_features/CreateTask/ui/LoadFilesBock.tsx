@@ -23,7 +23,9 @@ export const LoadFilesBock:
     const loadFiles = (files: FileList) => {
         setImages([])
         if (files && files.length > 0) {
-            const imageFiles = Array.from(files).filter(file => file.type.includes('image'))
+            const imageFiles = Array.from(files)
+                .filter(file => ['image', 'pdf']
+                        .some(type => file.type.includes(type)))
 
             Array.from(imageFiles).forEach((file, id) => {
                 setImages(prevState => [...prevState,
@@ -39,7 +41,7 @@ export const LoadFilesBock:
 
     const handleLoadFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (files)
+        files &&
             loadFiles(files)
     };
 

@@ -64,14 +64,20 @@ const MainCreatePage = () => {
                                         countFiles: images.length.toString(),
                                         sizeFiles: convertSize(images),
                                         timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
-                                        renameFiles: chunkResp.results.map(process =>
-                                            ({
-                                                is_duplicate: false,
-                                                uid: process.uid,
-                                                dateEdit: convertDateFull(new Date()),
-                                                name: process.old_filename
-                                            })
-                                        ),
+                                        renameFiles: chunkResp.results.map(process => ({
+                                            is_duplicate: false,
+                                            uid: process.uid,
+                                            dateEdit: convertDateFull(new Date()),
+                                            heirs: process.heirs?.map(heir => ({
+                                                ...heir,
+                                                uid: heir.uid.toString(),
+                                                id: heir.uid.toString(),
+                                                name: heir.old_filename,
+                                                dateEdit: convertDateFull(new Date())
+                                            })),
+                                            isActive: false,
+                                            name: process.old_filename
+                                        })),
                                     })
                                 }, 1500)
                             }
@@ -105,14 +111,20 @@ const MainCreatePage = () => {
                         countFiles: images.length.toString(),
                         sizeFiles: convertSize(images),
                         timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
-                        renameFiles: respProcess.results.map(process =>
-                            ({
-                                is_duplicate: false,
-                                uid: process.uid,
-                                dateEdit: convertDateFull(new Date()),
-                                name: process.old_filename
-                            })
-                        )
+                        renameFiles: respProcess.results.map(process => ({
+                            is_duplicate: false,
+                            uid: process.uid,
+                            dateEdit: convertDateFull(new Date()),
+                            heirs: process.heirs?.map(heir => ({
+                                ...heir,
+                                uid: heir.uid.toString(),
+                                id: heir.uid.toString(),
+                                name: heir.old_filename,
+                                dateEdit: convertDateFull(new Date())
+                            })),
+                            isActive: false,
+                            name: process.old_filename
+                        }))
                     })
                 })
                 .catch(err => setStatus(id, 'Ошибка обработки'))

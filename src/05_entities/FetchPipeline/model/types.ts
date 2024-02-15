@@ -10,14 +10,42 @@ const fetchProcessChunk = {
     "chunk_id": 0,
     "results": [
         {
-            "uid": 0,
-            "old_filename": "string",
-            "duplicate_id": 0
+            "uid": 1,
+            "old_filename": "_311191_5.pdf",
+            "duplicate_id": -1,
+            "file_type": "file",
+            "heirs": {
+                "uid": 7,
+                "old_filename": "page_0.png",
+                "duplicate_id": -1
+            }
         }
     ]
 }
 
-export type TProcessChunkResp = typeof fetchProcessChunk
+const fetchContentChunkHeir = {
+    "uid": 7,
+    "old_filename": "page_0.png",
+    "duplicate_id": -1
+}
+
+export type TContentChunkHeir = typeof fetchContentChunkHeir
+
+const fetchContentChunk = {
+    "uid": 1,
+    "old_filename": "_311191_5.pdf",
+    "duplicate_id": -1,
+    "file_type": "file",
+}
+
+export type TContentChunk = typeof fetchContentChunk & {
+    heirs: TContentChunkHeir[] | null
+}
+
+export type TProcessChunkResp = {
+    chunk_id: number,
+    results: TContentChunk[]
+}
 
 const fetchProcessDataMessage = {
     "iter": 0, "length": 1, "message": "\u041e\u0431\u0440\u0430\u0431\u043e\u0442\u043a\u0430 \u043c\u043e\u0434\u0435\u043b\u044c\u044e."

@@ -1,3 +1,5 @@
+import {TContentChunkHeir} from "../../../05_entities/FetchPipeline";
+import {TRow} from "../../../05_entities/DataGrid";
 
 type TRowPage = {
     id: string;
@@ -18,6 +20,8 @@ export type TRenameFile = {
     name: string;
     dateEdit: string;
     is_duplicate: boolean;
+    isActive: boolean
+    heirs?: TRow[] | null
 }
 
 export type TRowRename = TRowPage & {

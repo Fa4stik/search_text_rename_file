@@ -82,7 +82,7 @@ const RenamesCurrentPage = () => {
         )
     }
 
-    const handleClickRow = (e: React.MouseEvent<HTMLTableRowElement>, id: string) => {
+    const handleClickRow = (e: React.MouseEvent<HTMLTableRowElement>, id: string, pdf_id?: string) => {
         e.preventDefault()
         setIsLoadingImgWrapper(false)
         setIsLoadingImg(true)
@@ -92,8 +92,32 @@ const RenamesCurrentPage = () => {
         setScale(1)
         setResetTools(prevState => !prevState)
 
-        const uid = parseInt(rows.find(row => row.id === id)!.uid)
-        const name = rows.find(row => row.id === id)!.name
+        if (pdf_id) {
+            const uid = parseInt(rows.find(row => row.id === pdf_id)!.uid!)
+            const name = rows.find(row => row.id === pdf_id)!.name!
+            setNameFile(name)
+            setActiveUid(uid)
+            getDataById(parseInt(id))
+                .then(resp => {
+                    setBboxes(resp.bboxes.map((bbox, id) =>
+                        ({...bbox, word: resp.text[id]})))
+                    setCurrRotate(resp.angle)
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+            getFile(parseInt(id), uid.toString())
+                .then(resp => {
+                    setSrcImg(resp+`?timestamp=${Date.now()}`)
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+            return
+        }
+
+        const uid = parseInt(rows.find(row => row.id === id)!.uid!)
+        const name = rows.find(row => row.id === id)!.name!
         setNameFile(name)
         setActiveUid(uid)
         getDataById(uid)
@@ -105,7 +129,7 @@ const RenamesCurrentPage = () => {
             .catch(err => {
                 console.log(err);
             })
-        getFile(uid)
+        getFile(uid, pdf_id)
             .then(resp => {
                 setSrcImg(resp+`?timestamp=${Date.now()}`)
             })
@@ -196,9 +220,10 @@ const RenamesCurrentPage = () => {
                              }}
                         >
                             <FilesBlock rows={rows.map(row =>
-                                ({...row, name: convertNameFile(row.name, 35, true)}))}
+                                ({...row, name: convertNameFile(row.name!, 35, true)}))}
                                         columns={columnsReadyFiles}
                                         rowOnClick={handleClickRow}
+                                        setRows={setRows}
                             />
                         </div>
                         <div className="w-full h-[6px] cursor-row-resize border-2 border-solid border-mainDark"
