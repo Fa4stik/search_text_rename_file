@@ -11,6 +11,8 @@ import {setTag} from "../../../05_entities/FetchTags";
 import {validateDate} from "../lib/validateDate";
 import {useNotifyStore} from "../../../05_entities/Notifications";
 import {validateDuplicate} from "../lib/validateDuplicate";
+import {editName} from "../../../06_shared/ui/icon";
+import {useRecognize} from "../lib/useRecognize";
 
 type RenameFileProps = {
     setRows: React.Dispatch<React.SetStateAction<TRow[]>>
@@ -37,6 +39,11 @@ export const RenameFile: React.FC<RenameFileProps> = ({
         useState<TGroupTag[]>([])
     const [errorNameFile, setErrorNameFile] =
         useState<string>('')
+
+    const { textRecognize, isListenRecognize,
+        startRecognize, stopRecognize,
+        isAvailableRecognize
+    } = useRecognize()
 
     useEffect(() => {
         getGroupTags()
@@ -113,6 +120,21 @@ export const RenameFile: React.FC<RenameFileProps> = ({
         setTag(newTag, groupId)
     }
 
+    const handleRecognize = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+
+        if (stopRecognize) {
+            isListenRecognize
+                ? stopRecognize()
+                : startRecognize()
+        }
+    };
+
+    useEffect(() => {
+        textRecognize &&
+            setNameFile(textRecognize)
+    }, [textRecognize]);
+
     return (
         <div className="flex-1 flex flex-col py-[10px] px-[30px] overflow-y-scroll">
             <div className="flex flex-col mb-[10px]">
@@ -139,13 +161,23 @@ export const RenameFile: React.FC<RenameFileProps> = ({
             </div>
             <div className="flex flex-col flex-grow items-start">
                 <h3 className="text-xl mb-[5px]">Новое название файла</h3>
-                <textarea name="" id="" placeholder="Новое название файла..."
-                          onChange={changeTextArea}
-                          value={nameFile}
-                          className={`mb-[10px] rounded-2xl border-[2px] py-[5px] px-[10px] h-full min-h-[60px] max-h-[100px]
-                              border-solid focus:outline-none w-full resize-none bg-transparent 
-                              ${errorNameFile ? 'border-red-400' : 'border-mainDark'}`}
-                />
+                <div className="relative w-full mb-[10px]">
+                    <textarea name="" id="" placeholder="Новое название файла..."
+                              onChange={changeTextArea}
+                              value={nameFile}
+                              className={`rounded-2xl border-[2px] py-[5px] px-[10px] h-full min-h-[60px] max-h-[100px]
+                              border-solid focus:outline-none w-full resize-none bg-transparent border-mainDark
+                              transition-all duration-700 ease-in-out
+                              ${isListenRecognize && 'border-mainGreen'}
+                              ${errorNameFile && 'border-red-400'}`}
+                    />
+                    {isAvailableRecognize && (
+                        <button className="p-2" onClick={handleRecognize}>
+                            <img src={isListenRecognize ? editName.micOn : editName.micOff}
+                                 alt="Microfon" className="absolute bottom-1 right-1"/>
+                        </button>
+                    )}
+                </div>
                 {errorNameFile &&
                     <p className="text-[13px] -mt-[5px] mb-[5px] ml-[10px] text-red-400">
                         *{errorNameFile}
