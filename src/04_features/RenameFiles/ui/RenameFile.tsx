@@ -42,7 +42,7 @@ export const RenameFile: React.FC<RenameFileProps> = ({
 
     const { textRecognize, isListenRecognize,
         startRecognize, stopRecognize,
-        isAvailableRecognize
+        isAvailableSpeech
     } = useRecognize()
 
     useEffect(() => {
@@ -171,7 +171,7 @@ export const RenameFile: React.FC<RenameFileProps> = ({
                               ${isListenRecognize && 'border-mainGreen'}
                               ${errorNameFile && 'border-red-400'}`}
                     />
-                    {isAvailableRecognize && (
+                    {isAvailableSpeech && (
                         <button className="p-2" onClick={handleRecognize}>
                             <img src={isListenRecognize ? editName.micOn : editName.micOff}
                                  alt="Microfon" className="absolute bottom-1 right-1"/>

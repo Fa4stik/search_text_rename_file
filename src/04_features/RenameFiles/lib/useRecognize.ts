@@ -7,9 +7,9 @@ export const useRecognize = () => {
         useState<string>('')
     const [isListenRecognize, setIsListenRecognize] =
         useState<boolean>(false)
-
-    const isAvailableRecognize = useMemo<boolean>(() =>
+    const isAvailableSpeech = useMemo<boolean>(() =>
         'webkitSpeechRecognition' in window, [])
+
 
     // initial config
     useEffect(() => {
@@ -29,11 +29,23 @@ export const useRecognize = () => {
                     .join()
                 )
             }
+
+            recognition.current.onstart = () => {
+                console.log('Recognition started');
+                // setPermissionDenied(false);
+            };
+
+            recognition.current.onerror = (event) => {
+                if (event.error === 'not-allowed') {
+                    setIsListenRecognize(true);
+                    stopRecognize()
+                }
+            };
         }
     }, []);
 
     if (!('webkitSpeechRecognition' in window))
-        return {}
+        return {isAvailableSpeech}
 
     const startRecognize = () => {
         if (recognition.current) {
@@ -55,6 +67,6 @@ export const useRecognize = () => {
         isListenRecognize,
         startRecognize,
         stopRecognize,
-        isAvailableRecognize
+        isAvailableSpeech
     }
 }
