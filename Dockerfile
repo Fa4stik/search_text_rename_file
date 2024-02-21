@@ -1,7 +1,7 @@
 FROM alpine as builder
 WORKDIR /app
-COPY ./build ./build
-COPY ./web .
+COPY build ./build
+COPY web .
 
 FROM nginx:latest
 WORKDIR /usr/share/nginx/html

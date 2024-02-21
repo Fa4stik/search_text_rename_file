@@ -1,4 +1,4 @@
-import React, {lazy} from 'react';
+import React, {lazy, useMemo} from 'react';
 import {Route, Routes} from 'react-router-dom';
 import LendingPage from "./lending";
 import MainPage from "./main";
@@ -8,6 +8,8 @@ import RenamesCurrentPage from "./renames/current";
 import ReadyPage from "./ready";
 import VersionPage from "./version";
 import NotFoundPage from "./notFound";
+import {AuthPage} from "./auth";
+import {MainHeader} from "../04_features/MainHeader";
 
 // const LendingPage = lazy(() => import('./lending'));
 // const MainPage = lazy(() => import("./main"))
@@ -18,17 +20,33 @@ import NotFoundPage from "./notFound";
 // const RenamesCurrentPage = lazy(() => import("./renames/current"))
 // const VersionPage = lazy(() => import("./version"))
 
+type TRoute = {
+    path: string
+    element: React.ReactElement
+}
+
 export const Routing = () => {
+    const routes = useMemo<TRoute[]>(() =>
+        [
+            {path: 'main', element: <MainPage/>},
+            {path: 'main/create', element: <MainCreatePage/>},
+            {path: 'renames', element: <RenamesPage/>},
+            {path: 'renames/:idTask', element: <RenamesCurrentPage/>},
+            {path: 'ready', element: <ReadyPage/>},
+            {path: 'version', element: <VersionPage/>},
+            {path: '*', element: <NotFoundPage/>},
+        ], [])
+
     return (
         <Routes>
             <Route path="" element={<LendingPage/>}/>
-            <Route path="main" element={<MainPage/>}/>
-            <Route path="main/create" element={<MainCreatePage/>}/>
-            <Route path="renames" element={<RenamesPage/>}/>
-            <Route path="renames/:idTask" element={<RenamesCurrentPage/>}/>
-            <Route path="ready" element={<ReadyPage/>}/>
-            <Route path="version" element={<VersionPage/>}/>
-            <Route path="*" element={<NotFoundPage/>}/>
+            <Route path="login" element={<AuthPage/>}/>
+            {routes.map((route, id) => (
+                <Route path={route.path}
+                       key={id+route.path}
+                       element={<MainHeader element={route.element}/>}
+                />
+            ))}
         </Routes>
     );
 };
