@@ -16,6 +16,7 @@ COPY --from=builder /app/carrotocr.key /etc/nginx/ssl
 COPY --from=builder /app/carrotocr.pem /etc/nginx/ssl
 
 COPY --from=builder /app/load_config.sh /app/load_config.sh
+RUN ["chmod", "+x", "/app/load_config.sh"]
 
 ENTRYPOINT ["/bin/sh", "-c", "/app/load_config.sh"]
 
