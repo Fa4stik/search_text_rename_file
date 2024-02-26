@@ -1,8 +1,9 @@
-import React, {useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {createTask} from "../../../06_shared/ui/icon";
 import {TRow} from "../../../05_entities/DataGrid";
 import {TImage} from "../../../05_entities/CreateTaskForm";
 import {convertNameFile} from "../lib/convertNameFile";
+import {getFilesExtention} from "../../../05_entities/FetchWorkWithData";
 
 declare module "react" {
     interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -14,17 +15,20 @@ type LoadFilesBockProps = {
     setImages: React.Dispatch<React.SetStateAction<TImage[]>>
 }
 
-export const LoadFilesBock:
-    React.FC<LoadFilesBockProps> = ({setImages}) => {
+export const LoadFilesBock: React.FC<LoadFilesBockProps> = ({
+    setImages
+}) => {
 
     const inputFolder = useRef<HTMLInputElement>(null)
     const buttonRef = useRef<HTMLButtonElement>(null)
+    const [fileExtentions, setFileExtentions] =
+        useState<string[]>([])
 
     const loadFiles = (files: FileList) => {
         setImages([])
         if (files && files.length > 0) {
             const imageFiles = Array.from(files)
-                .filter(file => ['image', 'pdf']
+                .filter(file => fileExtentions
                         .some(type => file.type.includes(type)))
 
             Array.from(imageFiles).forEach((file, id) => {
@@ -51,6 +55,12 @@ export const LoadFilesBock:
         loadFiles(files)
     };
 
+    useEffect(() => {
+        getFilesExtention()
+            .then(resp => setFileExtentions(resp))
+            .catch(err => console.log(err))
+    }, []);
+
     return (
         <div className="flex-grow pb-[15px] flex"
              onDragEnter={(e) =>
@@ -74,7 +84,12 @@ export const LoadFilesBock:
                     }}
             >
                 <img src={createTask.upload} alt="Choose folder"/>
-                <p className="text-xl">Выберите папку / Перетащите файл(ы)</p>
+                <div className="flex flex-col justify-center items-center">
+                    <p className="text-xl">
+                        Выберите папку / Перетащите файл(ы)
+                    </p>
+                    <p>Поддерживаемые форматы: {fileExtentions.map(ext => '*.' + ext).join(', ')}</p>
+                </div>
             </button>
             <input type="file" hidden
                    ref={inputFolder}

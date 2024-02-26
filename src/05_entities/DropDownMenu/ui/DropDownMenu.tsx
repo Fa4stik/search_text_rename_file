@@ -8,10 +8,12 @@ type DropDownMenuProps = {
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const DropDownMenu: React.FC<DropDownMenuProps> = ({options,
-                                                              setIsActiveRefresh,
-                                                          handleChoseOption,
-                                                              setIsEdit}) => {
+export const DropDownMenu: React.FC<DropDownMenuProps> = ({
+    options,
+    setIsActiveRefresh,
+    handleChoseOption,
+    setIsEdit
+}) => {
     const handleChooseOption = (e: React.MouseEvent<HTMLSpanElement>, value: string | number) => {
         e.preventDefault()
         setIsActiveRefresh(false)

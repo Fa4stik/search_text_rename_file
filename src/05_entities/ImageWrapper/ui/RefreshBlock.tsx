@@ -28,7 +28,7 @@ export const RefreshBlock: React.FC<RefreshBlockProps> = ({
             <img src={imageWrapper.refresh} alt="Regenerate" className="h-full w-[30px]"
                  onClick={handleRefresh}
             />
-            {isActiveRefresh && <div className="absolute bottom-[55px] right-0 translate-x-1/3 z-50">
+            {isActiveRefresh && <div className="absolute bottom-[55px] right-1/2 translate-x-1/2 z-50 w-[260px]">
                 <DropDownMenu options={models}
                               setIsActiveRefresh={setIsActiveRefresh}
                               handleChoseOption={handleChoseOption}

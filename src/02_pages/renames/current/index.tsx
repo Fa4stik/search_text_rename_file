@@ -12,6 +12,7 @@ import {getOcrModels} from "../../../05_entities/FetchOCR";
 import {getFile} from "../../../05_entities/FetchWorkWithData";
 import {useImgStore} from "../../../05_entities/ImageWrapper";
 import {useUserSettings} from "../../../05_entities/UserSettings";
+import {useNotifyStore} from "../../../05_entities/Notifications";
 
 type PageParams = {
     idTask: string
@@ -23,6 +24,7 @@ const RenamesCurrentPage = () => {
     const {rows: renamesRows, updateUid, sortedFiles} = useRenameStore()
     const {settings: {widthRename, heightRename}, setHeightRename, setWidthRename} = useUserSettings()
     const {setLastScale, setScale, setBounds, setCord} = useImgStore()
+    const {addNotification, notifications} = useNotifyStore()
 
     const [rows, setRows] = useState<TRow[]>(renamesRows.find(rR =>
         rR.id === idTask)!.renameFiles
@@ -53,6 +55,8 @@ const RenamesCurrentPage = () => {
         useState<boolean>(false)
     const [isLoadingImg, setIsLoadingImg] =
         useState<boolean>(true)
+    const [activePdfPageUid, setActivePdfPageUid] =
+        useState<string>('')
 
     const resizeRowRef = useRef<HTMLDivElement>(null)
     const resizeColRef = useRef<HTMLDivElement>(null)
@@ -84,6 +88,7 @@ const RenamesCurrentPage = () => {
 
     const handleClickRow = (e: React.MouseEvent<HTMLTableRowElement>, id: string, pdf_id?: string) => {
         e.preventDefault()
+        setActivePdfPageUid(id)
         setIsLoadingImgWrapper(false)
         setIsLoadingImg(true)
         setLastScale(0)
@@ -165,11 +170,15 @@ const RenamesCurrentPage = () => {
 
     const handleRegenerateImg = (e: React.MouseEvent<HTMLSpanElement>, ocr_type_model: string | number) => {
         setIsLoadingImgWrapper(true)
+        let localActiveUid = activeUid
+        rows.find(row => row.uid === activeUid.toString())?.heirs &&
+            (localActiveUid = Number(activePdfPageUid))
+        setBboxes([])
         setResetTools(prevState => !prevState)
-        processImage(activeUid, ocr_type_model.toString(),
+        processImage(localActiveUid, ocr_type_model.toString(),
             currRotate, currCrop, imgRect)
             .then(resp => {
-                updateUid(activeUid, resp.uid)
+                updateUid(localActiveUid, resp.uid)
                 setActiveUid(resp.uid)
                 getDataById(resp.uid)
                     .then(resp => {
@@ -178,18 +187,23 @@ const RenamesCurrentPage = () => {
                         setCurrRotate(resp.angle)
                     })
                     .catch(err => {
-                        console.log(err);
+                        setIsLoadingImgWrapper(false)
+                        addNotification(notifications.length+1, 'Ошибка получения ббоксов', true)
                     })
                 getFile(resp.uid)
                     .then(resp => {
                         // setSrcImg(resp + `?timestamp=${Date.now()}`)
                     })
                     .catch(err => {
-                        console.log(err);
+                        setIsLoadingImgWrapper(false)
+                        addNotification(notifications.length+1, 'Ошибка получения файла', true)
                     })
                 setIsLoadingImgWrapper(false)
             })
-            .catch(err => console.log(err))
+            .catch(err => {
+                setIsLoadingImgWrapper(false)
+                addNotification(notifications.length+1, 'Ошибка регенерации', true)
+            })
     }
 
     // get models
