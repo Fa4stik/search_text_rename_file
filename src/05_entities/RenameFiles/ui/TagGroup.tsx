@@ -1,14 +1,17 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {TGroupTag, TTag} from "../../FetchTags";
+import {setTag, TGroupTag, TTag} from "../../FetchTags";
 import {dataGrid, tagsIcons} from "../../../06_shared/ui/icon";
-import {useSpring} from "react-spring";
+import {downloadFile} from "../lib/downloadFile";
+import {useNotifyStore} from "../../Notifications";
 
 type TagGroupProps = {
     name: string
     tags: TGroupTag
+    groupId: number
     handleSetTag?: (newTag: string) => void
     isDeleteTag?: boolean
     isAddTag?: boolean
+    isUnloading?: boolean
     handleClickTag: (tag: string) => void
     handleDelTag?: (tag: number) => void
     isShowTags?: boolean
@@ -22,8 +25,10 @@ type TagGroupProps = {
 export const TagGroup: React.FC<TagGroupProps> = ({
     name,
     isDeleteTag,
+    isUnloading,
     isAddTag,
     tags,
+    groupId,
     handleSetTag,
     handleDelTag,
     handleClickTag,
@@ -45,6 +50,9 @@ export const TagGroup: React.FC<TagGroupProps> = ({
     const inpRef = useRef<HTMLInputElement>(null)
     const svgArrowRef = useRef<SVGSVGElement>(null)
     const contTagRef = useRef<HTMLDivElement>(null)
+    const fileUploadRef = useRef<HTMLInputElement>(null)
+
+    const {addNotification, notifications} = useNotifyStore()
 
     useEffect(() => {
         inpRef.current && inpRef.current.focus()
@@ -74,8 +82,49 @@ export const TagGroup: React.FC<TagGroupProps> = ({
         )
     }
 
+    const handleUploadTags = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault()
+        if (e.target.files && e.target.files.length > 0) {
+            const reader = new FileReader()
+            reader.readAsText(Array.from(e.target.files)[0])
+            reader.onload = () => {
+                const uploadTags = JSON.parse(reader.result as string) as TTag[]
+
+                if (localTags.length === 0) {
+                    setLocalTags(uploadTags)
+                    uploadTags.forEach(tag =>
+                        setTag(tag.tag, groupId))
+                    return;
+                }
+
+                uploadTags.filter(tag => tag.group_id === groupId)
+
+                const uniqValues = new Set<string>(localTags.map(tag => tag.tag))
+                uploadTags.map(tag => {
+                    console.log(uniqValues.has(tag.tag))
+                    if (!uniqValues.has(tag.tag)) {
+                        setLocalTags(prevState => [...prevState, tag])
+                        setTag(tag.tag, groupId)
+                    }
+                })
+            }
+        }
+    };
+
+    const handleDownloadTags = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        const contentJSON = JSON.stringify(localTags)
+        downloadFile(contentJSON, 'application/json', `${name}Tags`)
+            .then(() =>
+                addNotification(notifications.length, 'Теги успешно выгружены'))
+    };
+
     return (
         <div>
+            <input type="file" accept="application/json" className="hidden"
+                   multiple={false} ref={fileUploadRef}
+                   onChange={handleUploadTags}
+            />
             <div className="bg-mainDark rounded-t-2xl text-white px-4 py-1 flex">
                 <h3>{name}</h3>
                 {isSorted &&
@@ -88,24 +137,38 @@ export const TagGroup: React.FC<TagGroupProps> = ({
                         <img src={tagsIcons.height} alt="Resize height"/>
                     </button>
                 }
-                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
-                     width="24" className="fill-mainGray ml-auto transition-all origin-center ease-in-out duration-500"
-                     ref={svgArrowRef}
-                     onClick={() => {
-                         const currRotate = svgArrowRef.current!.style.rotate
-                         if (currRotate === '-180deg') {
-                             svgArrowRef.current!.style.rotate = '0deg'
-                             contTagRef.current!.style.maxHeight = '500px'
-                             contTagRef.current!.style.padding = '10px'
-                         } else {
-                             svgArrowRef.current!.style.rotate = '-180deg'
-                             contTagRef.current!.style.maxHeight = '0px'
-                             contTagRef.current!.style.padding = '0px'
-                         }
-                     }}
-                >
-                    <path d="M480-360 280-560h400L480-360Z"/>
-                </svg>
+                <div className="ml-auto flex gap-x-2">
+                    {isUnloading && (
+                        <>
+                            <button title="Выгрузить" onClick={() => fileUploadRef.current &&
+                                fileUploadRef.current.click()}
+                            >
+                                <img src={tagsIcons.upload} alt="Upload tags"/>
+                            </button>
+                            <button title="Скачать" onClick={handleDownloadTags}>
+                                <img src={tagsIcons.download} alt="Download tags"/>
+                            </button>
+                        </>
+                    )}
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
+                         width="24" className="fill-mainGray transition-all origin-center ease-in-out duration-500"
+                         ref={svgArrowRef}
+                         onClick={() => {
+                             const currRotate = svgArrowRef.current!.style.rotate
+                             if (currRotate === '-180deg') {
+                                 svgArrowRef.current!.style.rotate = '0deg'
+                                 contTagRef.current!.style.maxHeight = '500px'
+                                 contTagRef.current!.style.padding = '10px'
+                             } else {
+                                 svgArrowRef.current!.style.rotate = '-180deg'
+                                 contTagRef.current!.style.maxHeight = '0px'
+                                 contTagRef.current!.style.padding = '0px'
+                             }
+                         }}
+                    >
+                        <path d="M480-360 280-560h400L480-360Z"/>
+                    </svg>
+                </div>
             </div>
             <div className="flex flex-wrap flex-grow border-[2px] items-center transition-all ease-in-out duration-500
                             border-solid border-mainDark rounded-b-3xl p-[10px] gap-[5px] relative
@@ -115,13 +178,13 @@ export const TagGroup: React.FC<TagGroupProps> = ({
                  }}
                  ref={contTagRef}
             >
-                    <>
-                        {localTags.map((tag, id) => count
+                <>
+                    {localTags.map((tag, id) => count
                             ? id < count && (
-                                <div key={id} className="bg-mainTags/[0.3] py-[2px] px-[7px]
+                            <div key={id} className="bg-mainTags/[0.3] py-[2px] px-[7px]
                                         rounded-2xl cursor-pointer relative"
-                                     onClick={(e) => handleClickTag(tag.tag)}
-                                >
+                                 onClick={(e) => handleClickTag(tag.tag)}
+                            >
                                 {tag.tag}
                                 {isDeleteTag &&
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"

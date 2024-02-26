@@ -40,7 +40,7 @@ export const Routing = () => {
     return (
         <Routes>
             <Route path="" element={<LendingPage/>}/>
-            <Route path="login" element={<AuthPage/>}/>
+            <Route path="auth" element={<AuthPage/>}/>
             {routes.map((route, id) => (
                 <Route path={route.path}
                        key={id+route.path}

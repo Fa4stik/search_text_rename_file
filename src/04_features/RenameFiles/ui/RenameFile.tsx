@@ -145,9 +145,10 @@ export const RenameFile: React.FC<RenameFileProps> = ({
                                   handleClickTag={handleClickTag}
                                   handleDelTag={(tag) => handleDelTag(tag, gTag.uid)}
                                   handleSetTag={(tag) => handleSetTag(tag, gTag.uid)}
+                                  groupId={gTag.uid}
                                   key={id}
                                   lengthName={40}
-                                  isAddTag isDeleteTag isSorted isResize
+                                  isAddTag isDeleteTag isSorted isResize isUnloading
                         />
                     ))}
                     <TagGroup name={'Дата'}
@@ -155,6 +156,7 @@ export const RenameFile: React.FC<RenameFileProps> = ({
                               tags={{} as TGroupTag}
                               validator={validateDate}
                               handleClickTag={handleClickTag}
+                              groupId={333}
                               isDeleteTag isAddTag
                     />
                 </div>

@@ -9,14 +9,16 @@ const VersionPage: React.FC<VersionPageProps> = ({}) => {
         useState('')
 
     useEffect(() => {
-        getEnv().then(process => {
-            fetch(`${process.env.REACT_APP_API_PROTOCOL}://` +
-            `${process.env.REACT_APP_SERVER_PATH}:${process.env.REACT_APP_SERVER_PORT}/api/get-backend-version/`)
-                .then(resp => resp.json())
-                .then(answer => {
-                    setBackVersion(answer)
-                })
-        })
+        getEnv()
+            .then(process => {
+                fetch([
+                    window.location.protocol, '//',
+                    process.env.REACT_APP_SERVER_PATH, ':',
+                    process.env.REACT_APP_SERVER_PORT, '/api/get-backend-version/'
+                ].join(''))
+                    .then(resp => resp.json())
+                    .then(answer => setBackVersion(answer))
+            })
     }, []);
 
     return (

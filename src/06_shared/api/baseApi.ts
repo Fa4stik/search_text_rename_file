@@ -5,7 +5,7 @@ const getBaseUrl = (): Promise<string> => {
         getEnv()
             .then((process) => {
                 const baseUrl = [
-                    process.env.REACT_APP_API_PROTOCOL, "://",
+                    window.location.protocol, "//",
                     process.env.REACT_APP_SERVER_PATH, ":",
                     process.env.REACT_APP_SERVER_PORT, "/api"
                 ].join('');

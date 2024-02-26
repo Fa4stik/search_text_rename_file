@@ -41,9 +41,16 @@ const MainCreatePage = () => {
                     .then((resp) => {
                         let myInterval: NodeJS.Timer
 
-                        ws.current = new WebSocket(`${process.env.REACT_APP_WS_PROTOCOL}://` +
-                            `${process.env.REACT_APP_SERVER_PATH}:${process.env.REACT_APP_SERVER_PORT}/api/ws?` +
-                                new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName}))
+                        const wsProtocol = window.location.protocol === "http:"
+                            ? 'ws'
+                            : 'wss'
+
+                        ws.current = new WebSocket([
+                            wsProtocol, '://',
+                            process.env.REACT_APP_SERVER_PATH, ':',
+                            process.env.REACT_APP_SERVER_PORT, '/api/ws?',
+                            new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName})
+                        ].join(''))
 
                         ws.current!.onopen = () => {
                             myInterval = setInterval(() => {
