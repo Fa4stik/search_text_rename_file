@@ -1,6 +1,6 @@
 FROM node:latest as node
 WORKDIR /app
-COPY .. .
+COPY . .
 RUN npm i --force
 RUN npm run build
 
