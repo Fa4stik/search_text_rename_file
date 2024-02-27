@@ -3,6 +3,7 @@ import {columnsRename, MainTableGrid, useReadyStore, useRenameStore} from "../..
 import {useNavigate} from "react-router-dom";
 import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
 import {archiveChunk} from "../../05_entities/FetchPipeline";
+import {getEnv} from "../../05_entities/FetchEnv";
 
 const RenamesPage = () => {
     const navigate = useNavigate()
@@ -22,8 +23,22 @@ const RenamesPage = () => {
         e.preventDefault()
         const nameTask = rows.find(row => row.id === id)!.name
         archiveChunk(id, encodeURI(nameTask))
-            .then(resp => {
-                window.open(resp)
+            .then(pathToFile => {
+                getEnv()
+                    .then(process => {
+                        let isSsl = false
+
+                        window.location.protocol === 'https:' &&
+                            (isSsl = true)
+
+                        window.open([
+                            window.location.protocol, '//',
+                            process.env.REACT_APP_SERVER_PATH, ':',
+                            isSsl ? process.env.REACT_APP_SERVER_PORT_SSL : process.env.REACT_APP_SERVER_PORT,
+                            pathToFile
+                        ].join(''))
+                    })
+                // window.open(resp)
             })
             .catch(err => console.log(err))
     }
