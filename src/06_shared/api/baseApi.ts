@@ -4,10 +4,15 @@ const getBaseUrl = (): Promise<string> => {
     return new Promise((resolve) => {
         getEnv()
             .then((process) => {
+                let isSsl = false
+
+                window.location.protocol === 'https:' &&
+                    (isSsl = true)
+
                 const baseUrl = [
                     window.location.protocol, "//",
                     process.env.REACT_APP_SERVER_PATH, ":",
-                    process.env.REACT_APP_SERVER_PORT, "/api"
+                    isSsl ? process.env.REACT_APP_SERVER_PORT_SSL : process.env.REACT_APP_SERVER_PORT, "/api"
                 ].join('');
                 resolve(baseUrl)
             })

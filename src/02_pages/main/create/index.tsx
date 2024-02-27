@@ -41,14 +41,15 @@ const MainCreatePage = () => {
                     .then((resp) => {
                         let myInterval: NodeJS.Timer
 
-                        const wsProtocol = window.location.protocol === "http:"
-                            ? 'ws'
-                            : 'wss'
+                        let isSsl = false;
+
+                        window.location.protocol === "https:" &&
+                            (isSsl = true)
 
                         ws.current = new WebSocket([
-                            wsProtocol, '://',
+                            isSsl ? 'wss' : 'ws', '://',
                             process.env.REACT_APP_SERVER_PATH, ':',
-                            process.env.REACT_APP_SERVER_PORT, '/api/ws?',
+                            isSsl ? process.env.REACT_APP_SERVER_PORT_SSL : process.env.REACT_APP_SERVER_PORT, '/api/ws?',
                             new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName})
                         ].join(''))
 
