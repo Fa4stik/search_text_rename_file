@@ -3,7 +3,7 @@ import {createTask} from "../../../06_shared/ui/icon";
 import {TRow} from "../../../05_entities/DataGrid";
 import {TImage} from "../../../05_entities/CreateTaskForm";
 import {convertNameFile} from "../lib/convertNameFile";
-import {getFilesExtention} from "../../../05_entities/FetchWorkWithData";
+import {getFilesExtention, getImagesExtension} from "../../../05_entities/FetchWorkWithData";
 
 declare module "react" {
     interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -21,14 +21,17 @@ export const LoadFilesBock: React.FC<LoadFilesBockProps> = ({
 
     const inputFolder = useRef<HTMLInputElement>(null)
     const buttonRef = useRef<HTMLButtonElement>(null)
-    const [fileExtentions, setFileExtentions] =
+
+    const [fileExtensions, setFileExtensions] =
+        useState<string[]>([])
+    const [imageExtensions, setImageExtensions] =
         useState<string[]>([])
 
     const loadFiles = (files: FileList) => {
         setImages([])
         if (files && files.length > 0) {
             const imageFiles = Array.from(files)
-                .filter(file => fileExtentions
+                .filter(file => fileExtensions.concat(imageExtensions)
                         .some(type => file.type.includes(type)))
 
             Array.from(imageFiles).forEach((file, id) => {
@@ -57,7 +60,11 @@ export const LoadFilesBock: React.FC<LoadFilesBockProps> = ({
 
     useEffect(() => {
         getFilesExtention()
-            .then(resp => setFileExtentions(resp))
+            .then(resp => setFileExtensions(resp))
+            .catch(err => console.log(err))
+
+        getImagesExtension()
+            .then(resp => setImageExtensions(resp))
             .catch(err => console.log(err))
     }, []);
 
@@ -84,11 +91,14 @@ export const LoadFilesBock: React.FC<LoadFilesBockProps> = ({
                     }}
             >
                 <img src={createTask.upload} alt="Choose folder"/>
-                <div className="flex flex-col justify-center items-center">
+                <div className="flex flex-col justify-center items-center px-20">
                     <p className="text-xl">
                         Выберите папку / Перетащите файл(ы)
                     </p>
-                    <p>Поддерживаемые форматы: {fileExtentions.map(ext => '*.' + ext).join(', ')}</p>
+                    <p>Поддерживаемые форматы: {fileExtensions
+                        .concat(imageExtensions)
+                        .map(ext => '*.' + ext)
+                        .join(', ')}</p>
                 </div>
             </button>
             <input type="file" hidden

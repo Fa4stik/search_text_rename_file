@@ -39,8 +39,6 @@ export const MainTableGrid: React.FC<MainTableGridProps> = ({
 
     return (
         <>
-            {/*nameHandle*/}
-            {/*search*/}
             <GridHeader sorted
                         rows={rows}
                         sortedFn={sorted}

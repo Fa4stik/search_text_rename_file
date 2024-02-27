@@ -3,6 +3,7 @@ import {setTag, TGroupTag, TTag} from "../../FetchTags";
 import {dataGrid, tagsIcons} from "../../../06_shared/ui/icon";
 import {downloadFile} from "../lib/downloadFile";
 import {useNotifyStore} from "../../Notifications";
+import {validateName} from "../../../04_features/CreateTask";
 
 type TagGroupProps = {
     name: string
@@ -233,6 +234,11 @@ export const TagGroup: React.FC<TagGroupProps> = ({
                                         <input type="text" className="outline-none border-none bg-transparent w-1"
                                                ref={inpRef}
                                                onChange={(e) => {
+                                                   if (!validateName(e.target.value)) {
+                                                       e.target.value = e.target.value.slice(0, -1)
+                                                       return
+                                                   }
+
                                                    if (lengthName && e.target.value.length >= lengthName+1) {
                                                        e.target.value = e.target.value.slice(0, -1)
                                                        return
