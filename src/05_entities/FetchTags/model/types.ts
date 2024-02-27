@@ -1,11 +1,18 @@
 const fetchGetGroupTags = [
     {
         "uid": 1,
-        "name": "Что-то второе"
+        "name": "Масштаб",
+        "is_local": false
     },
     {
         "uid": 2,
-        "name": "Масштаб"
+        "name": "Название",
+        "is_local": false
+    },
+    {
+        "uid": null,
+        "name": "Дата",
+        "is_local": true
     }
 ]
 
@@ -30,7 +37,8 @@ export type TTag = {
 }
 
 export type TGroupTag = {
-    uid: number,
+    uid: number | null,
     name: string,
+    is_local: boolean
     content: TTag[]
 }

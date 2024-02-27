@@ -264,7 +264,7 @@ export const TagGroup: React.FC<TagGroupProps> = ({
 
                                                    setLocalTags(prevState => [...prevState, {
                                                        tag: e.target.value,
-                                                       group_id: tags.uid,
+                                                       group_id: tags.uid ?? 0,
                                                        uid: tags?.content?.length+1 ?? 1
                                                    }])
                                                    handleSetTag && handleSetTag(e.target.value)

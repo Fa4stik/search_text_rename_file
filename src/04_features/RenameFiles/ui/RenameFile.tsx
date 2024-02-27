@@ -48,14 +48,14 @@ export const RenameFile: React.FC<RenameFileProps> = ({
     useEffect(() => {
         getGroupTags()
             .then(groupTagsResp => {
-                const tagPromises = groupTagsResp.map(gTag =>
-                    getTagsByGroup(gTag.uid)
+                const tagPromises = groupTagsResp.map(gTag => !gTag.is_local
+                    ? gTag.uid && getTagsByGroup(gTag.uid)
                         .then((resp): TGroupTag => ({
-                            uid: gTag.uid,
-                            name: gTag.name,
+                            ...gTag,
                             content: resp.tags ?? []
                         }))
                         .catch(err => console.log(err))
+                    : new Promise((resolve) => resolve({...gTag, uid: -1, content: []} as TGroupTag))
                 );
                 return Promise.all(tagPromises);
             })
@@ -140,25 +140,24 @@ export const RenameFile: React.FC<RenameFileProps> = ({
             <div className="flex flex-col mb-[10px]">
                 <h3 className="text-xl mb-[5px]">Тэги</h3>
                 <div className="flex flex-col gap-y-3">
-                    {groupTags.map((gTag, id) => (
-                        <TagGroup name={gTag.name} tags={gTag}
+                    {groupTags.map((gTag, id) => !gTag.is_local
+                    ? (<TagGroup name={gTag.name} tags={gTag}
                                   handleClickTag={handleClickTag}
-                                  handleDelTag={(tag) => handleDelTag(tag, gTag.uid)}
-                                  handleSetTag={(tag) => handleSetTag(tag, gTag.uid)}
-                                  groupId={gTag.uid}
+                                  handleDelTag={(tag) => handleDelTag(tag, gTag.uid ?? 0)}
+                                  handleSetTag={(tag) => handleSetTag(tag, gTag.uid ?? 0)}
+                                  groupId={gTag.uid ?? 0}
                                   key={id}
                                   lengthName={40}
                                   isAddTag isDeleteTag isSorted isResize isUnloading
-                        />
-                    ))}
-                    <TagGroup name={'Дата'}
-                        // count={1}
-                              tags={{} as TGroupTag}
-                              validator={validateDate}
-                              handleClickTag={handleClickTag}
-                              groupId={333}
-                              isDeleteTag isAddTag
-                    />
+                        />)
+                    : (<TagGroup name={gTag.name}
+                                 tags={{} as TGroupTag}
+                                 validator={validateDate}
+                                 handleClickTag={handleClickTag}
+                                 groupId={333}
+                                 isDeleteTag isAddTag
+                       />)
+                    )}
                 </div>
             </div>
             <div className="flex flex-col flex-grow items-start">
