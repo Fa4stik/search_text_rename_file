@@ -1,6 +1,7 @@
 import React from 'react';
 import {TColumn, TRow, TRows} from "../model/gridTypes";
 import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable";
+import {BlockInfo, useGuideStore} from "../../Guide";
 
 type TableRowProps = {
     row: TRow | TRowMain | TRowRename | TRowReady
@@ -21,11 +22,14 @@ export const TableRow: React.FC<TableRowProps> = ({
     handleChangeColor,
     handleContextMenu,
 }) => {
-    
+
+    const {statePages: {isMain}} = useGuideStore()
+
     return (
         <>
             <tr key={row.id} className={`hover:bg-mainGreen/[0.5] focus:bg-mainGreen transition-all ease-out relative
             ${'isActive' in row && row.isActive && row.heirs && 'border-b-[1.5px] border-solid border-b-mainGreen/[0.6]'}
+            ${isMain && 'bg-mainWhite z-[130]'}
             ${row.id === activeRow && 'bg-mainGreen'}`}
                 onDoubleClick={(e) => {
                     rowOnDoubleClick &&
@@ -61,6 +65,13 @@ export const TableRow: React.FC<TableRowProps> = ({
                     )
                 ))}
             </tr>
+            {isMain && (
+                <tr className="relative">
+                    <BlockInfo className={'z-[130] absolute left-1/2 top-2 -translate-x-1/2'} top>
+                        Информация по обрабатываемой задачи
+                    </BlockInfo>
+                </tr>
+            )}
             {'isActive' in row && row.isActive && row.heirs && (
                 row.heirs.map(heir => (
                     <tr key={heir.uid} className={`hover:bg-mainGreen/[0.5] focus:bg-mainGreen transition-all ease-out relative bg-mainTags/[0.2]
@@ -94,6 +105,11 @@ export const TableRow: React.FC<TableRowProps> = ({
                     />
                 </tr>
             }
+            {isMain && (
+                <div className="absolute left-0 top-0">
+
+                </div>
+            )}
         </>
     );
 };

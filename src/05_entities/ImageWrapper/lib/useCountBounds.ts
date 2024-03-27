@@ -5,10 +5,9 @@ import {useImgStore} from "./useImgStore";
 
 type useCountBoundsProps = Pick<countNewBoundsProps, 'imgBlockRef' | 'parentRef' | 'apiDrag'>
 
-export const useCountBounds =
-    ({
-         ...props
-     }: useCountBoundsProps) => {
+export const useCountBounds = ({
+    ...props
+}: useCountBoundsProps) => {
         const {setBounds, cord: {x, y}, scale, currRotate} = useImgStore()
 
         const updateBounds = () =>

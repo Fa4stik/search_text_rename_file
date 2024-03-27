@@ -4,6 +4,7 @@ import {TActivePage} from "../model/types";
 
 type State = {
     statePages: TActivePage
+    isSomeActive: boolean
 }
 
 type Actions = {
@@ -14,6 +15,7 @@ export const useGuideStore = create<State & Actions>()(
     devtools(
         persist(
             (set) => ({
+                isSomeActive: false,
                 statePages: {
                     isMain: false,
                     isMainCreate: false,
@@ -21,10 +23,14 @@ export const useGuideStore = create<State & Actions>()(
                     isRenamesCurr: false
                 },
                 setActivePage: (page, newState) => set(state => ({
-                    statePages: Object.fromEntries(Object.keys(state.statePages).map(statePage => statePage === page
-                        ? [page, newState]
-                        : [statePage, false]
-                    )) as TActivePage
+                    isSomeActive: newState,
+                    statePages: Object.fromEntries(Object
+                        .keys(state.statePages)
+                        .map(statePage => statePage === page
+                            ? [page, newState]
+                            : [statePage, false]
+                        )
+                    ) as TActivePage
                 }))
             }), {name: 'useGuideStore'}
         )

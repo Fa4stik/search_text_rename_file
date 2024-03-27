@@ -141,12 +141,12 @@ export const TagGroup: React.FC<TagGroupProps> = ({
                 <div className="ml-auto flex gap-x-2">
                     {isUnloading && (
                         <>
-                            <button title="Выгрузить" onClick={() => fileUploadRef.current &&
+                            <button title="Загрузить" onClick={() => fileUploadRef.current &&
                                 fileUploadRef.current.click()}
                             >
                                 <img src={tagsIcons.upload} alt="Upload tags"/>
                             </button>
-                            <button title="Скачать" onClick={handleDownloadTags}>
+                            <button title="Сохранить" onClick={handleDownloadTags}>
                                 <img src={tagsIcons.download} alt="Download tags"/>
                             </button>
                         </>

@@ -1,9 +1,8 @@
 import React, {useMemo} from 'react';
-import {columnsRename, MainTableGrid, useReadyStore, useRenameStore} from "../../03_widgetes/MainTable";
+import {columnsRename, MainTableGrid, useRenameStore} from "../../03_widgetes/MainTable";
 import {useNavigate} from "react-router-dom";
 import {TContextMenuTypeParams} from "../../05_entities/DataGrid";
 import {archiveChunk} from "../../05_entities/FetchPipeline";
-import {getEnv} from "../../05_entities/FetchEnv";
 
 const RenamesPage = () => {
     const navigate = useNavigate()
@@ -24,21 +23,11 @@ const RenamesPage = () => {
         const nameTask = rows.find(row => row.id === id)!.name
         archiveChunk(id, encodeURI(nameTask))
             .then(pathToFile => {
-                getEnv()
-                    .then(process => {
-                        let isSsl = false
-
-                        window.location.protocol === 'https:' &&
-                            (isSsl = true)
-
-                        window.open([
-                            window.location.protocol, '//',
-                            process.env.REACT_APP_SERVER_PATH, ':',
-                            isSsl ? process.env.REACT_APP_SERVER_PORT_SSL : process.env.REACT_APP_SERVER_PORT,
-                            pathToFile
-                        ].join(''))
-                    })
-                // window.open(resp)
+                window.open([
+                    window.location.protocol, '//',
+                    process.env.REACT_APP_SERVER_PATH ?? window.location.host,
+                    pathToFile
+                ].join(''))
             })
             .catch(err => console.log(err))
     }

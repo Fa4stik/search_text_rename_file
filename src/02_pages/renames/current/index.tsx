@@ -136,6 +136,7 @@ const RenamesCurrentPage = () => {
             })
         getFile(uid, pdf_id)
             .then(resp => {
+                console.log(resp)
                 setSrcImg(resp+`?timestamp=${Date.now()}`)
             })
             .catch(err => {

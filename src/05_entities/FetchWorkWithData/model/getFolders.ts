@@ -3,7 +3,7 @@ import {TGetFoldersResp} from "./types";
 
 export const getFolders = (path: string, count = -1): Promise<TGetFoldersResp> => {
     const bodyQuery = {path, count}
-    return baseApi<TGetFoldersResp>('/get-folders', {
+    return baseApi<TGetFoldersResp>('/get-folders/', {
         method: 'POST',
         body: JSON.stringify(bodyQuery),
     })

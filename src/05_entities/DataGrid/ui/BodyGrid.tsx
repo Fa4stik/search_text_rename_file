@@ -1,9 +1,10 @@
-import React, {useRef, useState} from 'react';
-import {TColumn, TRow, TRows} from "../model/gridTypes";
+import React, {useEffect, useRef, useState} from 'react';
+import {TColumn, TRows} from "../model/gridTypes";
 import {TContextMenuTypeParams} from "../model/contextMenuType";
 import {ContextMenu} from "../../ContextMenu";
-import {TRowMain, TRowReady, TRowRename} from "../../../03_widgetes/MainTable";
+import {TRowReady} from "../../../03_widgetes/MainTable";
 import {TableRow} from "./TableRow";
+import {useGuideStore} from "../../Guide";
 
 type BodyGridProps = {
     width?: string
@@ -35,6 +36,8 @@ export const BodyGrid: React.FC<BodyGridProps> = ({
     const [isRowContextMenu, setIsRowContextMenu] = useState<boolean>(true)
 
     const tableScrollRef = useRef<HTMLDivElement>(null)
+
+    const {isSomeActive} = useGuideStore()
 
     const handleChangeColor = (e: React.MouseEvent<HTMLTableRowElement>, id: string, pdf_id?: string) => {
         e.preventDefault()
@@ -71,6 +74,22 @@ export const BodyGrid: React.FC<BodyGridProps> = ({
             ? setContextMenu(prevState => ({...prevState, visible: false}))
             : setContextMenu({visible: true, x: e.clientX, y: e.clientY + tableScrollRef.current!.scrollTop})
     };
+
+    useEffect(() => {
+        if (!isSomeActive) {
+            setContextMenu(prevState => ({
+                ...prevState,
+                visible: false
+            }))
+            return
+        }
+
+        setContextMenu({
+            visible: true,
+            x: 500,
+            y: 500
+        })
+    }, [isSomeActive]);
 
     return (
         <div className={`flex-grow bg-mainGray overflow-y-scroll relative select-none ${classStyles}`}

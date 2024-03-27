@@ -5,7 +5,6 @@ import {withProviders} from "./providers";
 import {Routing} from "../02_pages";
 import {Notifications} from "../05_entities/Notifications";
 
-
 const App = () => {
     return (
         <div className="app scrollbar h-screen max-w-screen font-rubikRg

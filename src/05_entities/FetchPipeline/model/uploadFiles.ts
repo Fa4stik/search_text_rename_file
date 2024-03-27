@@ -5,7 +5,7 @@ export const uploadFile = (file: File, chunk_id: string): Promise<TUploadFilesRe
     const formData = new FormData()
     formData.append('files', file)
     return new Promise((resolve, reject) => {
-        baseApiMultipart<TUploadFilesResp>('/upload-files?'+new URLSearchParams({chunk_id}), {
+        baseApiMultipart<TUploadFilesResp>('/upload-files/?'+new URLSearchParams({chunk_id}), {
             method: 'POST',
             body: formData,
         })
@@ -16,9 +16,9 @@ export const uploadFile = (file: File, chunk_id: string): Promise<TUploadFilesRe
     })
 }
 
-export const uploadFiles = (files: FileList | File[], id: string, success: TUploadFilesResp[] = []): Promise<TUploadFilesResp[]> =>
+export const uploadFiles = (files: FileList | File[], id: string, success: TUploadFilesResp[] = [], count = 0): Promise<TUploadFilesResp[]> =>
     new Promise((resolve) => {
-        if (files.length === 0)
+        if (files.length === 0 || count >= 3)
             return resolve(success)
         const promisesFiles = Array.from(files).map(file => uploadFile(file, id))
         return Promise
@@ -39,6 +39,6 @@ export const uploadFiles = (files: FileList | File[], id: string, success: TUplo
                             resolve(Array.from(rejectedes))
                         }
                     })
-                }).then(rejects => resolve(uploadFiles(rejects, id, success)))
+                }).then(rejects => resolve(uploadFiles(rejects, id, success, ++count)))
             )
     })

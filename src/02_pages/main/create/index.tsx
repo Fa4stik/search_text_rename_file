@@ -11,12 +11,12 @@ import {
     getChunkId,
     processChunk,
     TProcessChunkResp,
-    TProcessDataMessage, TRespSocket,
+    TProcessDataMessage,
+    TRespSocket,
     uploadFiles
 } from "../../../05_entities/FetchPipeline";
 import {useNotifyStore} from "../../../05_entities/Notifications";
 import {useUserSettings} from "../../../05_entities/UserSettings";
-import {getEnv} from "../../../05_entities/FetchEnv";
 
 const MainCreatePage = () => {
     const [images, setImages] = useState<TImage[]>([])
@@ -36,79 +36,76 @@ const MainCreatePage = () => {
 
     const prcImg = (id: string, dateStart: Date) => {
         if (isLocalPath) {
-            getEnv().then(process => {
-                uploadFiles(images.map(file => file.image as File), id)
-                    .then((resp) => {
-                        let myInterval: NodeJS.Timer
+            uploadFiles(images.map(file => file.image as File), id)
+                .then((resp) => {
+                    let myInterval: NodeJS.Timeout
 
-                        let isSsl = false;
+                    let isSsl = false;
 
-                        window.location.protocol === "https:" &&
-                            (isSsl = true)
+                    window.location.protocol === "https:" &&
+                        (isSsl = true)
 
-                        ws.current = new WebSocket([
-                            isSsl ? 'wss' : 'ws', '://',
-                            process.env.REACT_APP_SERVER_PATH, ':',
-                            isSsl ? process.env.REACT_APP_SERVER_PORT_SSL : process.env.REACT_APP_SERVER_PORT, '/api/ws?',
-                            new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName})
-                        ].join(''))
+                    ws.current = new WebSocket([
+                        isSsl ? 'wss' : 'ws', '://',
+                        process.env.REACT_APP_SERVER_PATH ?? window.location.host, '/api/ws?',
+                        new URLSearchParams({chunk_id: id, ocr_model_type: settings.defaultModelName})
+                    ].join(''))
 
-                        ws.current!.onopen = () => {
-                            myInterval = setInterval(() => {
-                                ws.current!.send(JSON.stringify({action: 'ping'}))
-                            }, 5000)
-                        }
+                    ws.current!.onopen = () => {
+                        myInterval = setInterval(() => {
+                            ws.current!.send(JSON.stringify({action: 'ping'}))
+                        }, 5000)
+                    }
 
-                        ws.current!.onmessage = (mess) => {
-                            const resp: TRespSocket = JSON.parse(mess.data)
+                    ws.current!.onmessage = (mess) => {
+                        const resp: TRespSocket = JSON.parse(mess.data)
 
-                            if (resp.action === 'chunk') {
-                                const chunkResp = resp as (TProcessChunkResp & TRespSocket)
-                                setTimeout(() => {
-                                    delMainRow(id)
-                                    addRenameRow({
-                                        id,
-                                        name: nameTask,
-                                        countFiles: images.length.toString(),
-                                        sizeFiles: convertSize(images),
-                                        timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
-                                        renameFiles: chunkResp.results.map(process => ({
-                                            is_duplicate: false,
-                                            uid: process.uid,
-                                            dateEdit: convertDateFull(new Date()),
-                                            heirs: process.heirs?.map(heir => ({
-                                                ...heir,
-                                                uid: heir.uid.toString(),
-                                                id: heir.uid.toString(),
-                                                name: heir.old_filename,
-                                                dateEdit: convertDateFull(new Date())
-                                            })),
-                                            isActive: false,
-                                            name: process.old_filename
+                        if (resp.action === 'chunk') {
+                            const chunkResp = resp as (TProcessChunkResp & TRespSocket)
+                            setTimeout(() => {
+                                delMainRow(id)
+                                addRenameRow({
+                                    id,
+                                    name: nameTask,
+                                    countFiles: images.length.toString(),
+                                    sizeFiles: convertSize(images),
+                                    timeHandle: convertTime((Date.now() - dateStart.getTime())/1000),
+                                    renameFiles: chunkResp.results.map(process => ({
+                                        is_duplicate: false,
+                                        uid: process.uid,
+                                        dateEdit: convertDateFull(new Date()),
+                                        heirs: process.heirs?.map(heir => ({
+                                            ...heir,
+                                            uid: heir.uid.toString(),
+                                            id: heir.uid.toString(),
+                                            name: heir.old_filename,
+                                            dateEdit: convertDateFull(new Date())
                                         })),
-                                    })
-                                }, 1500)
-                            }
-
-                            if (resp.action === 'progress_bar') {
-                                const iterResp = resp as (TProcessDataMessage & TRespSocket)
-                                setLoading(id, Math.floor(((iterResp.iter+1) / iterResp.length)*100))
-                            }
+                                        isActive: false,
+                                        name: process.old_filename
+                                    })),
+                                })
+                            }, 1500)
                         }
 
-                        ws.current!.onclose = (mess) => {
-                            if (mess.code !== 1000) {
-                                setStatus(id, 'Ошибка обработки')
-                                addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
-                            }
-
-                            if (mess.code === 1000) {
-                                addNotification(notifications.length+1, 'Задача успешно обработана')
-                                clearInterval(myInterval)
-                            }
+                        if (resp.action === 'progress_bar') {
+                            const iterResp = resp as (TProcessDataMessage & TRespSocket)
+                            setLoading(id, Math.floor(((iterResp.iter+1) / iterResp.length)*100))
                         }
-                    })
-            })
+                    }
+
+                    ws.current!.onclose = (mess) => {
+                        if (mess.code !== 1000) {
+                            setStatus(id, 'Ошибка обработки')
+                            addNotification(notifications.length+1, 'Возникла ошибка при обработке', true)
+                        }
+
+                        if (mess.code === 1000) {
+                            addNotification(notifications.length+1, 'Задача успешно обработана')
+                            clearInterval(myInterval)
+                        }
+                    }
+                })
         } else {
             processChunk(parseInt(id), settings.defaultModelName)
                 .then(respProcess => {

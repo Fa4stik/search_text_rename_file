@@ -152,15 +152,16 @@ export const ImageWrapper: React.FC<ImageWrapperProps> = ({
     }
 
     const rotatePoint = (x: number, y: number, centerx: number, centery: number, degrees: number) => {
-        const newx = (x - centerx) * Math.cos(degrees * Math.PI / 180) +
-            (y - centery) * Math.sin(degrees * Math.PI / 180) + centerx;
-        const newy = -(x - centerx) * Math.sin(degrees * Math.PI / 180) +
-            (y - centery) * Math.cos(degrees * Math.PI / 180) + centery;
+        const theta = degrees * Math.PI / 180
+        const newx = (x - centerx) * Math.cos(theta) +
+            (y - centery) * Math.sin(theta) + centerx;
+        const newy = -(x - centerx) * Math.sin(theta) +
+            (y - centery) * Math.cos(theta) + centery;
         return [newx, newy];
     }
 
     const rotRect = (x: number, y: number) => {
-        let theta = currRotate * (Math.PI / 180);
+        let theta = currRotate * Math.PI / 180;
         return {
             x: x * Math.cos(theta) - y * Math.sin(theta),
             y: x * Math.sin(theta) + y * Math.cos(theta)

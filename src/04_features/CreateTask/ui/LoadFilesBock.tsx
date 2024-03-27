@@ -32,7 +32,7 @@ export const LoadFilesBock: React.FC<LoadFilesBockProps> = ({
         if (files && files.length > 0) {
             const imageFiles = Array.from(files)
                 .filter(file => fileExtensions.concat(imageExtensions)
-                        .some(type => file.type.includes(type)))
+                        .some(type => file.name.split('.').at(-1) === type))
 
             Array.from(imageFiles).forEach((file, id) => {
                 setImages(prevState => [...prevState,
